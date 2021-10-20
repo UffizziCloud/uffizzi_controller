@@ -1,0 +1,428 @@
+definitions:
+  http.ApplyConfigFileRequest:
+    properties:
+      config_file:
+        type: string
+    type: object
+  http.ApplyResourceRequest:
+    properties:
+      resource:
+        type: string
+    type: object
+  http.applyContainersRequest:
+    properties:
+      containers:
+        type: string
+      credentials:
+        type: string
+      deployment_url:
+        type: string
+      resources:
+        type: string
+    type: object
+  http.deploymentRequest:
+    properties:
+      kind:
+        type: string
+    type: object
+  requests.GetContainersUsageMetricsRequestSpec:
+    properties:
+      begin_at:
+        example: 2020-14-07T15:058:05Z07:00
+        type: string
+      deployment_ids[]:
+        items:
+          type: string
+        type: array
+      end_at:
+        example: 2020-14-07T16:58:05Z07:00
+        type: string
+    type: object
+  types.Credential:
+    properties:
+      id:
+        type: integer
+      password:
+        type: string
+      registry_url:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact:
+    email: admin@uffizzi.cloud
+    name: Uffizzi Pro Support
+    url: https://support.uffizzi.com/
+  description: |
+    This controller runs within your Kubernetes Cluster and listens for declarative and imperative commands and queries from the Uffizzi Pro Portal.
+
+    Direct API access is also supported.
+
+    All API HTTP Requests must include RFC 7617 headers for HTTP Basic Authentication, e.g. `Authorization: Basic <base64(username:password)>`
+  license: {}
+  title: Uffizzi Pro Controller
+  version: "1.0"
+paths:
+  /:
+    get:
+      description: welcome page and heartbeat
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: OK
+  /default_ingress/service:
+    get:
+      description: Get the Default Ingress that handles most incoming requests.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
+  /deployments/{deploymentId}:
+    delete:
+      description: Delete Kubernetes Namespace and all Resources within.
+      parameters:
+      - description: unique Uffizzi Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "204":
+          description: No Content (success)
+        "500":
+          description: most internal errors
+      security:
+      - BasicAuth: []
+    get:
+      description: Fetch the Kubernetes Namespace for a specified Uffizzi Deployment.
+      parameters:
+      - description: unique Uffizzi Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
+    post:
+      description: Create Kubernetes Namespace for a new Uffizzi Deployment.
+      parameters:
+      - description: unique Uffizzi Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: Uffizzi Deployment Specification
+        in: body
+        name: spec
+        required: true
+        schema:
+          $ref: '#/definitions/http.deploymentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created successfully
+        "500":
+          description: most internal errors
+      security:
+      - BasicAuth: []
+    put:
+      consumes:
+      - application/json
+      description: Update Kubernetes Namespace.
+      parameters:
+      - description: unique Uffizzi Deployment ID
+        in: path
+        name: Id
+        required: true
+        type: integer
+      - description: Uffizzi Deployment specification
+        in: body
+        name: spec
+        required: true
+        schema:
+          $ref: '#/definitions/http.deploymentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most internal errors
+      security:
+      - BasicAuth: []
+  /deployments/{deploymentId}/config_files/{configFileId}:
+    post:
+      description: create config file
+      parameters:
+      - description: Config file ID
+        in: path
+        name: configFileId
+        required: true
+        type: integer
+      - description: Specification
+        in: body
+        name: spec
+        required: true
+        schema:
+          $ref: '#/definitions/http.ApplyConfigFileRequest'
+      responses:
+        "200": {}
+  /deployments/{deploymentId}/containers:
+    get:
+      description: Fetch metadata on all containers specified by a Deployment.
+      parameters:
+      - description: unique Uffizzi Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
+    post:
+      description: Create or Update containers within a Deployment.
+      parameters:
+      - description: unique Uffizzi Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: container specification
+        in: body
+        name: spec
+        required: true
+        schema:
+          $ref: '#/definitions/http.applyContainersRequest'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
+  /deployments/{deploymentId}/containers/{containerName}/logs:
+    get:
+      description: Fetch logs for a specific container.
+      parameters:
+      - description: unique Uffizzi Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: container name
+        in: path
+        name: containerName
+        required: true
+        type: string
+      - description: maximum number of lines to return
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
+  /deployments/{deploymentId}/containers/metrics:
+    get:
+      description: Fetch metrics for all containers within a Deployment.
+      parameters:
+      - description: unique Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
+  /deployments/{deploymentId}/credentials:
+    post:
+      consumes:
+      - application/json
+      description: Add or Update credential within a Deployment.
+      parameters:
+      - description: unique Uffizzi Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: credential specification
+        in: body
+        name: spec
+        required: true
+        schema:
+          $ref: '#/definitions/types.Credential'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created successfully
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
+  /deployments/{deploymentId}/credentials/{credentialId}:
+    delete:
+      description: Delete credential from a Deployment.
+      parameters:
+      - description: unique Uffizzi Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: сredential ID
+        in: path
+        name: credentialId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: no content (success)
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
+  /deployments/{deploymentId}/services:
+    get:
+      description: Get Kubernetes Service Resources for a Uffizzi Deployment.
+      parameters:
+      - description: unique Uffizzi Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
+  /deployments/usage_metrics/containers:
+    get:
+      description: Fetch memory usage for all containers within a Deployment.
+      parameters:
+      - example: 2020-14-07T15:058:05Z07:00
+        in: query
+        name: begin_at
+        type: string
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: deployment_ids[]
+        type: array
+      - example: 2020-14-07T16:58:05Z07:00
+        in: query
+        name: end_at
+        type: string
+      - example: 2020-14-07T15:058:05Z07:00
+        in: query
+        name: begin_at
+        type: string
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: deployment_ids[]
+        type: array
+      - example: 2020-14-07T16:58:05Z07:00
+        in: query
+        name: end_at
+        type: string
+      - example: 2020-14-07T15:058:05Z07:00
+        in: query
+        name: begin_at
+        type: string
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: deployment_ids[]
+        type: array
+      - example: 2020-14-07T16:58:05Z07:00
+        in: query
+        name: end_at
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
+  /nodes:
+    get:
+      description: Fetch list of Kubernetes nodes.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
+  /resources/{resourceId}:
+    post:
+      description: Create or update Uffizzi Resource.
+      parameters:
+      - description: unique Uffizzi Resource ID
+        in: path
+        name: resourceId
+        required: true
+        type: integer
+      - description: Uffizzi Resource specification
+        in: body
+        name: spec
+        required: true
+        schema:
+          $ref: '#/definitions/http.ApplyResourceRequest'
+      responses:
+        "200":
+          description: OK
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

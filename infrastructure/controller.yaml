@@ -1,0 +1,133 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    email: admin@example.com
+    preferredChain: ""
+    privateKeySecretRef:
+      name: letsencrypt-issuer-account-key
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: uffizzi-controller
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: uffizzi-controller
+  namespace: uffizzi-controller
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: uffizzi-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: uffizzi-controller
+    namespace: uffizzi-controller
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: uffizzi-controller
+  namespace: uffizzi-controller
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt"
+spec:
+  rules:
+  - host: uffizzi-controller.app.example.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: uffizzi-controller
+          servicePort: 8080
+  tls:
+  - hosts:
+    - uffizzi-controller.app.example.com
+    secretName: uffizzi-controller.app.example.com
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: uffizzi-controller
+  namespace: uffizzi-controller
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: uffizzi-controller
+  sessionAffinity: None
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: uffizzi-controller
+  name: uffizzi-controller
+  namespace: uffizzi-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: uffizzi-controller
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: uffizzi-controller
+    spec:
+      automountServiceAccountToken: true
+      serviceAccountName: uffizzi-controller
+      enableServiceLinks: true
+      shareProcessNamespace: false
+      containers:
+      - envFrom:
+        - secretRef:
+            name: controller-secret-envs
+            optional: false
+        image: gcr.io/uffizzi-pro-production-gke/uffizzi-controller:latest
+        imagePullPolicy: Always
+        name: controller
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 100m
+            memory: 192Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: controller-secret-envs
+  namespace: uffizzi-controller
+type: Opaque
+data:
+  CONTROLLER_LOGIN: dXNlcg==
+  CONTROLLER_PASSWORD: cGFzc3dvcmQ=
+  ENV: ZGV2ZWxvcG1lbnQ=
+  CERT_MANAGER_CLUSTER_ISSUER: bGV0c2VuY3J5cHQ=

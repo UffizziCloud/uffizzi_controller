@@ -1,0 +1,49 @@
+base: &base
+  namespace_name_prefix: ${CONTROLLER_NAMESPACE_NAME_PREFIX:-deployment}
+  managed_application: uffizzi
+  controller_port: 8080
+  controller_login: ${CONTROLLER_LOGIN}
+  controller_password: ${CONTROLLER_PASSWORD}
+  max_count_process_environment_jobs: 100
+  customer_default_replication_factor: 1
+  customer_production_replication_factor: 2
+  count_displayed_entries_for_logs_output: 50
+  resource_request_back_off_period: 10s
+  pod_cidr: ${POD_CIDR:-10.24.0.0/14}
+  pool_machine_total_cpu_millicores: ${POOL_MACHINE_TOTAL_CPU_MILLICORES:-2000}
+  pool_machine_total_memory_bytes: ${POOL_MACHINE_TOTAL_MEMORY_BYTES:-17179869184}
+  default_autoscaling_cpu_threshold: ${DEFAULT_AUTOSCALING_CPU_THRESHOLD:-75}
+  default_autoscaling_cpu_threshold_epsilon: ${DEFAULT_AUTOSCALING_CPU_THRESHOLD_EPSILON:-8}
+  autoscaling_max_performance_replicas: ${AUTOSCALING_MAX_PERFORMANCE_REPLICAS:-10}
+  autoscaling_min_performance_replicas: ${AUTOSCALING_MIN_PERFORMANCE_REPLICAS:-1}
+  autoscaling_max_enterprise_replicas: ${AUTOSCALING_MAX_ENTERPRISE_REPLICAS:-30}
+  autoscaling_min_enterprise_replicas: ${AUTOSCALING_MIN_ENTERPRISE_REPLICAS:-3}
+  startup_probe_delay_seconds: ${STARTUP_PROBE_DELAY_SECONDS:-10}
+  startup_probe_failure_threshold: ${STARTUP_PROBE_FAILURE_THRESHOLD:-80}
+  startup_probe_period_seconds: ${STARTUP_PROBE_PERIOD_SECONDS:-15}
+  ephemeral_storage_coefficient: ${EPHEMERAL_STORAGE_COEFFICIENT:-1.9}
+  cert_manager_cluster_issuer: ${CERT_MANAGER_CLUSTER_ISSUER:-letsencrypt}
+  ingress_default_port: 443
+  service_checks:
+    ip_timeout: 180s
+    ip_ping_timeout: 600s
+    availability_timeout: 600s
+    await_status_timeout: 600s
+    per_address_attempts: 180
+    per_address_timeout: 600s
+
+
+test:
+  <<: *base
+
+development:
+  <<: *base
+
+qa:
+  <<: *base
+
+staging:
+  <<: *base
+
+production:
+  <<: *base

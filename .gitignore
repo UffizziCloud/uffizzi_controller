@@ -1,0 +1,5 @@
+/.idea
+credentials/
+.devcontainer.json
+.swp
+**/secrets.env

@@ -1,0 +1,30 @@
+version: "3.7"
+
+services:
+  controller:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - ./credentials/token:/var/run/secrets/kubernetes.io/serviceaccount/token
+      - ./credentials/ca.crt:/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    command: ["bash", "-c", "go run /app/cmd/controller"]
+    environment:
+      CERT_MANAGER_CLUSTER_ISSUER: zerossl
+    env_file:
+      - credentials/variables.env
+
+  toolbox:
+    build: ./infrastructure/toolbox
+    volumes:
+      - .:/app:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.ssh:/root/.ssh
+    env_file:
+      - ./infrastructure/toolbox/secrets.env
+
+networks:
+  default:
+    external:
+      name: uffizzi_default_network

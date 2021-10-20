@@ -1,0 +1,86 @@
+run:
+  # timeout for analysis, e.g. 30s, 5m, default is 1m
+  timeout: 10m
+
+linters:
+  enable:
+    - bodyclose
+    - rowserrcheck
+    - gosec
+    - unconvert
+    - goconst
+    - gocyclo
+    - gofmt
+    - gocognit
+    - goimports
+    - maligned
+    - misspell
+    - unparam
+    - dogsled
+    - nakedret
+    - scopelint
+    - gocritic
+    - goprintffuncname
+    - gomnd
+    - lll
+    - whitespace
+    - wsl
+    - funlen
+
+    # TODO turn this on later
+    # - dupl
+    # - gochecknoglobals
+    # - prealloc
+    # - godox
+issues:
+  exclude-rules:
+    - path: cmd/controller/controller.go
+      linters:
+        - funlen
+    - path: internal/clients/kuber/deployment.go
+      linters:
+        - lll
+    - path: internal/domain_logic/containers.go
+      linters:
+        - lll
+    - path: internal/domain_logic/sqladmin.go
+      linters:
+        - lll
+        - funlen
+    - path: internal/domain_logic/deployment.go
+      linters:
+        - lll
+        - funlen
+    - path: internal/repo/deployments.go
+      linters:
+        - lll
+    - path: internal/clients/kube_config.go
+      linters:
+        - lll
+    - path: internal/clients/googleapis/client.go
+      linters:
+        - lll
+    - path: internal/clients/kuber/service.go
+      linters:
+        - lll
+    - path: internal/domain_logic/logic.go
+      linters:
+        - lll
+    - path: internal/http/routes.go
+      linters:
+        - lll
+    - path: internal/domain_logic/checks.go
+      linters:
+        - funlen
+    - path: internal/domain_logic/domain_names.go
+      linters:
+        - funlen
+    - path: internal/domain_logic/network_builders.go
+      linters:
+        - funlen
+    - path: internal/clients/kuber/deployment.go
+      linters:
+        - funlen
+    - path: main.go
+      linters:
+        - funlen
