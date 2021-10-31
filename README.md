@@ -1,6 +1,8 @@
 # Uffizzi Cloud Resource Controller
 This application connects to a Kubernetes (k8s) Cluster to provision Uffizzi users' workloads on their behalf.
-While it provides a documented REST API for anyone to use, it's most valuable when used with [uffizzi_app](https://github.com/UffizziCloud/uffizzi_app). Learn more at <https://uffizzi.com>
+While it provides a documented REST API for anyone to use, it's most valuable when used with open source [uffizzi_app](https://github.com/UffizziCloud/uffizzi_app). 
+
+Learn more at <https://uffizzi.com>
 
 # Design
 The Uffizzi Continuous Previews Engine empowers development teams to conduct feature-level pre-merge testing by automatically deploying branches of application repositories for full-stack and microservices applications based on user designated triggers.  Uffizzi makes these on-demand test environments available for review by key stakeholders (QA, Peer review, Product designer, Product manager, end users, etc.) at a secure Preview URL. The on-demand test environments provisioned by Uffizzi have a purpose driven life cycle and follow the Continous Previews methodology - <https://cpmanifesto.org> - <https://github.com/UffizziCloud/Continuous_Previews_Manifesto>
