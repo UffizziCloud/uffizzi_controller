@@ -1,4 +1,4 @@
-# Uffizzi Cloud Resource Controller
+# Uffizzi Resource Controller
 This application connects to a Kubernetes (k8s) Cluster to provision Uffizzi users' workloads on their behalf.
 While it provides a documented REST API for anyone to use, it's most valuable when used with open source [uffizzi_app](https://github.com/UffizziCloud/uffizzi_app). 
 
