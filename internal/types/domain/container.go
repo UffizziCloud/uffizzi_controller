@@ -11,8 +11,8 @@ type Container struct {
 	ID                      uint64                 `json:"id"`
 	Image                   string                 `json:"image"`
 	Kind                    string                 `json:"kind"`
-	Command                 *string                `json:"command"`
-	CommandArgs             []string               `json:"command_args"`
+	Entrypoint              []string               `json:"entrypoint,omitempty"`
+	Command                 []string               `json:"command,omitempty"`
 	Tag                     *string                `json:"tag"`
 	Port                    *int32                 `json:"port"`
 	TargetPort              *int32                 `json:"target_port"`

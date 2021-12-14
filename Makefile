@@ -116,8 +116,10 @@ setup_gke_kube:
 setup_eks_kube:
 	aws eks --region ${AWS_DEFAULT_REGION} update-kubeconfig --name ${CLUSTER_NAME}
 
-setup_aks_kube:
+aks_login:
 	az login --service-principal --username ${AZURE_USERNAME} --password ${AZURE_SERVICE_PRINCIPAL_KEY} --tenant ${AZURE_TENANT}
+
+setup_aks_kube: aks_login
 	az aks get-credentials --resource-group ${CLUSTER_NAME} --name ${CLUSTER_NAME}
 
 update_gke_controller_service: setup_gke_kube

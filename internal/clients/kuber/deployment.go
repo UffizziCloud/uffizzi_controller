@@ -165,13 +165,8 @@ func (client *Client) updateDeploymentAttributes(
 			VolumeMounts: prepareContainerVolumeMounts(draftContainer),
 		}
 
-		if draftContainer.Command != nil {
-			container.Command = []string{*draftContainer.Command}
-
-			if draftContainer.CommandArgs != nil {
-				container.Args = draftContainer.CommandArgs
-			}
-		}
+		container.Command = draftContainer.Entrypoint
+		container.Args = draftContainer.Command
 
 		if draftContainer.Port != nil {
 			port := intstr.FromInt(int(*draftContainer.Port))
