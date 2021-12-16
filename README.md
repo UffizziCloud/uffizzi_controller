@@ -5,9 +5,9 @@ While it provides a documented REST API for anyone to use, it's most valuable wh
 Learn more at <https://uffizzi.com>
 
 # Design
-The Uffizzi Full-Stack Previews Engine empowers development teams to conduct feature-level, pre-merge testing by automatically deploying branches of application repositories for full-stack and microservices applications based on user-designated triggers.  Uffizzi makes these on-demand test environments available for review by key stakeholders (QA, Peer review, Product designer, Product manager, end users, etc.) at a secure Preview URL. The on-demand test environments provisioned by Uffizzi have a purpose-driven life cycle and follow the Continous Previews methodology - <https://cpmanifesto.org> - <https://github.com/UffizziCloud/cpmanifesto>
+The Uffizzi Full-Stack Previews Engine empowers development teams to conduct feature-level, pre-merge testing by automatically deploying branches of application repositories for full-stack and microservices applications based on user-designated triggers.  Uffizzi makes these on-demand test environments available for review by key stakeholders (QA, Peer review, Product designer, Product manager, end users, etc.) at a secure Preview URL. The on-demand test environments provisioned by Uffizzi have a purpose-driven life cycle and follow the Continous Previews (CP) methodology - <https://cpmanifesto.org> - <https://github.com/UffizziCloud/cpmanifesto>
 
-Uffizzi's implementation leverages several components as well as public cloud resources, including a Kubernetes Cluster. This controller is a supporting service for `uffizzi_app` and works in conjunction with redis and postgres to provide the CP capabilty. 
+Uffizzi's implementation leverages several components as well as public cloud resources, including a Kubernetes Cluster. This controller is a supporting service for [`uffizzi_app`](https://github.com/UffizziCloud/uffizzi_app) and works in conjunction with redis and postgres to provide the CP capabilty. 
 
 This controller runs within the Cluster and accepts authenticated instructions from other Uffizzi components.
 It then specifies Resources within the Cluster's Kubernetes control API.
@@ -19,7 +19,7 @@ The controller is required as a uffizzi_app supporting service and serves these 
 2. Provide Kubernetes cluster information back to the Uffizzi interface
 3. Support restricted and secure connection between the Uffizzi interface and the Kubernetes cluster
 
-## Example story: New Preview Deployment
+## Example story: New Preview  
 - `main()` loop is within `cmd/controller/controller.go`, which calls `setup()` and handles exits. This initializes `global` settings and the `sentry` logging, connects to the database, initializes the Kubernetes clients, and starts the HTTP server listening.
 - An HTTP request for a new Deployment arrives and is handled within `internal/http/handlers.go`.  The request contains the new Deployment integer ID.
 - The HTTP handler uses the ID as an argument to call the `ApplyDeployment` function within `internal/domain/deployment.go`. This takes a series of steps:
