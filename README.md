@@ -5,7 +5,7 @@ While it provides a documented REST API for anyone to use, it's most valuable wh
 Learn more at <https://uffizzi.com>
 
 # Design
-The Uffizzi Continuous Previews Engine empowers development teams to conduct feature-level pre-merge testing by automatically deploying branches of application repositories for full-stack and microservices applications based on user designated triggers.  Uffizzi makes these on-demand test environments available for review by key stakeholders (QA, Peer review, Product designer, Product manager, end users, etc.) at a secure Preview URL. The on-demand test environments provisioned by Uffizzi have a purpose driven life cycle and follow the Continous Previews methodology - <https://cpmanifesto.org> - <https://github.com/UffizziCloud/Continuous_Previews_Manifesto>
+The Uffizzi Full-Stack Previews Engine empowers development teams to conduct feature-level pre-merge testing by automatically deploying branches of application repositories for full-stack and microservices applications based on user designated triggers.  Uffizzi makes these on-demand test environments available for review by key stakeholders (QA, Peer review, Product designer, Product manager, end users, etc.) at a secure Preview URL. The on-demand test environments provisioned by Uffizzi have a purpose driven life cycle and follow the Continous Previews methodology - <https://cpmanifesto.org> - <https://github.com/UffizziCloud/Continuous_Previews_Manifesto>
 
 Uffizzi's implementation leverages several components as well as public cloud resources, including a Kubernetes Cluster. This controller is a supporting service for `uffizzi_app` and works in conjunction with redis and postgres to provide the CP capabilty. 
 
