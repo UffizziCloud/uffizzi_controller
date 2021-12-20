@@ -13,7 +13,6 @@ Learn more at <https://uffizzi.com>
 
 Preview code before it’s merged—whether frontend, backend or microserivce. Define your full-stack apps with a familiar syntax based on Docker Compose, and Uffizzi will create on-demand test environments when you open pull requests or build new images. Preview URLs are updated when there’s a new commit, so your team can catch issues early, iterate quickly, and accelerate your release cycles.  
 
-&nbsp;    
 **Uffizzi Architecture**  
 
 Dependencies:  
