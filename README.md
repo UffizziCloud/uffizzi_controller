@@ -27,7 +27,6 @@ Uffizzi consists of the following components:
 * [Uffizzi CLI](https://github.com/UffizziCloud/uffizzi_cli) - A command-line interface for Uffizzi App     
 * [Uffizzi Dashboard](https://uffizzi.com) - A graphical user interface for Uffizzi App  
 
-
 ## Controller Design  
 
 This controller acts as a smart and secure proxy for [`uffizzi_app`](https://github.com/UffizziCloud/uffizzi_app) and is designed to restrict required access to the k8s cluster. It accepts authenticated instructions from other Uffizzi components, then specifies Resources within the cluster's control API. It is implemented in Golang to leverage the best officially-supported Kubernetes API client.
