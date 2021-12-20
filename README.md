@@ -3,7 +3,7 @@
 **A smart proxy service that handles requests from [Uffizzi App](https://github.com/UffizziCloud/uffizzi_app) to the Kubernetes API**
 
 This application connects to a Kubernetes (k8s) Cluster to provision Uffizzi users' workloads on their behalf.
-While it provides a documented REST API for anyone to use, it's most valuable when used with the open-source [uffizzi_app](https://github.com/UffizziCloud/uffizzi_app).  
+While it provides a documented REST API for anyone to use, it's most valuable when used with the open-source [`uffizzi_app`](https://github.com/UffizziCloud/uffizzi_app).  
 
 ## Uffizzi Overview
 
