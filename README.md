@@ -3,13 +3,17 @@
 **A smart proxy service that handles requests from [Uffizzi App](https://github.com/UffizziCloud/uffizzi_app) to the Kubernetes API**
 
 This application connects to a Kubernetes (k8s) Cluster to provision Uffizzi users' workloads on their behalf.
-While it provides a documented REST API for anyone to use, it's most valuable when used with the open-source [Uffizzi App](https://github.com/UffizziCloud/uffizzi_app). 
-
-Learn more at <https://uffizzi.com>  
+While it provides a documented REST API for anyone to use, it's most valuable when used with the open-source [uffizzi_app](https://github.com/UffizziCloud/uffizzi_app).  
 
 ## Uffizzi Overview
 
-Uffizzi is the Full-stack Previews Engine that makes it easy for your team to preview code changes before merging—whether frontend, backend or microserivce. Define your full-stack apps with a familiar syntax based on Docker Compose, and Uffizzi will create on-demand test environments when you open pull requests or build new images. Preview URLs are updated when there’s a new commit, so your team can catch issues early, iterate quickly, and accelerate your release cycles.  
+Uffizzi is the Full-stack Previews Engine that makes it easy for your team to preview code changes before merging—whether frontend, backend or microserivce. Define your full-stack apps with a familiar syntax based on Docker Compose, then Uffizzi will create on-demand test environments when you open pull requests or build new images. Preview URLs are updated when there’s a new commit, so your team can catch issues early, iterate quickly, and accelerate your release cycles.  
+
+## Getting started with Uffizzi  
+
+The fastest and easiest way to get started with Uffizzi is via the fully hosted version available at https://uffizzi.com, which includes a generous free plan, as well as, a free-forever plan for qualifying open-source projects.  
+
+Alternatively, you can self-host Uffizzi via the open-source repositories available here on GitHub. The remainder of this README is intended for users interested in self-hosting Uffizzi or for those who are just curious about how Uffizzi works.
 
 ### Uffizzi Architecture  
 
@@ -18,9 +22,9 @@ Uffizzi consists of the following components:
 * [Uffizzi App](https://github.com/UffizziCloud/uffizzi_app) - The primary REST API for creating and managing Previews  
 * Uffizzi Controller (this repository) - A smart proxy service that handles requests from Uffizzi App to the Kubernetes API  
 * [Uffizzi CLI](https://github.com/UffizziCloud/uffizzi_cli) - A command-line interface for Uffizzi App     
-* [Uffizzi Dashboard](https://app.uffizzi.com) - A graphical user interface for Uffizzi App, available as a paid service at https://uffizzi.com  
+* [Uffizzi Dashboard](https://app.uffizzi.com) - A graphical user interface for Uffizzi App (not available for self-hosting)
 
-To host Uffizzi yourself, you will also need the following external dependencies:  
+To host open-source Uffizzi, you will also need the following external dependencies:  
 
  * Kubernetes (k8s) cluster  
  * Postgres database  
