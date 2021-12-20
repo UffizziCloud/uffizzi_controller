@@ -32,7 +32,7 @@ To host Uffizzi yourself, you will also need the following external dependencies
 
 ## Controller Design  
 
-This controller acts as a smart and secure proxy for [`uffizzi_app`](https://github.com/UffizziCloud/uffizzi_app) and is designed to restrict required access to the k8s cluster. It accepts authenticated instructions from other Uffizzi components, then specifies Resources within the cluster's control API. It is implemented in Golang to leverage the best officially-supported Kubernetes API client.
+This `uffizzi_controller` acts as a smart and secure proxy for [`uffizzi_app`](https://github.com/UffizziCloud/uffizzi_app) and is designed to restrict required access to the k8s cluster. It accepts authenticated instructions from other Uffizzi components, then specifies Resources within the cluster's control API. It is implemented in Golang to leverage the best officially-supported Kubernetes API client.
 
 The controller is required as a uffizzi_app supporting service and serves these purposes:
 1. Communicate deployment instructions via native Golang API client to the designated Kubernetes cluster(s) from the Uffizzi interface
