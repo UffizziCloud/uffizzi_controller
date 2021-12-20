@@ -24,7 +24,7 @@ Uffizzi consists of the following components:
 * [Uffizzi CLI](https://github.com/UffizziCloud/uffizzi_cli) - A command-line interface for Uffizzi App     
 * [Uffizzi Dashboard](https://app.uffizzi.com) - A graphical user interface for Uffizzi App (not available for self-hosting)
 
-To host open-source Uffizzi, you will also need the following external dependencies:  
+To host Uffizzi yourself, you will also need the following external dependencies:  
 
  * Kubernetes (k8s) cluster  
  * Postgres database  
