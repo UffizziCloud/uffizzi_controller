@@ -19,3 +19,11 @@ func (resouceNameUtils *ResouceNameUtils) Credential(credentialId uint64) string
 func (resouceNameUtils *ResouceNameUtils) ContainerSecret(containerID uint64) string {
 	return fmt.Sprintf("container-%v-secret", containerID)
 }
+
+func (resouceNameUtils *ResouceNameUtils) Deployment(namespace string) string {
+	return fmt.Sprintf("app-%v", namespace)
+}
+
+func (resouceNameUtils *ResouceNameUtils) Policy(namespace string) string {
+	return fmt.Sprintf("app-%v", namespace)
+}

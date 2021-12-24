@@ -1,6 +1,8 @@
 package kuber
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -146,26 +148,46 @@ func (client *Client) CreateOrUpdateService(namespace *corev1.Namespace, deploym
 }
 
 func (client *Client) AwaitServiceStatus(inputService *corev1.Service) (*corev1.Service, error) {
-	services := client.clientset.CoreV1().Services(inputService.Namespace)
+	namespace := inputService.Namespace
+	ctx := context.TODO()
+	ctx, cancelContext := context.WithCancel(ctx)
+	serviceChan := make(chan *corev1.Service, 1)
+	errorChan := make(chan error, 1)
 
-	for {
-		service, err := services.Get(client.context, inputService.Name, metav1.GetOptions{})
-		if err != nil {
-			return nil, err
+	defer cancelContext()
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				log.Printf("namespace/%s AwaitServiceStatus goroutine was stopped\n", namespace)
+				return
+			default:
+				service, err := client.clientset.CoreV1().Services(namespace).Get(client.context, inputService.Name, metav1.GetOptions{})
+				if err != nil {
+					errorChan <- err
+					return
+				}
+
+				if len(service.Spec.ClusterIP) > 0 {
+					serviceChan <- service
+					return
+				}
+
+				log.Printf("namespace/%s waiting %v seconds for service status\n", namespace, global.Settings.ResourceRequestBackOffPeriod)
+
+				time.Sleep(global.Settings.ResourceRequestBackOffPeriod)
+			}
 		}
+	}()
 
-		if len(service.Spec.ClusterIP) > 0 {
-			return service, nil
-		}
-
-		select {
-		case <-time.After(global.Settings.ServiceChecks.AwaitStatusTimeout):
-			return nil, nil
-		default:
-			log.Printf("waiting %v seconds for service status\n", global.Settings.ResourceRequestBackOffPeriod)
-
-			time.Sleep(global.Settings.ResourceRequestBackOffPeriod)
-		}
+	select {
+	case <-time.After(global.Settings.ServiceChecks.AwaitStatusTimeout):
+		return nil, fmt.Errorf("loadbalancer check timeout")
+	case service := <-serviceChan:
+		return service, nil
+	case err := <-errorChan:
+		return nil, err
 	}
 }
 
