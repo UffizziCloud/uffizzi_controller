@@ -6,14 +6,9 @@ import (
 )
 
 func (l *Logic) GetContainers(deploymentID uint64) ([]v1.Pod, error) {
-	namespaceName := l.KubernetesNamespaceName(deploymentID)
+	namespace := l.KubernetesNamespaceName(deploymentID)
 
-	namespace, err := l.KuberClient.FindNamespace(namespaceName)
-	if err != nil {
-		return nil, err
-	}
-
-	pods, err := l.KuberClient.GetPods(namespace.Name)
+	pods, err := l.KuberClient.GetPods(namespace)
 
 	if err != nil {
 		return nil, err
@@ -23,14 +18,9 @@ func (l *Logic) GetContainers(deploymentID uint64) ([]v1.Pod, error) {
 }
 
 func (l *Logic) GetContainersMetrics(deploymentID uint64) ([]v1beta1.PodMetrics, error) {
-	namespaceName := l.KubernetesNamespaceName(deploymentID)
+	namespace := l.KubernetesNamespaceName(deploymentID)
 
-	namespace, err := l.KuberClient.FindNamespace(namespaceName)
-	if err != nil {
-		return nil, err
-	}
-
-	metrics, err := l.KuberClient.GetPodsMetrics(namespace.Name)
+	metrics, err := l.KuberClient.GetPodsMetrics(namespace)
 
 	if err != nil {
 		return nil, err
@@ -56,14 +46,9 @@ func (l *Logic) GetPodLogs(
 func (l *Logic) GetPodEvents(
 	deploymentID uint64,
 ) (*v1.EventList, error) {
-	namespaceName := l.KubernetesNamespaceName(deploymentID)
+	namespace := l.KubernetesNamespaceName(deploymentID)
 
-	namespace, err := l.KuberClient.FindNamespace(namespaceName)
-	if err != nil {
-		return nil, err
-	}
-
-	events, err := l.KuberClient.ListEvents(namespace.Name)
+	events, err := l.KuberClient.ListEvents(namespace)
 
 	return events, err
 }

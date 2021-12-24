@@ -1,6 +1,8 @@
 package kuber
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -140,26 +142,52 @@ func (client *Client) CreateOrUpdateIngress(namespace *corev1.Namespace,
 }
 
 func (client *Client) AwaitIngressStatus(inputIngress *networkingV1.Ingress) (*networkingV1.Ingress, error) {
-	ingresses := client.clientset.NetworkingV1().Ingresses(inputIngress.Namespace)
+	namespace := inputIngress.Namespace
+	ctx := context.TODO()
+	ctx, cancelContext := context.WithCancel(ctx)
+	ingressChan := make(chan *networkingV1.Ingress, 1)
+	errorChan := make(chan error, 1)
 
-	for {
-		ingress, err := ingresses.Get(client.context, inputIngress.Name, metav1.GetOptions{})
-		if err != nil {
-			return nil, err
+	defer cancelContext()
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				log.Printf("namespace/%s AwaitIngressStatus goroutine was stopped\n", namespace)
+				return
+			default:
+				ingress, err := client.clientset.NetworkingV1().Ingresses(namespace).Get(
+					client.context,
+					inputIngress.Name,
+					metav1.GetOptions{},
+				)
+				if err != nil {
+					errorChan <- err
+					return
+				}
+
+				if len(ingress.Status.LoadBalancer.Ingress) > 0 {
+					ingressChan <- ingress
+					return
+				}
+
+				resourceRequestBackOffPeriod := global.Settings.ResourceRequestBackOffPeriod
+
+				log.Printf("namespace/%s waiting %v seconds for ingress status\n", namespace, resourceRequestBackOffPeriod)
+
+				time.Sleep(resourceRequestBackOffPeriod)
+			}
 		}
+	}()
 
-		if len(ingress.Status.LoadBalancer.Ingress) > 0 {
-			return ingress, nil
-		}
-
-		select {
-		case <-time.After(global.Settings.ServiceChecks.AwaitStatusTimeout):
-			return nil, nil
-		default:
-			log.Printf("waiting %v seconds for ingress status\n", global.Settings.ResourceRequestBackOffPeriod)
-
-			time.Sleep(global.Settings.ResourceRequestBackOffPeriod)
-		}
+	select {
+	case <-time.After(global.Settings.ServiceChecks.AwaitStatusTimeout):
+		return nil, fmt.Errorf("ingress check timeout")
+	case ingress := <-ingressChan:
+		return ingress, nil
+	case err := <-errorChan:
+		return nil, err
 	}
 }
 
