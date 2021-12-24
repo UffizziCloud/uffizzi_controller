@@ -21,7 +21,7 @@ func (client *Client) FindDeployment(namespaceName, name string) (*appsv1.Deploy
 	return deployments.Get(client.context, name, metav1.GetOptions{})
 }
 
-func (client *Client) findOrInitializeDeployment(namespace *corev1.Namespace, deploymentName, deploymentSelectorName string) (*appsv1.Deployment, error) {
+func (client *Client) findOrInitializeDeployment(namespace *corev1.Namespace, deploymentName string) (*appsv1.Deployment, error) {
 	deployments := client.clientset.AppsV1().Deployments(namespace.Name)
 
 	deployment, err := deployments.Get(client.context, deploymentName, metav1.GetOptions{})
@@ -31,7 +31,7 @@ func (client *Client) findOrInitializeDeployment(namespace *corev1.Namespace, de
 	}
 
 	if len(deployment.UID) == 0 {
-		deployment = initializeDeployment(namespace, deploymentName, deploymentSelectorName)
+		deployment = initializeDeployment(namespace, deploymentName)
 	}
 
 	return deployment, nil
@@ -190,13 +190,13 @@ func (client *Client) updateDeploymentAttributes(
 
 func (client *Client) CreateOrUpdateDeployments(
 	namespace *corev1.Namespace,
-	deploymentName, deploymentSelectorName string,
+	deploymentName string,
 	containerList domainTypes.ContainerList,
 	credentials []domainTypes.Credential,
 ) (*appsv1.Deployment, error) {
 	deployments := client.clientset.AppsV1().Deployments(namespace.Name)
 
-	deployment, err := client.findOrInitializeDeployment(namespace, deploymentName, deploymentSelectorName)
+	deployment, err := client.findOrInitializeDeployment(namespace, deploymentName)
 	if err != nil {
 		return nil, err
 	}

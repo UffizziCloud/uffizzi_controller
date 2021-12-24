@@ -20,7 +20,6 @@ type INetworkBuilder interface {
 type NetworkDependencies struct {
 	DomainLogic    *Logic
 	Namespace      *corev1.Namespace
-	AppName        string
 	ContainerList  domainTypes.ContainerList
 	Deployment     *appsv1.Deployment
 	DeploymentHost string
@@ -29,7 +28,6 @@ type NetworkDependencies struct {
 func NewNetworkDependencies(
 	domainLogic *Logic,
 	namespace *corev1.Namespace,
-	appName string,
 	containerList domainTypes.ContainerList,
 	deployment *appsv1.Deployment,
 	deploymentHost string,
@@ -37,7 +35,6 @@ func NewNetworkDependencies(
 	return &NetworkDependencies{
 		DomainLogic:    domainLogic,
 		Namespace:      namespace,
-		AppName:        appName,
 		ContainerList:  containerList,
 		Deployment:     deployment,
 		DeploymentHost: deploymentHost,
