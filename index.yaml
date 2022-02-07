@@ -1,0 +1,50 @@
+apiVersion: v1
+entries:
+  uffizzi-controller:
+  - annotations:
+      artifacthub.io/prerelease: "true"
+    apiVersion: v2
+    appVersion: 0.0.3
+    created: "2022-02-07T22:06:39.717887105Z"
+    dependencies:
+    - name: ingress-nginx
+      repository: https://kubernetes.github.io/ingress-nginx
+      version: '>= 4.0.13'
+    - name: cert-manager
+      repository: https://charts.jetstack.io
+      version: '>= 1.7.0'
+    description: A smart proxy service that handles requests from Uffizzi App to the
+      Kubernetes API - 1 of 3 services (controller, uffizzi_app, uffizzi_cli) that
+      comprise the uffizzi full-stack previews engine which automates trigger-based
+      on-demand preview environments
+    digest: 83ce448d191b4673658912c682f2a39e0a052e8b20117f98a2b6a59e2d4f5814
+    home: https://uffizzi.com/
+    icon: https://uffizzi.com/favicon.png
+    keywords:
+    - devops
+    - uffizzi
+    - continuous-previews
+    - ephemeral
+    - environments
+    - pull-request
+    - merge-request
+    - on-demand
+    - ci
+    - cd
+    kubeVersion: '>= 1.21.6-0'
+    maintainers:
+    - email: info@uffizzi.com
+      name: Uffizzi
+      url: https://uffizzi.com
+    - email: adam.vollrath@uffizzi.com
+      name: Adam Vollrath
+      url: https://github.com/axisofentropy
+    name: uffizzi-controller
+    sources:
+    - https://github.com/UffizziCloud/uffizzi_controller
+    - https://gitlab.com/dualbootpartners/idyl/uffizzi_controller
+    type: application
+    urls:
+    - https://github.com/UffizziCloud/uffizzi_controller/releases/download/uffizzi-controller-0.0.2/uffizzi-controller-0.0.2.tgz
+    version: 0.0.2
+generated: "2022-02-07T22:06:39.717904105Z"
