@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.clusterIssuer }}-eab-secret
+type: Opaque
+data:
+  eab_hmac_key: {{ .Values.eab.hmacKey | b64enc }}
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ .Values.clusterIssuer }}
+spec:
+  acme:
+    email: info@uffizzi.cloud
+    externalAccountBinding:
+      keyID: {{ .Values.eab.keyId }}
+      keyAlgorithm: HS256
+      keySecretRef:
+        key: eab_hmac_key
+        name: {{ .Release.Name }}-{{ .Values.clusterIssuer }}-eab-secret
+    preferredChain: ""
+    privateKeySecretRef:
+      name: {{ .Values.clusterIssuer }}-tls
+    server: https://acme.zerossl.com/v2/DV90
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
