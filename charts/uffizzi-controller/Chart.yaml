@@ -1,6 +1,6 @@
 apiVersion: v2
 name: uffizzi-controller
-version: 0.0.2
+version: 0.0.3
 kubeVersion: ">= 1.21.6-0" # https://issuetracker.google.com/issues/77503699
 description: "A smart proxy service that handles requests from Uffizzi App to the Kubernetes API - 1 of 3 services (controller, uffizzi_app, uffizzi_cli) that comprise the uffizzi full-stack previews engine which automates trigger-based on-demand preview environments"
 type: application
@@ -41,7 +41,7 @@ maintainers:
   - name: Adam Vollrath
     email: adam.vollrath@uffizzi.com
     url: https://github.com/axisofentropy
-icon: https://uffizzi.com/favicon.png
+icon: https://app.uffizzi.com/favicon.png
 appVersion: "0.0.3"
 deprecated: false
 annotations:
