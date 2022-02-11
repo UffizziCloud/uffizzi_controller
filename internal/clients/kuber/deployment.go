@@ -176,7 +176,7 @@ func (client *Client) updateDeploymentAttributes(
 			}
 
 			container.StartupProbe = &corev1.Probe{
-				Handler: corev1.Handler{
+				ProbeHandler: corev1.ProbeHandler{
 					TCPSocket: &corev1.TCPSocketAction{
 						Port: port,
 					},
