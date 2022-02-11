@@ -26,7 +26,7 @@ type deploymentRequest struct {
 func (h *Handlers) handleGetNamespace(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64)
+	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return
@@ -53,7 +53,7 @@ func (h *Handlers) handleGetNamespace(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) handleCreateNamespace(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64)
+	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return
@@ -94,7 +94,7 @@ func (h *Handlers) handleCreateNamespace(w http.ResponseWriter, r *http.Request)
 func (h *Handlers) handleUpdateNamespace(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64)
+	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return
@@ -132,7 +132,7 @@ func (h *Handlers) handleDeleteNamespace(w http.ResponseWriter, r *http.Request)
 	vars := mux.Vars(r)
 
 	// Get deployment id
-	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64)
+	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return

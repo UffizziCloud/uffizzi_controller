@@ -49,7 +49,7 @@ func (rawRequest *GetContainersUsageMetricsRequestSpec) Parse() (*GetContainersU
 	var deploymentIDs []uint64
 
 	for _, deploymentIDStr := range rawRequest.DeploymentIDs {
-		deploymentID, err := strconv.ParseUint(deploymentIDStr, 10, 64)
+		deploymentID, err := strconv.ParseUint(deploymentIDStr, 10, 64) //nolint:gomnd
 		if err != nil {
 			return nil, err
 		}

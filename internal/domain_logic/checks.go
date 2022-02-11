@@ -10,7 +10,7 @@ import (
 	networkConnectivity "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/domain_logic/network_connectivity"
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
 
-	//"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/pkg/networks"
+	// "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/pkg/networks"
 	availabilityManager "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/pkg/resource_availability_manager"
 	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 	appsv1 "k8s.io/api/apps/v1"

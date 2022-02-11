@@ -23,7 +23,7 @@ func (h *Handlers) handleGetContainerLogs(w http.ResponseWriter, r *http.Request
 	vars := mux.Vars(r)
 	log.Printf("handleGetContainerLogs: %+v\n", vars)
 
-	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64)
+	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint:gomnd
 
 	if err != nil {
 		handleError(err, w, r)
@@ -36,7 +36,7 @@ func (h *Handlers) handleGetContainerLogs(w http.ResponseWriter, r *http.Request
 	limitRaw := queries.Get("limit")
 
 	if limitRaw != "" {
-		limit, err = strconv.ParseInt(limitRaw, 10, 64)
+		limit, err = strconv.ParseInt(limitRaw, 10, 64) //nolint:gomnd
 		if err != nil {
 			handleError(err, w, r)
 			return

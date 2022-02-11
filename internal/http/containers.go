@@ -25,7 +25,7 @@ func (h *Handlers) handleGetContainers(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// Get deployment id
-	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64)
+	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return
@@ -64,7 +64,7 @@ type applyContainersRequest struct {
 func (h *Handlers) handleApplyContainers(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64)
+	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return

@@ -28,5 +28,5 @@ func (l Logic) GetDeploymentIDFromKubernetesNamespaceName(namespace string) (uin
 	prefix := global.Settings.NamespaceNamePrefix + "-"
 	rawID := strings.TrimPrefix(namespace, prefix)
 
-	return strconv.ParseUint(rawID, 10, 64)
+	return strconv.ParseUint(rawID, 10, 64) //nolint: gomnd
 }
