@@ -7,14 +7,13 @@ import (
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
 	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 	corev1 "k8s.io/api/core/v1"
-	networkingV1 "k8s.io/api/networking/v1beta1"
+	networkingV1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (client *Client) GetIngresses(namespace string) (*networkingV1.IngressList, error) {
-	ingresses := client.clientset.NetworkingV1beta1().Ingresses(namespace)
+	ingresses := client.clientset.NetworkingV1().Ingresses(namespace)
 
 	ingressList, err := ingresses.List(client.context, metav1.ListOptions{})
 	if err != nil {
@@ -25,7 +24,7 @@ func (client *Client) GetIngresses(namespace string) (*networkingV1.IngressList,
 }
 
 func (client *Client) FindIngress(namespace, name string) (*networkingV1.Ingress, error) {
-	ingresses := client.clientset.NetworkingV1beta1().Ingresses(namespace)
+	ingresses := client.clientset.NetworkingV1().Ingresses(namespace)
 	ingress, err := ingresses.Get(client.context, name, metav1.GetOptions{})
 
 	return ingress, err
@@ -76,8 +75,13 @@ func (client *Client) UpdateIngressAttributes(
 	}
 
 	ingressBackend := networkingV1.IngressBackend{
-		ServiceName: serviceName,
-		ServicePort: intstr.FromInt(int(containerPort)),
+		Service: &networkingV1.IngressServiceBackend{
+			Name: serviceName,
+			Port: networkingV1.ServiceBackendPort{
+				Name:   "public",
+				Number: containerPort,
+			},
+		},
 	}
 
 	paths := []networkingV1.HTTPIngressPath{
@@ -106,7 +110,7 @@ func (client *Client) CreateOrUpdateIngress(namespace *corev1.Namespace,
 		return nil, err
 	}
 
-	ingresses := client.clientset.NetworkingV1beta1().Ingresses(namespace.Name)
+	ingresses := client.clientset.NetworkingV1().Ingresses(namespace.Name)
 
 	ingress, err := client.findOrInitializeIngress(namespace.Name, ingressName)
 	if err != nil {
@@ -125,7 +129,7 @@ func (client *Client) CreateOrUpdateIngress(namespace *corev1.Namespace,
 }
 
 func (client *Client) AwaitIngressStatus(inputIngress *networkingV1.Ingress) (*networkingV1.Ingress, error) {
-	ingresses := client.clientset.NetworkingV1beta1().Ingresses(inputIngress.Namespace)
+	ingresses := client.clientset.NetworkingV1().Ingresses(inputIngress.Namespace)
 
 	for {
 		ingress, err := ingresses.Get(client.context, inputIngress.Name, metav1.GetOptions{})
@@ -149,7 +153,7 @@ func (client *Client) AwaitIngressStatus(inputIngress *networkingV1.Ingress) (*n
 }
 
 func (client *Client) RemoveIngress(namespace, name string) error {
-	ingresses := client.clientset.NetworkingV1beta1().Ingresses(namespace)
+	ingresses := client.clientset.NetworkingV1().Ingresses(namespace)
 
 	err := ingresses.Delete(client.context, name, metav1.DeleteOptions{})
 
