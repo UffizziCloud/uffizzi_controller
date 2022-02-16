@@ -84,8 +84,15 @@ func (client *Client) UpdateIngressAttributes(
 		},
 	}
 
+	// constants are not addressable.
+	pathTypePrefix := networkingV1.PathTypePrefix
+
 	paths := []networkingV1.HTTPIngressPath{
-		{Path: "/", Backend: ingressBackend},
+		{
+			Path: "/",
+			PathType: &pathTypePrefix,
+			Backend: ingressBackend,
+		},
 	}
 
 	ingressRuleValue := networkingV1.IngressRuleValue{
