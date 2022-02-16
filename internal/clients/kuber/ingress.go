@@ -89,9 +89,9 @@ func (client *Client) UpdateIngressAttributes(
 
 	paths := []networkingV1.HTTPIngressPath{
 		{
-			Path: "/",
+			Path:     "/",
 			PathType: &pathTypePrefix,
-			Backend: ingressBackend,
+			Backend:  ingressBackend,
 		},
 	}
 
