@@ -78,7 +78,6 @@ func (client *Client) UpdateIngressAttributes(
 		Service: &networkingV1.IngressServiceBackend{
 			Name: serviceName,
 			Port: networkingV1.ServiceBackendPort{
-				Name:   "public",
 				Number: containerPort,
 			},
 		},
