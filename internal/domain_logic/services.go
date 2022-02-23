@@ -22,7 +22,14 @@ func (l *Logic) GetServices(deploymentID uint64) ([]v1.Service, error) {
 }
 
 func (l *Logic) GetDefaultIngressService() (*v1.Service, error) {
-	services, err := l.KuberClient.GetServices(global.Settings.KubernetesNamespace)
+	// Fetch the k8s Service used by ingress-nginx where traffic arrives.
+	// This is often used to create DNS records for each deployment.
+	// https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors/
+	services, err := l.KuberClient.GetServicesByLabel(
+		global.Settings.KubernetesNamespace,
+		"app.kubernetes.io/name=ingress-nginx",
+	)
+
 	if err != nil {
 		return nil, err
 	}
