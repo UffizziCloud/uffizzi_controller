@@ -5,6 +5,52 @@ entries:
       artifacthub.io/prerelease: "true"
     apiVersion: v2
     appVersion: 0.0.3
+    created: "2022-03-01T21:44:42.489209617Z"
+    dependencies:
+    - name: ingress-nginx
+      repository: https://kubernetes.github.io/ingress-nginx
+      version: ~4.0.17
+    - name: cert-manager
+      repository: https://charts.jetstack.io
+      version: ~1.7.1
+    description: A smart proxy service that handles requests from Uffizzi App to the
+      Kubernetes API - 1 of 3 services (controller, uffizzi_app, uffizzi_cli) that
+      comprise the uffizzi full-stack previews engine which automates trigger-based
+      on-demand preview environments
+    digest: af0d8b86323ea0fbb24ba5339ec3570d27a7642c4c8af789399bcd39caca9e68
+    home: https://uffizzi.com/
+    icon: https://app.uffizzi.com/favicon.png
+    keywords:
+    - devops
+    - uffizzi
+    - continuous-previews
+    - ephemeral
+    - environments
+    - pull-request
+    - merge-request
+    - on-demand
+    - ci
+    - cd
+    kubeVersion: '>= 1.21.6-0'
+    maintainers:
+    - email: info@uffizzi.com
+      name: Uffizzi
+      url: https://uffizzi.com
+    - email: adam.vollrath@uffizzi.com
+      name: Adam Vollrath
+      url: https://github.com/axisofentropy
+    name: uffizzi-controller
+    sources:
+    - https://github.com/UffizziCloud/uffizzi_controller
+    - https://gitlab.com/dualbootpartners/idyl/uffizzi_controller
+    type: application
+    urls:
+    - https://github.com/UffizziCloud/uffizzi_controller/releases/download/uffizzi-controller-0.0.5/uffizzi-controller-0.0.5.tgz
+    version: 0.0.5
+  - annotations:
+      artifacthub.io/prerelease: "true"
+    apiVersion: v2
+    appVersion: 0.0.3
     created: "2022-03-01T21:11:39.760011711Z"
     dependencies:
     - name: ingress-nginx
@@ -139,4 +185,4 @@ entries:
     urls:
     - https://github.com/UffizziCloud/uffizzi_controller/releases/download/uffizzi-controller-0.0.2/uffizzi-controller-0.0.2.tgz
     version: 0.0.2
-generated: "2022-03-01T21:11:39.760023011Z"
+generated: "2022-03-01T21:44:42.489228417Z"
