@@ -9,6 +9,7 @@ import (
 type Settings struct {
 	ResourceName                          ResourceNameUtils.ResouceNameUtils
 	NamespaceNamePrefix                   string                `yaml:"namespace_name_prefix"`
+	KubernetesNamespace                   string                `yaml:"kubernetes_namespace"`
 	ManagedApplication                    string                `yaml:"managed_application"`
 	ControllerPort                        string                `yaml:"controller_port"`
 	ControllerLogin                       string                `yaml:"controller_login"`

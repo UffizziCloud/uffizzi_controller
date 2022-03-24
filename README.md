@@ -88,6 +88,7 @@ pieces of configuration:
 
 - `KUBERNETES_SERVICE_HOST` - Hostname (or IP) of the k8s API service
 - `KUBERNETES_SERVICE_PORT` - TCP port number of the k8s API service (usually `443`.)
+- `KUBERNETES_NAMESPACE` - Namespace where both this controller and `ingress-nginx` reside
 - `/var/run/secrets/kubernetes.io/serviceaccount/token` - Authentication token
 - `/var/run/secrets/kubernetes.io/serviceaccount/ca.crt` - k8s API Server's x509 host certificate
 

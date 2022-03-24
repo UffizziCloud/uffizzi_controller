@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
 	v1 "k8s.io/api/core/v1"
 )
 
@@ -21,9 +22,7 @@ func (l *Logic) GetServices(deploymentID uint64) ([]v1.Service, error) {
 }
 
 func (l *Logic) GetDefaultIngressService() (*v1.Service, error) {
-	nginxIngressNamespace := "ingress-nginx"
-
-	services, err := l.KuberClient.GetServices(nginxIngressNamespace)
+	services, err := l.KuberClient.GetServices(global.Settings.KubernetesNamespace)
 	if err != nil {
 		return nil, err
 	}
