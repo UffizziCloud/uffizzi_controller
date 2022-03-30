@@ -10,11 +10,11 @@ import (
 func TestContainerList_GetPublicContainerList(t *testing.T) {
 	var port int32 = 80
 
-	containerName := "gadkins/counter-app"
+	containerName := "gadkins/counter-app" // nice ref
 	containerTag := "1.0"
-	publicContainer := domainTypes.Container{Image: containerName, Tag: &containerTag, Port: &port}
-	privateContainer := domainTypes.Container{Image: containerName, Tag: &containerTag}
-	containersCount := 2
+	publicContainer := domainTypes.Container{Image: containerName, Tag: &containerTag, Public: true, Port: &port}
+	privateContainer := domainTypes.Container{Image: containerName, Tag: &containerTag, Public: false}
+	containersCount := 1
 
 	containerList := MakeContainerList(containersCount, publicContainer)
 	containerList.AddContainer(privateContainer)

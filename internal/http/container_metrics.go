@@ -23,7 +23,7 @@ func (h *Handlers) handleGetContainersMetrics(w http.ResponseWriter, r *http.Req
 	vars := mux.Vars(r)
 
 	// Get deployment id
-	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64)
+	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return

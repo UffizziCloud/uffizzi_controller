@@ -8,7 +8,7 @@ import (
 	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/networking/v1beta1"
+	v1 "k8s.io/api/networking/v1"
 )
 
 type INetworkBuilder interface {
@@ -47,7 +47,7 @@ func NewNetworkDependencies(
 type IngressNetworkBuilder struct {
 	Network *NetworkDependencies
 	Service *corev1.Service
-	Ingress *v1beta1.Ingress
+	Ingress *v1.Ingress
 }
 
 func NewIngressNetworkBuilder(network *NetworkDependencies) INetworkBuilder {

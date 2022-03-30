@@ -23,7 +23,7 @@ import (
 func (h *Handlers) handleApplyCredential(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64)
+	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return
@@ -60,13 +60,13 @@ func (h *Handlers) handleApplyCredential(w http.ResponseWriter, r *http.Request)
 func (h *Handlers) handleDeleteCredential(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64)
+	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return
 	}
 
-	credentialID, err := strconv.ParseUint(vars["credentialId"], 10, 64)
+	credentialID, err := strconv.ParseUint(vars["credentialId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return

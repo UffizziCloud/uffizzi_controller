@@ -58,6 +58,6 @@ func (list ContainerList) GetUserContainerList() ContainerList {
 	return userContainers
 }
 
-func (list ContainerList) AddContainer(container Container) {
+func (list *ContainerList) AddContainer(container Container) {
 	list.Items = append(list.Items, container)
 }

@@ -23,6 +23,19 @@ func (client *Client) GetServices(namespace string) (*corev1.ServiceList, error)
 	return serviceList, nil
 }
 
+func (client *Client) GetServicesByLabel(namespace string, labelSelector string) (*corev1.ServiceList, error) {
+	services := client.clientset.CoreV1().Services(namespace)
+
+	serviceList, err := services.List(client.context, metav1.ListOptions{
+		LabelSelector: labelSelector,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return serviceList, nil
+}
+
 func (client *Client) GetService(namespace, name string) (*corev1.Service, error) {
 	services := client.clientset.CoreV1().Services(namespace)
 

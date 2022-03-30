@@ -1,5 +1,6 @@
 base: &base
   namespace_name_prefix: ${CONTROLLER_NAMESPACE_NAME_PREFIX:-deployment}
+  kubernetes_namespace: ${KUBERNETES_NAMESPACE:-uffizzi-controller}
   managed_application: uffizzi
   controller_port: 8080
   controller_login: ${CONTROLLER_LOGIN}

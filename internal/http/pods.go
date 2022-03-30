@@ -20,7 +20,7 @@ func (h *Handlers) handleGetPodEvents(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	log.Printf("handleGetPodEvents: %+v\n", vars)
 
-	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64)
+	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return

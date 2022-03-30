@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
 	v1 "k8s.io/api/core/v1"
 )
 
@@ -21,9 +22,14 @@ func (l *Logic) GetServices(deploymentID uint64) ([]v1.Service, error) {
 }
 
 func (l *Logic) GetDefaultIngressService() (*v1.Service, error) {
-	nginxIngressNamespace := "ingress-nginx"
+	// Fetch the k8s Service used by ingress-nginx where traffic arrives.
+	// This is often used to create DNS records for each deployment.
+	// https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors/
+	services, err := l.KuberClient.GetServicesByLabel(
+		global.Settings.KubernetesNamespace,
+		"app.kubernetes.io/name=ingress-nginx",
+	)
 
-	services, err := l.KuberClient.GetServices(nginxIngressNamespace)
 	if err != nil {
 		return nil, err
 	}
