@@ -11,17 +11,21 @@ global:
 cert-manager: # dependency
   installCRDs: true
 
-clusterIssuer: "zerossl"
+certEmail: "user@example.com"
 
-image: uffizzicloud/uffizzi-controller:latest
+clusterIssuer: "letsencrypt"
+
+image: uffizzi/controller:latest
+
 ingress:
-  hostname: uffizzi.example.com
+  hostname: controller.uffizzi.example.com
 
 podCidr: 10.0.0.0/8
 
-eab:
-  hmacKey: foo
-  keyId: bar
+zerossl:
+  eab:
+    hmacKey: foo
+    keyId: bar
 
 env: "production"
 

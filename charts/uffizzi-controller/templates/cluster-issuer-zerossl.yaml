@@ -1,22 +1,22 @@
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: {{ .Values.clusterIssuer }}
+  name: {{ .Release.Name }}-zerossl
   annotations:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "99"
 spec:
   acme:
-    email: info@uffizzi.cloud
+    email: {{ .Values.certEmail }}
     externalAccountBinding:
-      keyID: {{ .Values.eab.keyId }}
+      keyID: {{ .Values.zerossl.eab.keyId }}
       keyAlgorithm: HS256
       keySecretRef:
         key: eab_hmac_key
-        name: {{ .Release.Name }}-{{ .Values.clusterIssuer }}-eab-secret
+        name: {{ .Release.Name }}-zerossl-eab-secret
     preferredChain: ""
     privateKeySecretRef:
-      name: {{ .Values.clusterIssuer }}-tls
+      name: {{ .Release.Name }}-zerossl-tls
     server: https://acme.zerossl.com/v2/DV90
     solvers:
     - http01:

@@ -2,13 +2,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: {{ .Release.Name }}
+    app: {{ .Release.Name }}-controller
   name: {{ .Release.Name }}-controller
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ .Release.Name }}-controller
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -17,16 +17,16 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ .Release.Name }}-controller
     spec:
       automountServiceAccountToken: true
-      serviceAccountName: {{ .Release.Name }}
+      serviceAccountName: {{ .Release.Name }}-controller
       enableServiceLinks: true
       shareProcessNamespace: false
       containers:
       - envFrom:
         - secretRef:
-            name: {{ .Release.Name }}-secret-env
+            name: {{ .Release.Name }}-controller-secret-env
             optional: false
         env:
           - name: KUBERNETES_NAMESPACE
