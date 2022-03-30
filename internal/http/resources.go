@@ -22,7 +22,7 @@ type ApplyResourceRequest struct {
 func (h *Handlers) handleApplyResource(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64)
+	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return
