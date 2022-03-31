@@ -4,10 +4,6 @@ import "fmt"
 
 type ResouceNameUtils struct{}
 
-func (resouceNameUtils *ResouceNameUtils) Resource(id interface{}) string {
-	return fmt.Sprintf("resource-%v", id)
-}
-
 func (resouceNameUtils *ResouceNameUtils) ConfigFile(id interface{}) string {
 	return fmt.Sprintf("config-file-%v", id)
 }
