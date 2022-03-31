@@ -46,13 +46,9 @@ func initializeDeployment(
 					},
 				},
 				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{},
-					Tolerations: []corev1.Toleration{
-						{
-							Key:      "sandbox.gke.io/runtime",
-							Operator: "Exists",
-						},
-					},
+					Containers:   []corev1.Container{},
+					NodeSelector: getPodSpecNodeSelector(),
+					Tolerations:  getPodSpecTolerations(),
 
 					AutomountServiceAccountToken: pointer.BoolPtr(false), // False. Security, DO NOT REMOVE
 				},
@@ -132,4 +128,27 @@ func initializeHorizontalPodAutoscaler(
 			},
 		},
 	}
+}
+
+func getPodSpecNodeSelector() map[string]string {
+	if global.Settings.SandboxEnabled {
+		return map[string]string{
+			"sandbox.gke.io/runtime": "gvisor",
+		}
+	}
+
+	return nil
+}
+
+func getPodSpecTolerations() []corev1.Toleration {
+	if global.Settings.SandboxEnabled {
+		return []corev1.Toleration{
+			{
+				Key:      "sandbox.gke.io/runtime",
+				Operator: "Exists",
+			},
+		}
+	}
+
+	return nil
 }

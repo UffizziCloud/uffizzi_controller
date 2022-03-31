@@ -35,6 +35,7 @@ type Settings struct {
 	CertManagerClusterIssuer              string                `yaml:"cert_manager_cluster_issuer"`
 	EphemeralStorageCoefficient           float64               `yaml:"ephemeral_storage_coefficient"`
 	IngressDefaultPort                    int                   `yaml:"ingress_default_port"`
+	SandboxEnabled                        bool                  `yaml:"sandbox_enabled"`
 }
 
 type ServiceChecksSettings struct {

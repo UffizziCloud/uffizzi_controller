@@ -24,6 +24,7 @@ base: &base
   startup_probe_period_seconds: ${STARTUP_PROBE_PERIOD_SECONDS:-15}
   ephemeral_storage_coefficient: ${EPHEMERAL_STORAGE_COEFFICIENT:-1.9}
   cert_manager_cluster_issuer: ${CERT_MANAGER_CLUSTER_ISSUER:-letsencrypt}
+  sandbox_enabled: ${SANDBOX_ENABLED}
   ingress_default_port: 443
   service_checks:
     ip_timeout: 180s
