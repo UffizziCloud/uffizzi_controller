@@ -19,3 +19,7 @@ func (resouceNameUtils *ResouceNameUtils) ContainerVolume(containerID, configFil
 func (resouceNameUtils *ResouceNameUtils) Credential(credentialId uint64) string {
 	return fmt.Sprintf("credential-%v", credentialId)
 }
+
+func (resouceNameUtils *ResouceNameUtils) ContainerSecret(containerID uint64) string {
+	return fmt.Sprintf("container-%v-secret", containerID)
+}

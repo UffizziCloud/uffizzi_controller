@@ -15,22 +15,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func prepareContainerEnvironmentVariables(container domainTypes.Container) []corev1.EnvVar {
-	var variables []corev1.EnvVar
-
-	for _, variable := range container.Variables {
-		newVariable := corev1.EnvVar{Name: variable.Name, Value: variable.Value}
-		variables = append(variables, newVariable)
-	}
-
-	for _, secretVariable := range container.SecretVariables {
-		newSectetVariable := corev1.EnvVar{Name: secretVariable.Name, Value: secretVariable.Value}
-		variables = append(variables, newSectetVariable)
-	}
-
-	return variables
-}
-
 func (client *Client) FindDeployment(namespaceName, name string) (*appsv1.Deployment, error) {
 	deployments := client.clientset.AppsV1().Deployments(namespaceName)
 
@@ -96,7 +80,6 @@ func (client *Client) updateDeploymentAttributes(
 	namespace *corev1.Namespace,
 	deployment *appsv1.Deployment,
 	containerList domainTypes.ContainerList,
-	resources []domainTypes.Resource,
 ) (*appsv1.Deployment, error) {
 	var containers []corev1.Container
 
@@ -151,6 +134,16 @@ func (client *Client) updateDeploymentAttributes(
 			corev1.ResourceCPU:    *podCpuLimit,
 		}
 
+		name := global.Settings.ResourceName.ContainerSecret(draftContainer.ID)
+		secret, err := client.GetSecret(namespace.Name, name)
+
+		if err != nil && !errors.IsNotFound(err) {
+			return nil, err
+		}
+
+		containerVariables := prepareContainerEnvironmentVariables(draftContainer)
+		containerSecrets := prepareContainerSecrets(draftContainer, secret)
+
 		container := corev1.Container{
 			Name:            draftContainer.ControllerName,
 			Image:           containerImage,
@@ -160,8 +153,7 @@ func (client *Client) updateDeploymentAttributes(
 				Requests: requests,
 				Limits:   limits,
 			},
-			Env:           prepareContainerEnvironmentVariables(draftContainer),
-			EnvFrom:       prepareEnvFromResources(resources),
+			Env:           append(containerVariables, containerSecrets...),
 			VolumeMounts:  prepareContainerVolumeMounts(draftContainer),
 			LivenessProbe: prepareContainerHealthcheck(draftContainer),
 		}
@@ -201,7 +193,6 @@ func (client *Client) CreateOrUpdateDeployments(
 	deploymentName, deploymentSelectorName string,
 	containerList domainTypes.ContainerList,
 	credentials []domainTypes.Credential,
-	resources []domainTypes.Resource,
 ) (*appsv1.Deployment, error) {
 	deployments := client.clientset.AppsV1().Deployments(namespace.Name)
 
@@ -210,7 +201,7 @@ func (client *Client) CreateOrUpdateDeployments(
 		return nil, err
 	}
 
-	deployment, err = client.updateDeploymentAttributes(namespace, deployment, containerList, resources)
+	deployment, err = client.updateDeploymentAttributes(namespace, deployment, containerList)
 	if err != nil {
 		return nil, err
 	}

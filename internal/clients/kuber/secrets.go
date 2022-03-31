@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (client Client) FindOrInitializeSecret(namespace, name string) (*corev1.Secret, error) {
+func (client Client) FindOrInitializeSecret(namespace string, name string) (*corev1.Secret, error) {
 	secret, err := client.GetSecret(namespace, name)
 	if err != nil && !errors.IsNotFound(err) {
 		return secret, err

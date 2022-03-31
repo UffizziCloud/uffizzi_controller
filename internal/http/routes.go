@@ -16,7 +16,6 @@ func drawRoutes(r *mux.Router, h *Handlers) {
 	r.HandleFunc("/deployments/{deploymentId:[0-9]+}", h.handleCreateNamespace).Methods(http.MethodPost)
 	r.HandleFunc("/deployments/{deploymentId:[0-9]+}", h.handleUpdateNamespace).Methods(http.MethodPut)
 	r.HandleFunc("/deployments/{deploymentId:[0-9]+}", h.handleDeleteNamespace).Methods(http.MethodDelete)
-	r.HandleFunc("/deployments/{deploymentId:[0-9]+}/resources/{resourceId:[0-9]+}", h.handleApplyResource).Methods(http.MethodPost)
 	r.HandleFunc("/deployments/{deploymentId:[0-9]+}/config_files/{configFileId:[0-9]+}", h.handleApplyConfigFile).Methods(http.MethodPost)
 	r.HandleFunc("/deployments/{deploymentId:[0-9]+}/credentials", h.handleApplyCredential).Methods(http.MethodPost)
 	r.HandleFunc("/deployments/{deploymentId:[0-9]+}/credentials/{credentialId}", h.handleDeleteCredential).Methods(http.MethodDelete)
