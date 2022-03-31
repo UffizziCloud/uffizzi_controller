@@ -85,7 +85,6 @@ func (l *Logic) ApplyContainers(
 	containerList domainTypes.ContainerList,
 	credentials []domainTypes.Credential,
 	deploymentHost string,
-	resources []domainTypes.Resource,
 ) error {
 	namespaceName := l.KubernetesNamespaceName(deploymentID)
 
@@ -113,12 +112,12 @@ func (l *Logic) ApplyContainers(
 	log.Printf("networkPolicy/%s configured", policy.Name)
 	log.Printf("namespace/%s containerList: %+#v", namespace.Name, containerList)
 
-	err = l.ClearOldResources(namespace, resources)
+	err = l.ClearOldConfigurationFiles(namespace, containerList)
 	if err != nil {
 		return err
 	}
 
-	err = l.ClearOldConfigurationFiles(namespace, containerList)
+	err = l.ApplyContainerSecrets(namespaceName, containerList)
 	if err != nil {
 		return err
 	}
@@ -138,7 +137,6 @@ func (l *Logic) ApplyContainers(
 		deploymentSelectorName,
 		containerList,
 		credentials,
-		resources,
 	)
 	if err != nil {
 		return l.handleDomainDeploymentError(namespace.Name, err)
