@@ -6,4 +6,5 @@ type Healthcheck struct {
 	Timeout     int32    `json:"timeout"`
 	Retries     int32    `json:"retries"`
 	StartPeriod int32    `json:"start_period"`
+	Disable     bool     `json:"disable"`
 }
