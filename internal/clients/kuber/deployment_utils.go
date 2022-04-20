@@ -119,7 +119,7 @@ func prepareCredentialsDeployment(credentials []domainTypes.Credential) []corev1
 func prepareContainerHealthcheck(container domainTypes.Container) *corev1.Probe {
 	healthcheck := *container.Healthcheck
 
-	if len(healthcheck.Test) == 0 || healthcheck.Disable == nil {
+	if len(healthcheck.Test) == 0 || healthcheck.Disable == true {
 		return nil
 	}
 
