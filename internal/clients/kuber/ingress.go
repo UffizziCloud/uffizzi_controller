@@ -66,12 +66,17 @@ func (client *Client) UpdateIngressAttributes(
 	container domainTypes.Container,
 	serviceName, deploymentHost string) *networkingV1.Ingress {
 	containerPort := *container.Port
+	tls := []networkingV1.IngressTLS{
+		{Hosts: []string{deploymentHost}},
+	}
 
 	ingress.ObjectMeta.Annotations["kubernetes.io/ingress.class"] = "nginx"
-	ingress.ObjectMeta.Annotations["cert-manager.io/cluster-issuer"] = global.Settings.CertManagerClusterIssuer
-
-	tls := []networkingV1.IngressTLS{
-		{Hosts: []string{deploymentHost}, SecretName: deploymentHost},
+	// if a `ClusterIssuer` is specified, use it.
+	if len(global.Settings.CertManagerClusterIssuer) > 0 {
+		ingress.ObjectMeta.Annotations["cert-manager.io/cluster-issuer"] = global.Settings.CertManagerClusterIssuer
+		tls = []networkingV1.IngressTLS{
+			{Hosts: []string{deploymentHost}, SecretName: deploymentHost},
+		}
 	}
 
 	ingressBackend := networkingV1.IngressBackend{
