@@ -23,16 +23,16 @@ NO_COLOR='\033[0m'
 clean_world: destroy_shell build_shell up
 
 destroy_shell:
-	docker-compose down -v
+	docker compose down -v
 
 build_shell:
-	docker-compose build
+	docker compose build
 
 up:
-	docker-compose up
+	docker compose up
 
 shell:
-	docker-compose run --service-ports --rm controller bash
+	docker compose run --service-ports --rm controller bash
 
 lint:
 	golangci-lint run
