@@ -38,7 +38,6 @@ type Settings struct {
 }
 
 type ServiceChecksSettings struct {
-	IPTimeout           time.Duration `yaml:"ip_timeout"`
 	IPPingTimeout       time.Duration `yaml:"ip_ping_timeout"`
 	AvailabilityTimeout time.Duration `yaml:"availability_timeout"`
 	AwaitStatusTimeout  time.Duration `yaml:"await_status_timeout"`
