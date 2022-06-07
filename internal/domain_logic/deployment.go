@@ -85,6 +85,7 @@ func (l *Logic) ApplyContainers(
 	containerList domainTypes.ContainerList,
 	credentials []domainTypes.Credential,
 	deploymentHost string,
+	project domainTypes.Project,
 ) error {
 	namespaceName := l.KubernetesNamespaceName(deploymentID)
 
@@ -174,7 +175,7 @@ func (l *Logic) ApplyContainers(
 
 	var networkBuilder INetworkBuilder
 
-	networkDependencies := NewNetworkDependencies(l, namespace, containerList, deployment, deploymentHost)
+	networkDependencies := NewNetworkDependencies(l, namespace, containerList, deployment, deploymentHost, project)
 
 	networkBuilder = NewIngressNetworkBuilder(networkDependencies)
 
@@ -189,6 +190,73 @@ func (l *Logic) ApplyContainers(
 	}
 
 	log.Printf("UffizziDeployment/%d configured", deploymentID)
+
+	return nil
+}
+
+func (l *Logic) ApplyIngressBasciAuth(
+	deploymentID uint64,
+	project domainTypes.Project,
+) error {
+	namespaceName := l.KubernetesNamespaceName(deploymentID)
+
+	namespace, err := l.KuberClient.FindNamespace(namespaceName)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("namespace/%s found", namespace.Name)
+
+	ingressName := l.KuberClient.GetIngressName(namespace)
+	ingress, err := l.KuberClient.FindIngress(namespace.Name, ingressName)
+
+	if err != nil {
+		return err
+	}
+
+	ingressWithBasicAuth, err := l.KuberClient.AddBasicAuthToIngress(ingress, project, namespace.Name)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = l.KuberClient.UpdateIngress(ingressWithBasicAuth, namespace.Name)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (l *Logic) DeleteIngressBasciAuth(deploymentID uint64) error {
+	namespaceName := l.KubernetesNamespaceName(deploymentID)
+
+	namespace, err := l.KuberClient.FindNamespace(namespaceName)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("namespace/%s found", namespace.Name)
+
+	ingressName := l.KuberClient.GetIngressName(namespace)
+	ingress, err := l.KuberClient.FindIngress(namespace.Name, ingressName)
+
+	if err != nil {
+		return err
+	}
+
+	ingressWithoutBasicAuth, err := l.KuberClient.DeleteBasicAuthFromIngress(ingress, namespace.Name)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = l.KuberClient.UpdateIngress(ingressWithoutBasicAuth, namespace.Name)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
+	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/pkg/basic_auth_utils"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -88,4 +89,24 @@ func (client *Client) UpdateSecret(namespace string, secretDraft *corev1.Secret)
 	}
 
 	return secret, nil
+}
+
+func (client *Client) BuildSecretBasicAuth(login, password, namespace, secretName string) *corev1.Secret {
+	authPair := basic_auth_utils.GenerateAuthPair(login, password)
+
+	secretDraft := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      secretName,
+			Namespace: namespace,
+			Labels: map[string]string{
+				"app.kubernetes.io/managed-by": global.Settings.ManagedApplication,
+			},
+		},
+		StringData: map[string]string{
+			"auth": authPair,
+		},
+		Type: "Opaque",
+	}
+
+	return secretDraft
 }
