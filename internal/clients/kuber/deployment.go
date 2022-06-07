@@ -160,9 +160,10 @@ func (client *Client) updateDeploymentAttributes(
 				Requests: requests,
 				Limits:   limits,
 			},
-			Env:          prepareContainerEnvironmentVariables(draftContainer),
-			EnvFrom:      prepareEnvFromResources(resources),
-			VolumeMounts: prepareContainerVolumeMounts(draftContainer),
+			Env:           prepareContainerEnvironmentVariables(draftContainer),
+			EnvFrom:       prepareEnvFromResources(resources),
+			VolumeMounts:  prepareContainerVolumeMounts(draftContainer),
+			LivenessProbe: prepareContainerHealthcheck(draftContainer),
 		}
 
 		container.Command = draftContainer.Entrypoint

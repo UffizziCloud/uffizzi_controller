@@ -26,13 +26,11 @@ base: &base
   cert_manager_cluster_issuer: ${CERT_MANAGER_CLUSTER_ISSUER:-letsencrypt}
   ingress_default_port: 443
   service_checks:
-    ip_timeout: 180s
-    ip_ping_timeout: 600s
-    availability_timeout: 600s
-    await_status_timeout: 600s
+    ip_ping_timeout: 1800s
+    availability_timeout: 1800s
+    await_status_timeout: 1800s
     per_address_attempts: 180
-    per_address_timeout: 600s
-
+    per_address_timeout: 1800s
 
 test:
   <<: *base
