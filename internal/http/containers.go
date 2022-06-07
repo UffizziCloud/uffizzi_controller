@@ -49,6 +49,7 @@ type applyContainersRequest struct {
 	Containers     []domainTypes.Container  `json:"containers"`
 	Credentials    []domainTypes.Credential `json:"credentials,omitempty"`
 	DeploymentHost string                   `json:"deployment_url"`
+	Project        domainTypes.Project      `json:"project"`
 }
 
 // @Description Create or Update containers within a Deployment.
@@ -88,8 +89,9 @@ func (h *Handlers) handleApplyContainers(w http.ResponseWriter, r *http.Request)
 		containerList := domainTypes.ContainerList{Items: containers}
 		credentials := request.Credentials
 		deploymentHost := request.DeploymentHost
+		project := request.Project
 
-		err = domainLogic.ApplyContainers(deploymentId, containerList, credentials, deploymentHost)
+		err = domainLogic.ApplyContainers(deploymentId, containerList, credentials, deploymentHost, project)
 		if err != nil {
 			handleDomainError("domainLogic.ApplyContainers", err, localHub)
 		}
