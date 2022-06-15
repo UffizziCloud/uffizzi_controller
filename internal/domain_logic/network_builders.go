@@ -40,7 +40,7 @@ func NewNetworkDependencies(
 		ContainerList:  containerList,
 		Deployment:     deployment,
 		DeploymentHost: deploymentHost,
-                Project:        project,
+		Project:        project,
 	}
 }
 
@@ -111,7 +111,7 @@ func (builder *IngressNetworkBuilder) Create() error {
 		service.Name,
 		generalPublicContainer,
 		deploymentHost,
-                project,
+		project,
 	)
 	if err != nil {
 		return err
