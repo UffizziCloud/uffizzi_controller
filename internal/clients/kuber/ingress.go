@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
+	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/pkg/basic_auth_utils"
 	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 	corev1 "k8s.io/api/core/v1"
 	networkingV1 "k8s.io/api/networking/v1"
@@ -91,7 +92,6 @@ func (client *Client) UpdateIngressAttributes(
 	if err != nil {
 		return nil, err
 	}
-
 	// if a `ClusterIssuer` is specified, use it.
 	if len(global.Settings.CertManagerClusterIssuer) > 0 {
 		ingress.ObjectMeta.Annotations["cert-manager.io/cluster-issuer"] = global.Settings.CertManagerClusterIssuer
@@ -151,6 +151,10 @@ func (client *Client) CreateOrUpdateIngress(namespace *corev1.Namespace,
 	}
 
 	ingress, err = client.UpdateIngressAttributes(ingress, namespace, container, serviceName, deploymentHost, project)
+
+	if err != nil {
+		return ingress, err
+	}
 
 	if len(ingress.UID) > 0 {
 		ingress, err = ingresses.Update(client.context, ingress, metav1.UpdateOptions{})
@@ -228,18 +232,25 @@ func (client *Client) AddBasicAuthToIngress(
 	ingress *networkingV1.Ingress,
 	project domainTypes.Project,
 	namespaceName string) (*networkingV1.Ingress, error) {
-
-	err := client.DeleteSecret(namespaceName, BASIC_AUTH_SECRET_NAME)
-
+	secret, err := client.FindOrInitializeSecret(namespaceName, BASIC_AUTH_SECRET_NAME)
 	if err != nil {
 		return nil, err
 	}
 
-	secretDraft := client.BuildSecretBasicAuth(project.PreviewsUserName, project.PreviewsPassword, namespaceName, BASIC_AUTH_SECRET_NAME)
-	_, err = client.CreateSecret(namespaceName, secretDraft)
+	authPair := basic_auth_utils.GenerateAuthPair(project.PreviewsUserName, project.PreviewsPassword)
+	secret.StringData = map[string]string{"auth": authPair}
+	secret.Type = "Opaque"
 
-	if err != nil {
-		return nil, err
+	if len(secret.UID) > 0 {
+		_, err = client.UpdateSecret(namespaceName, secret)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		_, err = client.CreateSecret(namespaceName, secret)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	basicAuthAnnotations := getBasicAuthAnnotation(BASIC_AUTH_SECRET_NAME)
@@ -254,23 +265,27 @@ func (client *Client) AddBasicAuthToIngress(
 func (client *Client) DeleteBasicAuthFromIngress(
 	ingress *networkingV1.Ingress,
 	namespaceName string) (*networkingV1.Ingress, error) {
+	secret, _ := client.GetSecret(namespaceName, BASIC_AUTH_SECRET_NAME)
 
-	err := client.DeleteSecret(namespaceName, BASIC_AUTH_SECRET_NAME)
-	if err != nil {
-		return nil, err
+	if secret != nil && len(secret.UID) > 0 {
+		err := client.DeleteSecret(namespaceName, BASIC_AUTH_SECRET_NAME)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	basicAuthAnnotationKeys := getBasicAuthAnnotation(BASIC_AUTH_SECRET_NAME)
 
-	for key, _ := range basicAuthAnnotationKeys {
+	for key := range basicAuthAnnotationKeys {
 		delete(ingress.ObjectMeta.Annotations, key)
 	}
 
 	return ingress, nil
 }
 
-func (client *Client) UpdateIngress(ingress *networkingV1.Ingress, namespaceName string) (*networkingV1.Ingress, error) {
-
+func (client *Client) UpdateIngress(
+	ingress *networkingV1.Ingress,
+	namespaceName string) (*networkingV1.Ingress, error) {
 	ingresses := client.clientset.NetworkingV1().Ingresses(namespaceName)
 	ingress, err := ingresses.Update(client.context, ingress, metav1.UpdateOptions{})
 
@@ -280,7 +295,7 @@ func (client *Client) UpdateIngress(ingress *networkingV1.Ingress, namespaceName
 func getBasicAuthAnnotation(secretName string) map[string]string {
 	return map[string]string{
 		"nginx.ingress.kubernetes.io/auth-type":   "basic",
-		"nginx.ingress.kubernetes.io/auth-secret": BASIC_AUTH_SECRET_NAME,
+		"nginx.ingress.kubernetes.io/auth-secret": secretName,
 		"nginx.ingress.kubernetes.io/auth-realm":  "Authentication Required",
 	}
 }
