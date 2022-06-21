@@ -1,6 +1,9 @@
 package resource_name_utils
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type ResouceNameUtils struct{}
 
@@ -26,4 +29,14 @@ func (resouceNameUtils *ResouceNameUtils) Deployment(namespace string) string {
 
 func (resouceNameUtils *ResouceNameUtils) Policy(namespace string) string {
 	return fmt.Sprintf("app-%v", namespace)
+}
+
+func (resouceNameUtils *ResouceNameUtils) PvcName(name string) string {
+	rfcName := strings.ReplaceAll(name, "_", "-")
+	return fmt.Sprintf("pvc-%v", rfcName)
+}
+
+func (resouceNameUtils *ResouceNameUtils) VolumeName(name string) string {
+	rfcName := strings.ReplaceAll(name, "_", "-")
+	return fmt.Sprintf("volume-%v", rfcName)
 }

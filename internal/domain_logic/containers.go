@@ -58,3 +58,24 @@ func (l *Logic) ApplyContainerSecrets(namespace string, containerList domainType
 
 	return nil
 }
+
+func (l *Logic) ApplyContainersNamedVolumes(namespace string, containerList domainTypes.ContainerList) error {
+	for _, volume := range containerList.GetUniqNamedVolumes() {
+		pvcName := global.Settings.ResourceName.PvcName(volume.Source)
+		pvc, err := l.KuberClient.FindOrInitializePersistentVolumeClaim(namespace, pvcName)
+
+		if err != nil {
+			return err
+		}
+
+		if len(pvc.UID) == 0 {
+			_, err = l.KuberClient.CreatePersistentVolumeClaim(namespace, pvc)
+		}
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
