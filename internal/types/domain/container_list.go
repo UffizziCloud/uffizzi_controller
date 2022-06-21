@@ -61,3 +61,32 @@ func (list ContainerList) GetUserContainerList() ContainerList {
 func (list *ContainerList) AddContainer(container Container) {
 	list.Items = append(list.Items, container)
 }
+
+func (list ContainerList) GetUniqNamedVolumes() []*ContainerVolume {
+	volumes := []*ContainerVolume{}
+
+	for _, container := range list.Items {
+		for _, containerVolume := range container.ContainerVolumes {
+			if containerVolume.Type != ContainerVolumeTypeNamed {
+				continue
+			}
+
+			isVolumeExists := false
+
+			for _, existsVolume := range volumes {
+				if existsVolume.Source == containerVolume.Source {
+					isVolumeExists = true
+					break
+				}
+			}
+
+			if isVolumeExists {
+				continue
+			}
+
+			volumes = append(volumes, containerVolume)
+		}
+	}
+
+	return volumes
+}

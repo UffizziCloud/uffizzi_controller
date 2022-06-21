@@ -122,6 +122,11 @@ func (l *Logic) ApplyContainers(
 		return err
 	}
 
+	err = l.ApplyContainersNamedVolumes(namespaceName, containerList)
+	if err != nil {
+		return err
+	}
+
 	if containerList.IsEmpty() {
 		return l.CleaningNamespaceForEmptyContainers(namespace)
 	}
