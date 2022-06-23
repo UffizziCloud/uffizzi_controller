@@ -6,6 +6,12 @@ type ContainerList struct {
 	Items []Container `json:"items"`
 }
 
+type DeploymentVolume struct {
+	Volume    *ContainerVolume
+	Container *Container
+	UniqName  string
+}
+
 func (list ContainerList) IsEmpty() bool {
 	return list.Count() == 0
 }
@@ -62,19 +68,20 @@ func (list *ContainerList) AddContainer(container Container) {
 	list.Items = append(list.Items, container)
 }
 
-func (list ContainerList) GetUniqNamedVolumes() []*ContainerVolume {
-	volumes := []*ContainerVolume{}
+func (list ContainerList) GetUniqNamedVolumes() []DeploymentVolume {
+	volumes := []DeploymentVolume{}
 
-	for _, container := range list.Items {
+	for i, container := range list.Items {
 		for _, containerVolume := range container.ContainerVolumes {
 			if containerVolume.Type != ContainerVolumeTypeNamed {
 				continue
 			}
 
 			isVolumeExists := false
+			uniqName := containerVolume.BuildUniqName(&list.Items[i])
 
 			for _, existsVolume := range volumes {
-				if existsVolume.Source == containerVolume.Source {
+				if existsVolume.UniqName == uniqName {
 					isVolumeExists = true
 					break
 				}
@@ -84,7 +91,49 @@ func (list ContainerList) GetUniqNamedVolumes() []*ContainerVolume {
 				continue
 			}
 
-			volumes = append(volumes, containerVolume)
+			volume := DeploymentVolume{
+				Volume:    containerVolume,
+				Container: &list.Items[i],
+				UniqName:  uniqName,
+			}
+
+			volumes = append(volumes, volume)
+		}
+	}
+
+	return volumes
+}
+
+func (list ContainerList) GetUniqAnonymousVolumes() []DeploymentVolume {
+	volumes := []DeploymentVolume{}
+
+	for i, container := range list.Items {
+		for _, containerVolume := range container.ContainerVolumes {
+			if containerVolume.Type != ContainerVolumeTypeAnonymous {
+				continue
+			}
+
+			isVolumeExists := false
+			uniqName := containerVolume.BuildUniqName(&list.Items[i])
+
+			for _, existsVolume := range volumes {
+				if existsVolume.UniqName == uniqName {
+					isVolumeExists = true
+					break
+				}
+			}
+
+			if isVolumeExists {
+				continue
+			}
+
+			volume := DeploymentVolume{
+				Volume:    containerVolume,
+				Container: &list.Items[i],
+				UniqName:  uniqName,
+			}
+
+			volumes = append(volumes, volume)
 		}
 	}
 

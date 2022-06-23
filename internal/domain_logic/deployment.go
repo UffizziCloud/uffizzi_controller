@@ -127,6 +127,11 @@ func (l *Logic) ApplyContainers(
 		return err
 	}
 
+	err = l.ApplyContainersAnonymousVolumes(namespaceName, containerList)
+	if err != nil {
+		return err
+	}
+
 	if containerList.IsEmpty() {
 		return l.CleaningNamespaceForEmptyContainers(namespace)
 	}
