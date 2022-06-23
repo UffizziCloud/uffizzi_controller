@@ -19,7 +19,7 @@ func (client Client) FindOrInitializePersistentVolumeClaim(
 		return persistentVolumeClaim, nil
 	}
 
-	var storageClassName string = "standard"
+	var storageClassName string = global.Settings.PvcStorageClassName
 
 	persistentVolumeClaimDraft := &corev1.PersistentVolumeClaim{
 		Spec: corev1.PersistentVolumeClaimSpec{
