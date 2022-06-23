@@ -65,8 +65,12 @@ func prepareContainerVolumeMounts(container domainTypes.Container) []corev1.Volu
 	volumeMounts := []corev1.VolumeMount{}
 	configVolumeMounts := prepareContainerConfigFileVolumeMounts(container)
 	volumeMounts = append(volumeMounts, configVolumeMounts...)
+
 	namedVolumeMounts := prepareContainerNamedVolumeMounts(container)
 	volumeMounts = append(volumeMounts, namedVolumeMounts...)
+
+	anonymousVolumeMounts := prepareContainerAnonymousVolumeMounts(container)
+	volumeMounts = append(volumeMounts, anonymousVolumeMounts...)
 
 	return volumeMounts
 }
@@ -148,13 +152,15 @@ func prepareDeploymentConfigFileVolumes(containerList domainTypes.ContainerList)
 
 func prepareDeploymentPvcVolumes(containerList domainTypes.ContainerList) []corev1.Volume {
 	volumes := []corev1.Volume{}
+	pvcVolumes := containerList.GetUniqNamedVolumes()
+	pvcVolumes = append(pvcVolumes, containerList.GetUniqAnonymousVolumes()...)
 
-	for _, namedVolume := range containerList.GetUniqNamedVolumes() {
+	for _, pvcVolume := range pvcVolumes {
 		volume := corev1.Volume{
-			Name: global.Settings.ResourceName.VolumeName(namedVolume.Source),
+			Name: global.Settings.ResourceName.VolumeName(pvcVolume.UniqName),
 			VolumeSource: corev1.VolumeSource{
 				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-					ClaimName: global.Settings.ResourceName.PvcName(namedVolume.Source),
+					ClaimName: global.Settings.ResourceName.PvcName(pvcVolume.UniqName),
 				},
 			},
 		}
@@ -192,13 +198,35 @@ func prepareContainerNamedVolumeMounts(container domainTypes.Container) []corev1
 	volumeMounts := []corev1.VolumeMount{}
 
 	for _, containerVolume := range container.ContainerVolumes {
-		if containerVolume.Type != domainTypes.ContainerVolumeTypeNamed {
+		if !containerVolume.IsNamedType() {
 			continue
 		}
 
+		name := containerVolume.BuildUniqName(&container)
 		volumeMount := corev1.VolumeMount{
-			Name:      global.Settings.ResourceName.VolumeName(containerVolume.Source),
+			Name:      global.Settings.ResourceName.VolumeName(name),
 			MountPath: containerVolume.Target,
+			ReadOnly:  containerVolume.ReadOnly,
+		}
+
+		volumeMounts = append(volumeMounts, volumeMount)
+	}
+
+	return volumeMounts
+}
+
+func prepareContainerAnonymousVolumeMounts(container domainTypes.Container) []corev1.VolumeMount {
+	volumeMounts := []corev1.VolumeMount{}
+
+	for _, containerVolume := range container.ContainerVolumes {
+		if !containerVolume.IsAnonymousType() {
+			continue
+		}
+
+		name := containerVolume.BuildUniqName(&container)
+		volumeMount := corev1.VolumeMount{
+			Name:      global.Settings.ResourceName.VolumeName(name),
+			MountPath: containerVolume.Source,
 			ReadOnly:  containerVolume.ReadOnly,
 		}
 

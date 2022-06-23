@@ -27,6 +27,7 @@ type Container struct {
 	ContainerConfigFiles    []*ContainerConfigFile `json:"container_config_files"`
 	Healthcheck             *Healthcheck           `json:"healthcheck"`
 	ContainerVolumes        []*ContainerVolume     `json:"volumes"`
+	ServiceName             string                 `json:"service_name"`
 }
 
 func (c Container) IsPublic() bool {

@@ -1,5 +1,7 @@
 package types
 
+import "fmt"
+
 type ContainerVolume struct {
 	Source   string              `json:"source"`
 	Target   string              `json:"target"`
@@ -15,14 +17,25 @@ const (
 	ContainerVolumeTypeHost      ContainerVolumeType = "host"
 )
 
-// func (volume ContainerVolume) IsHostTypeContainerVolume() bool {
-// 	return volume.Type == "host"
-// }
+func (volume ContainerVolume) BuildUniqName(container *Container) string {
+	switch volume.Type {
+	case ContainerVolumeTypeAnonymous:
+		return fmt.Sprintf("%s-%s", container.ServiceName, volume.Source)
+	case ContainerVolumeTypeNamed:
+		return volume.Source
+	default:
+		return ""
+	}
+}
 
-// func (volume ContainerVolume) IsNamedTypeContainerVolume() bool {
-// 	return volume.Type == "named"
-// }
+func (volume ContainerVolume) IsHostType() bool {
+	return volume.Type == ContainerVolumeTypeHost
+}
 
-// func (volume ContainerVolume) IsAnonymousTypeContainerVolume() bool {
-// 	return volume.Type == "anonymous"
-// }
+func (volume ContainerVolume) IsNamedType() bool {
+	return volume.Type == ContainerVolumeTypeNamed
+}
+
+func (volume ContainerVolume) IsAnonymousType() bool {
+	return volume.Type == ContainerVolumeTypeAnonymous
+}
