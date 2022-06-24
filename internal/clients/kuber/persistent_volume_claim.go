@@ -1,6 +1,8 @@
 package kuber
 
 import (
+	"fmt"
+
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -54,6 +56,19 @@ func (client *Client) GetPersistentVolumeClaim(namespace, name string) (*corev1.
 	return persistentVolumeClaim, nil
 }
 
+func (client *Client) GetPersistentVolumeClaims(namespace string) ([]corev1.PersistentVolumeClaim, error) {
+	persistentVolumeClaimClient := client.clientset.CoreV1().PersistentVolumeClaims(namespace)
+
+	persistentVolumeClaimList, err := persistentVolumeClaimClient.List(client.context, metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("app.kubernetes.io/managed-by=%v", global.Settings.ManagedApplication),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return persistentVolumeClaimList.Items, nil
+}
+
 func (client *Client) CreatePersistentVolumeClaim(
 	namespace string,
 	persistentVolumeClaimDraft *corev1.PersistentVolumeClaim,
@@ -68,4 +83,15 @@ func (client *Client) CreatePersistentVolumeClaim(
 	}
 
 	return persistentVolumeClaim, nil
+}
+
+func (client *Client) DeletePersistentVolumeClaim(namespace, name string) error {
+	persistentVolumeClaimClient := client.clientset.CoreV1().PersistentVolumeClaims(namespace)
+
+	err := persistentVolumeClaimClient.Delete(client.context, name, metav1.DeleteOptions{})
+	if err != nil {
+		return nil
+	}
+
+	return nil
 }
