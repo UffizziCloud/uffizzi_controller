@@ -117,6 +117,11 @@ func (l *Logic) ApplyContainers(
 		return err
 	}
 
+	err = l.RemoveUnusedContainersVolumes(namespaceName, containerList)
+	if err != nil {
+		return err
+	}
+
 	err = l.ApplyContainerSecrets(namespaceName, containerList)
 	if err != nil {
 		return err
