@@ -257,6 +257,11 @@ func (l *Logic) CheckResourcesAvailability(
 		}
 	}
 
+	err = l.RunAwaitRollingUpdate(namespaceName)
+	if err != nil {
+		return err
+	}
+
 	publicContainerList := resources.ContainerList.GetPublicContainerList()
 
 	requests, countPoints, err := l.BuildResourceAvailabilityRequests(publicContainerList, service, ingress)
@@ -322,7 +327,7 @@ func (l *Logic) RunNetworkConnectivityChecks(namespace *corev1.Namespace,
 
 	select {
 	case <-ctx.Done():
-		log.Println("Cancel to check resources availability")
+		log.Printf("namespace/%s Cancel to check resources availability\n", namespace.Name)
 		return nil
 
 	case value := <-errorChanel:
@@ -331,5 +336,47 @@ func (l *Logic) RunNetworkConnectivityChecks(namespace *corev1.Namespace,
 		}
 
 		return nil
+	}
+}
+
+func (l *Logic) RunAwaitRollingUpdate(namespace string) error {
+	ctx := context.TODO()
+	ctx, cancelContext := context.WithCancel(ctx)
+	errorChan := make(chan error, 1)
+
+	defer cancelContext()
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				log.Printf("namespace/%s RunAwaitRollingUpdate goroutine was stopped\n", namespace)
+				return
+			default:
+				pods, err := l.KuberClient.GetPods(namespace)
+				if err != nil {
+					errorChan <- err
+					return
+				}
+
+				if isPodsReady(pods.Items) {
+					errorChan <- nil
+					return
+				}
+
+				stepAwaitingRollingUpdate := global.Settings.ServiceChecks.StepAwaitingRollingUpdate
+
+				log.Printf("namespace/%s waiting %v seconds for rolling update status\n", namespace, stepAwaitingRollingUpdate)
+
+				time.Sleep(stepAwaitingRollingUpdate)
+			}
+		}
+	}()
+
+	select {
+	case <-time.After(global.Settings.ServiceChecks.AwaitRollingUpdateTimeout):
+		return fmt.Errorf("namespace/%s rolling update check timeout", namespace)
+	case err := <-errorChan:
+		return err
 	}
 }
