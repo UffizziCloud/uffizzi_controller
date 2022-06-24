@@ -148,3 +148,29 @@ func prepareCredentialsDeployment(credentials []domainTypes.Credential) []corev1
 
 	return references
 }
+
+func prepareContainerHealthcheck(container domainTypes.Container) *corev1.Probe {
+	if container.Healthcheck == nil {
+		return nil
+	}
+
+	healthcheck := *container.Healthcheck
+
+	if len(healthcheck.Test) == 0 || healthcheck.Disable {
+		return nil
+	}
+
+	probe := &corev1.Probe{
+		ProbeHandler: corev1.ProbeHandler{
+			Exec: &corev1.ExecAction{
+				Command: healthcheck.Test,
+			},
+		},
+		InitialDelaySeconds: healthcheck.StartPeriod,
+		TimeoutSeconds:      healthcheck.Timeout,
+		PeriodSeconds:       healthcheck.Interval,
+		FailureThreshold:    healthcheck.Retries,
+	}
+
+	return probe
+}
