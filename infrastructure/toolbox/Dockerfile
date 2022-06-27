@@ -1,6 +1,4 @@
-FROM docker:19.03.10
-
-ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
+FROM docker:20.10.12
 
 RUN apk update
 RUN apk add --no-cache \
@@ -17,7 +15,8 @@ RUN apk add --no-cache \
     bash \
     vim \
     curl \
-    groff
+    groff \
+    cargo
 
 RUN pip3 install "urllib3<1.25"
 RUN pip3 install pyrsistent==0.16.1
@@ -30,7 +29,7 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s 
 ARG CLOUD_SDK_VERSION=266.0.0
 
 ENV PATH /google-cloud-sdk/bin:$PATH
-RUN apk --no-cache --update add curl python py-crcmod libc6-compat make less && \
+RUN apk --no-cache --update add curl python2 py-crcmod libc6-compat make less && \
     curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     rm google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
