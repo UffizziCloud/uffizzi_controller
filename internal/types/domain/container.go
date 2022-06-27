@@ -25,7 +25,6 @@ type Container struct {
 	MemoryLimit             uint                   `json:"memory_limit"`
 	MemoryRequest           uint                   `json:"memory_request"`
 	ContainerConfigFiles    []*ContainerConfigFile `json:"container_config_files"`
-	Healthcheck             *Healthcheck           `json:"healthcheck"`
 }
 
 func (c Container) IsPublic() bool {
