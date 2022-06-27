@@ -32,10 +32,10 @@ type Settings struct {
 	StartupProbeDelaySeconds              int32                 `yaml:"startup_probe_delay_seconds"`
 	StartupProbeFailureThreshold          int32                 `yaml:"startup_probe_failure_threshold"`
 	StartupProbePeriodSettings            int32                 `yaml:"startup_probe_period_seconds"`
-	SandboxEnabled                        bool                  `yaml:"sandbox_enabled"`
 	CertManagerClusterIssuer              string                `yaml:"cert_manager_cluster_issuer"`
 	EphemeralStorageCoefficient           float64               `yaml:"ephemeral_storage_coefficient"`
 	IngressDefaultPort                    int                   `yaml:"ingress_default_port"`
+	SandboxEnabled                        bool                  `yaml:"sandbox_enabled"`
 }
 
 type ServiceChecksSettings struct {
