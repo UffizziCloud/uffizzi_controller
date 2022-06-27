@@ -134,15 +134,15 @@ func (client *Client) updateDeploymentAttributes(
 			corev1.ResourceCPU:    *podCpuLimit,
 		}
 
-		//name := global.Settings.ResourceName.ContainerSecret(draftContainer.ID)
-		//secret, err := client.GetSecret(namespace.Name, name)
+		name := global.Settings.ResourceName.ContainerSecret(draftContainer.ID)
+		secret, err := client.GetSecret(namespace.Name, name)
 
 		if err != nil && !errors.IsNotFound(err) {
 			return nil, err
 		}
 
-		//containerVariables := prepareContainerEnvironmentVariables(draftContainer)
-		//containerSecrets := prepareContainerSecrets(draftContainer, secret)
+		containerVariables := prepareContainerEnvironmentVariables(draftContainer)
+		containerSecrets := prepareContainerSecrets(draftContainer, secret)
 
 		container := corev1.Container{
 			Name:            draftContainer.ControllerName,
@@ -153,7 +153,7 @@ func (client *Client) updateDeploymentAttributes(
 				Requests: requests,
 				Limits:   limits,
 			},
-			Env:           prepareContainerEnvironmentVariables(draftContainer),
+			Env:           append(containerVariables, containerSecrets...),
 			VolumeMounts:  prepareContainerVolumeMounts(draftContainer),
 			LivenessProbe: prepareContainerHealthcheck(draftContainer),
 		}
