@@ -39,9 +39,11 @@ type Settings struct {
 }
 
 type ServiceChecksSettings struct {
-	IPPingTimeout       time.Duration `yaml:"ip_ping_timeout"`
-	AvailabilityTimeout time.Duration `yaml:"availability_timeout"`
-	AwaitStatusTimeout  time.Duration `yaml:"await_status_timeout"`
-	PerAddressAttempts  uint          `yaml:"per_address_attempts"`
-	PerAddressTimeout   time.Duration `yaml:"per_address_timeout"`
+	IPPingTimeout             time.Duration `yaml:"ip_ping_timeout"`
+	AvailabilityTimeout       time.Duration `yaml:"availability_timeout"`
+	AwaitStatusTimeout        time.Duration `yaml:"await_status_timeout"`
+	AwaitRollingUpdateTimeout time.Duration `yaml:"await_rolling_update_timeout"`
+	StepAwaitingRollingUpdate time.Duration `yaml:"step_awaiting_rolling_update"`
+	PerAddressAttempts        uint          `yaml:"per_address_attempts"`
+	PerAddressTimeout         time.Duration `yaml:"per_address_timeout"`
 }
