@@ -53,6 +53,63 @@ func prepareContainerSecrets(container domainTypes.Container, secret *corev1.Sec
 
 func prepareDeploymentVolumes(containerList domainTypes.ContainerList) []corev1.Volume {
 	volumes := []corev1.Volume{}
+	configFileVolumes := prepareDeploymentConfigFileVolumes(containerList)
+	volumes = append(volumes, configFileVolumes...)
+	pvcVolumes := prepareDeploymentPvcVolumes(containerList)
+	volumes = append(volumes, pvcVolumes...)
+
+	return volumes
+}
+
+func prepareContainerVolumeMounts(container domainTypes.Container) []corev1.VolumeMount {
+	volumeMounts := []corev1.VolumeMount{}
+	configVolumeMounts := prepareContainerConfigFileVolumeMounts(container)
+	volumeMounts = append(volumeMounts, configVolumeMounts...)
+
+	namedVolumeMounts := prepareContainerNamedVolumeMounts(container)
+	volumeMounts = append(volumeMounts, namedVolumeMounts...)
+
+	anonymousVolumeMounts := prepareContainerAnonymousVolumeMounts(container)
+	volumeMounts = append(volumeMounts, anonymousVolumeMounts...)
+
+	return volumeMounts
+}
+
+func prepareConfigFileMountPath(containerConfigFile *domainTypes.ContainerConfigFile) (string, string) {
+	mountPath := containerConfigFile.MountPath
+
+	if len(mountPath) == 0 {
+		mountPath = "/"
+	}
+
+	if mountPath[0] != '/' {
+		mountPath = fmt.Sprintf("/%v", containerConfigFile.MountPath)
+	}
+
+	if mountPath == "/" {
+		mountPath = fmt.Sprintf("/%v", containerConfigFile.ConfigFile.Filename)
+	}
+
+	mountPathParts := strings.Split(mountPath, "/")
+	mountFileName := mountPathParts[len(mountPathParts)-1]
+
+	return mountPath, mountFileName
+}
+
+func prepareCredentialsDeployment(credentials []domainTypes.Credential) []corev1.LocalObjectReference {
+	references := []corev1.LocalObjectReference{}
+
+	for _, credential := range credentials {
+		credentialName := global.Settings.ResourceName.Credential(credential.ID)
+
+		references = append(references, corev1.LocalObjectReference{Name: credentialName})
+	}
+
+	return references
+}
+
+func prepareDeploymentConfigFileVolumes(containerList domainTypes.ContainerList) []corev1.Volume {
+	volumes := []corev1.Volume{}
 
 	for _, container := range containerList.Items {
 		for _, containerConfigFile := range container.ContainerConfigFiles {
@@ -93,7 +150,28 @@ func prepareDeploymentVolumes(containerList domainTypes.ContainerList) []corev1.
 	return volumes
 }
 
-func prepareContainerVolumeMounts(container domainTypes.Container) []corev1.VolumeMount {
+func prepareDeploymentPvcVolumes(containerList domainTypes.ContainerList) []corev1.Volume {
+	volumes := []corev1.Volume{}
+	pvcVolumes := containerList.GetUniqNamedVolumes()
+	pvcVolumes = append(pvcVolumes, containerList.GetUniqAnonymousVolumes()...)
+
+	for _, pvcVolume := range pvcVolumes {
+		volume := corev1.Volume{
+			Name: global.Settings.ResourceName.VolumeName(pvcVolume.UniqName),
+			VolumeSource: corev1.VolumeSource{
+				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+					ClaimName: global.Settings.ResourceName.PvcName(pvcVolume.UniqName),
+				},
+			},
+		}
+
+		volumes = append(volumes, volume)
+	}
+
+	return volumes
+}
+
+func prepareContainerConfigFileVolumeMounts(container domainTypes.Container) []corev1.VolumeMount {
 	volumeMounts := []corev1.VolumeMount{}
 
 	for _, containerConfigFile := range container.ContainerConfigFiles {
@@ -116,37 +194,46 @@ func prepareContainerVolumeMounts(container domainTypes.Container) []corev1.Volu
 	return volumeMounts
 }
 
-func prepareConfigFileMountPath(containerConfigFile *domainTypes.ContainerConfigFile) (string, string) {
-	mountPath := containerConfigFile.MountPath
+func prepareContainerNamedVolumeMounts(container domainTypes.Container) []corev1.VolumeMount {
+	volumeMounts := []corev1.VolumeMount{}
 
-	if len(mountPath) == 0 {
-		mountPath = "/"
+	for _, containerVolume := range container.ContainerVolumes {
+		if !containerVolume.IsNamedType() {
+			continue
+		}
+
+		name := containerVolume.BuildUniqName(&container)
+		volumeMount := corev1.VolumeMount{
+			Name:      global.Settings.ResourceName.VolumeName(name),
+			MountPath: containerVolume.Target,
+			ReadOnly:  containerVolume.ReadOnly,
+		}
+
+		volumeMounts = append(volumeMounts, volumeMount)
 	}
 
-	if mountPath[0] != '/' {
-		mountPath = fmt.Sprintf("/%v", containerConfigFile.MountPath)
-	}
-
-	if mountPath == "/" {
-		mountPath = fmt.Sprintf("/%v", containerConfigFile.ConfigFile.Filename)
-	}
-
-	mountPathParts := strings.Split(mountPath, "/")
-	mountFileName := mountPathParts[len(mountPathParts)-1]
-
-	return mountPath, mountFileName
+	return volumeMounts
 }
 
-func prepareCredentialsDeployment(credentials []domainTypes.Credential) []corev1.LocalObjectReference {
-	references := []corev1.LocalObjectReference{}
+func prepareContainerAnonymousVolumeMounts(container domainTypes.Container) []corev1.VolumeMount {
+	volumeMounts := []corev1.VolumeMount{}
 
-	for _, credential := range credentials {
-		credentialName := global.Settings.ResourceName.Credential(credential.ID)
+	for _, containerVolume := range container.ContainerVolumes {
+		if !containerVolume.IsAnonymousType() {
+			continue
+		}
 
-		references = append(references, corev1.LocalObjectReference{Name: credentialName})
+		name := containerVolume.BuildUniqName(&container)
+		volumeMount := corev1.VolumeMount{
+			Name:      global.Settings.ResourceName.VolumeName(name),
+			MountPath: containerVolume.Source,
+			ReadOnly:  containerVolume.ReadOnly,
+		}
+
+		volumeMounts = append(volumeMounts, volumeMount)
 	}
 
-	return references
+	return volumeMounts
 }
 
 func prepareContainerHealthcheck(container domainTypes.Container) *corev1.Probe {

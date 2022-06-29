@@ -1,9 +1,11 @@
 package domain
 
 import (
+	"log"
 	"time"
 
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
+	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/pkg/string_utils"
 	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 )
 
@@ -54,6 +56,78 @@ func (l *Logic) ApplyContainerSecrets(namespace string, containerList domainType
 				}
 			}
 		}
+	}
+
+	return nil
+}
+
+func (l *Logic) ApplyContainersNamedVolumes(namespace string, containerList domainTypes.ContainerList) error {
+	for _, volume := range containerList.GetUniqNamedVolumes() {
+		pvcName := global.Settings.ResourceName.PvcName(volume.UniqName)
+		pvc, err := l.KuberClient.FindOrInitializePersistentVolumeClaim(namespace, pvcName)
+
+		if err != nil {
+			return err
+		}
+
+		if len(pvc.UID) == 0 {
+			_, err = l.KuberClient.CreatePersistentVolumeClaim(namespace, pvc)
+		}
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (l *Logic) ApplyContainersAnonymousVolumes(namespace string, containerList domainTypes.ContainerList) error {
+	for _, volume := range containerList.GetUniqAnonymousVolumes() {
+		pvcName := global.Settings.ResourceName.PvcName(volume.UniqName)
+		pvc, err := l.KuberClient.FindOrInitializePersistentVolumeClaim(namespace, pvcName)
+
+		if err != nil {
+			return err
+		}
+
+		if len(pvc.UID) == 0 {
+			_, err = l.KuberClient.CreatePersistentVolumeClaim(namespace, pvc)
+		}
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (l *Logic) RemoveUnusedContainersVolumes(namespace string, containerList domainTypes.ContainerList) error {
+	uniqVolumes := containerList.GetUniqNamedVolumes()
+	uniqVolumes = append(uniqVolumes, containerList.GetUniqAnonymousVolumes()...)
+	newPersistentVolumeClaimNames := []string{}
+
+	for _, volume := range uniqVolumes {
+		newPersistentVolumeClaimNames = append(newPersistentVolumeClaimNames, global.Settings.ResourceName.PvcName(volume.UniqName))
+	}
+
+	existsPersistentVolumeClaims, err := l.KuberClient.GetPersistentVolumeClaims(namespace)
+	if err != nil {
+		return err
+	}
+
+	for _, existsPersistentVolumeClaim := range existsPersistentVolumeClaims {
+		if string_utils.Contains(newPersistentVolumeClaimNames, existsPersistentVolumeClaim.Name) {
+			continue
+		}
+
+		err := l.KuberClient.DeletePersistentVolumeClaim(namespace, existsPersistentVolumeClaim.Name)
+		if err != nil {
+			return nil
+		}
+
+		log.Printf("%v/pvc %v was deleted\n", namespace, existsPersistentVolumeClaim.Name)
 	}
 
 	return nil
