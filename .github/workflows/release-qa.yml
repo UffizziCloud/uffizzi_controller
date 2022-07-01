@@ -1,0 +1,34 @@
+name: Test, Lint And Release
+on:
+  push:
+    branches:
+      - qa
+permissions:
+  contents: 'read'
+  id-token: 'write'
+  packages: 'read'
+  actions: 'read'
+
+jobs:
+  build-and-push-controller:
+    uses: ./.github/workflows/build-and-push-ci.yml
+    name: Build CI Web image
+    secrets: inherit
+  code_quality:
+    needs:
+      - build-and-push-web
+    uses: ./.github/workflows/code-quality.yml
+    name: Test and Lint
+    secrets: inherit
+  deploy:
+    needs:
+      - build-and-push-controller
+      - code_quality
+    uses: ./.github/workflows/deploy.yml
+    with:
+      env: "qa"
+      project_id_name: "QA_PROJECT_ID"
+      service_account_name: "QA_GKE_SERVICE_ACCOUNT_NAME"
+      workload_identity_provider_name: "QA_GKE_IDENTITY_PROVIDER"
+    name: Deploy Controller
+    secrets: inherit
