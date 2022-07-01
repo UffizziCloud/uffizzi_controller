@@ -16,7 +16,7 @@ jobs:
     secrets: inherit
   code-quality:
     needs:
-      - build-and-push-web
+      - build-and-push-controller
     uses: ./.github/workflows/code-quality.yml
     name: Test and Lint
     secrets: inherit
