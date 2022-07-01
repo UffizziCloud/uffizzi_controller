@@ -1,7 +1,9 @@
 APP_NAME=uffizzi
 
 CONTROLLER_IMAGE_NAME="${APP_NAME}-controller"
+CI_REPO_URL="gcr.io/${CI_PROJECT_ID}"
 CONTROLLER_IMAGE="${CI_REPO_URL}/${CONTROLLER_IMAGE_NAME}"
+GCP_REPO_URL="gcr.io/${GCP_PROJECT_ID}"
 GCP_CONTROLLER_IMAGE="${GCP_REPO_URL}/${CONTROLLER_IMAGE_NAME}"
 
 APP_PREFIX=${APP_NAME}
@@ -45,3 +47,47 @@ test:
 
 generate_docs:
 	cmd/swag init -g cmd/controller/main.go --generatedTime=false --markdownFiles docs/markdown
+
+image_names:
+	export CONTROLLER_IMAGE=${CONTROLLER_IMAGE}:${VERSION}
+
+build_controller:
+	docker pull "${CONTROLLER_IMAGE}:${CI_COMMIT_REF_SLUG}" || true
+	docker pull "${CONTROLLER_IMAGE}:latest" || true
+	docker build \
+		--cache-from "${CONTROLLER_IMAGE}:${CI_COMMIT_REF_SLUG}" \
+		--cache-from "${CONTROLLER_IMAGE}:latest" \
+		--build-arg SENTRY_RELEASE=${SHORT_VERSION} \
+		-t ${CONTROLLER_IMAGE}:${VERSION} \
+		-t "${CONTROLLER_IMAGE}:${CI_COMMIT_REF_SLUG}" \
+		-t ${CONTROLLER_IMAGE}:${SHORT_VERSION} \
+		-t ${CONTROLLER_IMAGE}:latest \
+
+push_controller:
+	docker push ${CONTROLLER_IMAGE}:${VERSION}
+	docker push ${CONTROLLER_IMAGE}:${SHORT_VERSION}
+	docker push ${CONTROLLER_IMAGE}:${CI_COMMIT_REF_SLUG} || true
+	docker push ${CONTROLLER_IMAGE}:latest
+
+pull_ci_image:
+	docker pull ${CONTROLLER_IMAGE}:${VERSION}
+	docker pull ${CONTROLLER_IMAGE}:${SHORT_VERSION}
+	docker pull ${CONTROLLER_IMAGE}:${CI_COMMIT_REF_SLUG} || true
+	docker pull ${CONTROLLER_IMAGE}:latest
+
+tag_image:
+	docker tag ${CONTROLLER_IMAGE}:${SHORT_VERSION} ${GCP_CONTROLLER_IMAGE}:${VERSION}
+	docker tag ${CONTROLLER_IMAGE}:${SHORT_VERSION} ${GCP_CONTROLLER_IMAGE}:${SHORT_VERSION}
+	docker tag ${CONTROLLER_IMAGE}:${SHORT_VERSION} ${GCP_CONTROLLER_IMAGE}:${CI_COMMIT_REF_SLUG} || true
+	docker tag ${CONTROLLER_IMAGE}:${SHORT_VERSION} ${GCP_CONTROLLER_IMAGE}:latest
+
+push_gcp_controller:
+	docker push ${GCP_CONTROLLER_IMAGE}:${VERSION}
+	docker push ${GCP_CONTROLLER_IMAGE}:${SHORT_VERSION}
+	docker push ${GCP_CONTROLLER_IMAGE}:${CI_COMMIT_REF_SLUG} || true
+	docker push ${GCP_CONTROLLER_IMAGE}:latest
+
+update_gke_controller_service:
+	kubectl set image deployment/uffizzi-controller -n uffizzi-controller uffizzi-controller=${GCP_CONTROLLER_IMAGE}:${SHORT_VERSION}
+
+
