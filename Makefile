@@ -92,4 +92,8 @@ push_gcp_controller:
 update_gke_controller_service:
 	kubectl set image deployment/uffizzi-controller -n uffizzi-controller uffizzi-controller=${GCP_CONTROLLER_IMAGE}:${SHORT_VERSION}
 
-
+sentry_release:
+	sentry-cli releases new ${SHORT_VERSION}
+	sentry-cli releases set-commits --auto ${SHORT_VERSION}
+	sentry-cli releases finalize ${SHORT_VERSION}
+	sentry-cli releases deploys ${SHORT_VERSION} new -e ${ENV}
