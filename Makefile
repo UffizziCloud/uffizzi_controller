@@ -63,7 +63,7 @@ build_controller:
 		-t "${CONTROLLER_IMAGE}:${CI_COMMIT_REF_SLUG}" \
 		-t ${CONTROLLER_IMAGE}:${SHORT_VERSION} \
 		-t ${CONTROLLER_IMAGE}:latest \
-	.
+	  .
 
 push_controller:
 	docker push ${CONTROLLER_IMAGE}:${VERSION}
