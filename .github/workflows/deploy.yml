@@ -24,7 +24,7 @@ env:
 jobs:
   update-gke-image:
     runs-on: ubuntu-latest
-    container: ghcr.io/uffizzicloud/platform_toolbox:v1
+    container: ghcr.io/uffizzicloud/controller_toolbox:v2
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -68,7 +68,7 @@ jobs:
     needs:
       - update-gke-image 
     container: 
-      image: ghcr.io/uffizzicloud/platform_toolbox:v1
+      image: ghcr.io/uffizzicloud/controller_toolbox:v2
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -92,7 +92,7 @@ jobs:
       - update-gke-image 
       - update-gke-controller
     container:
-      image: ghcr.io/uffizzicloud/platform_toolbox:v1
+      image: ghcr.io/uffizzicloud/controller_toolbox:v2
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -111,15 +111,6 @@ jobs:
           password: ${{ steps.ci_registry_auth.outputs.access_token }}
       - name: Create Sentry release
         run: make sentry_release
-        # uses: getsentry/action-release@v1
-        # env:
-        #   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        #   SENTRY_ORG: ${{ env.SENTRY_ORG }}
-        #   SENTRY_PROJECT: ${{ env.SENTRY_PROJECT }}
-        # with:
-        #   environment: "${{ inputs.env }}"
-        #   version: ${{ github.sha }}
-        #   ignore_missing: true
 
   notify:
     needs:
