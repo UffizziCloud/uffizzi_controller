@@ -27,7 +27,7 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     with:
       env: "qa"
-      project_id_name: "QA_PROJECT_ID"
+      project_id: "uffizzi-pro-qa-gke"
       service_account_name: "QA_GKE_SERVICE_ACCOUNT_NAME"
       workload_identity_provider_name: "QA_GKE_IDENTITY_PROVIDER"
     name: Deploy Controller
