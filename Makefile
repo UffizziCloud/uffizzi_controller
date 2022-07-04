@@ -94,6 +94,6 @@ update_gke_controller_service:
 
 sentry_release:
 	sentry-cli releases new ${SHORT_VERSION}
-	sentry-cli releases set-commits --auto ${SHORT_VERSION}
+	sentry-cli releases set-commits --auto ${SHORT_VERSION} --ignore-missing
 	sentry-cli releases finalize ${SHORT_VERSION}
 	sentry-cli releases deploys ${SHORT_VERSION} new -e ${ENV}

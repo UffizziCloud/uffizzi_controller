@@ -4,7 +4,7 @@ jobs:
   build-and-push-cotroller:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/uffizzicloud/platform_toolbox:v1
+      image: ghcr.io/uffizzicloud/controller_toolbox:v2
     steps:
       - name: Checkout
         uses: actions/checkout@v2
