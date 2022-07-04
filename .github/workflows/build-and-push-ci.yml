@@ -1,7 +1,7 @@
 on:
   workflow_call:
 env:
-  CI_REPO_URL: "${{ secrets.CI_REPO_URL }}"
+  CI_PROJECT_ID: "${{ secrets.CI_PROJECT_ID }}"
 jobs:
   build-and-push-cotroller:
     runs-on: ubuntu-latest
