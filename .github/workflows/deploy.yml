@@ -80,7 +80,7 @@ jobs:
       - uses: 'google-github-actions/get-gke-credentials@v0'
         with:
           cluster_name: uffizzi-client
-          location: us-central1-a
+          location: us-central1
       - name: Update gke controller
         run: make update_gke_controller_service
 
