@@ -1,4 +1,4 @@
-FROM docker:20.10.12
+FROM docker:19.03.13
 
 RUN apk update
 RUN apk add --no-cache \

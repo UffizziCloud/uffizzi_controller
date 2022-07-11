@@ -1,47 +1,54 @@
 package kuber
 
 import (
+	"fmt"
+	"log"
+	"strings"
+
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
 	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 	corev1 "k8s.io/api/core/v1"
 )
 
-func prepareEnvFromResources(resources []domainTypes.Resource) []corev1.EnvFromSource {
-	environmentsFrom := []corev1.EnvFromSource{}
+func prepareContainerEnvironmentVariables(container domainTypes.Container) []corev1.EnvVar {
+	var variables []corev1.EnvVar
 
-	for _, resource := range resources {
-		envFrom := prepareEnvFromResource(resource)
-
-		environmentsFrom = append(environmentsFrom, *envFrom)
+	for _, variable := range container.Variables {
+		newVariable := corev1.EnvVar{Name: variable.Name, Value: variable.Value}
+		variables = append(variables, newVariable)
 	}
 
-	return environmentsFrom
+	return variables
 }
 
-func prepareEnvFromResource(resource domainTypes.Resource) *corev1.EnvFromSource {
-	resourceName := global.Settings.ResourceName.Resource(resource.ID)
+func prepareContainerSecrets(container domainTypes.Container, secret *corev1.Secret) []corev1.EnvVar {
+	envVariables := []corev1.EnvVar{}
 
-	if resource.Kind == domainTypes.ResourceKindConfigMap {
-		return &corev1.EnvFromSource{
-			ConfigMapRef: &corev1.ConfigMapEnvSource{
-				LocalObjectReference: corev1.LocalObjectReference{
-					Name: resourceName,
+	if secret == nil {
+		log.Printf("No Secret Variables (containerId=%d)", container.ID)
+		return envVariables
+	}
+
+	name := global.Settings.ResourceName.ContainerSecret(container.ID)
+	log.Printf("Container Secret Name - %s", name)
+
+	for envVariableName := range secret.Data {
+		envVariable := corev1.EnvVar{
+			Name: envVariableName,
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: &corev1.SecretKeySelector{
+					Key: envVariableName,
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: name,
+					},
 				},
 			},
 		}
+
+		envVariables = append(envVariables, envVariable)
 	}
 
-	if resource.Kind == domainTypes.ResourceKindSecret {
-		return &corev1.EnvFromSource{
-			SecretRef: &corev1.SecretEnvSource{
-				LocalObjectReference: corev1.LocalObjectReference{
-					Name: resourceName,
-				},
-			},
-		}
-	}
-
-	return nil
+	return envVariables
 }
 
 func prepareDeploymentVolumes(containerList domainTypes.ContainerList) []corev1.Volume {
@@ -57,8 +64,10 @@ func prepareDeploymentVolumes(containerList domainTypes.ContainerList) []corev1.
 
 			volume := corev1.Volume{Name: volumeName}
 
+			_, mountFileName := prepareConfigFileMountPath(containerConfigFile)
+
 			items := []corev1.KeyToPath{
-				{Key: configFile.Filename, Path: configFile.Filename},
+				{Key: configFile.Filename, Path: mountFileName},
 			}
 
 			if configFile.Kind == domainTypes.ConfigFileKindConfigMap {
@@ -92,9 +101,12 @@ func prepareContainerVolumeMounts(container domainTypes.Container) []corev1.Volu
 
 		volumeName := global.Settings.ResourceName.ContainerVolume(container.ID, configFile.ID)
 
+		mountPath, mountFileName := prepareConfigFileMountPath(containerConfigFile)
+
 		volumeMount := corev1.VolumeMount{
 			Name:      volumeName,
-			MountPath: containerConfigFile.MountPath,
+			MountPath: mountPath,
+			SubPath:   mountFileName,
 			ReadOnly:  true,
 		}
 
@@ -102,6 +114,27 @@ func prepareContainerVolumeMounts(container domainTypes.Container) []corev1.Volu
 	}
 
 	return volumeMounts
+}
+
+func prepareConfigFileMountPath(containerConfigFile *domainTypes.ContainerConfigFile) (string, string) {
+	mountPath := containerConfigFile.MountPath
+
+	if len(mountPath) == 0 {
+		mountPath = "/"
+	}
+
+	if mountPath[0] != '/' {
+		mountPath = fmt.Sprintf("/%v", containerConfigFile.MountPath)
+	}
+
+	if mountPath == "/" {
+		mountPath = fmt.Sprintf("/%v", containerConfigFile.ConfigFile.Filename)
+	}
+
+	mountPathParts := strings.Split(mountPath, "/")
+	mountFileName := mountPathParts[len(mountPathParts)-1]
+
+	return mountPath, mountFileName
 }
 
 func prepareCredentialsDeployment(credentials []domainTypes.Credential) []corev1.LocalObjectReference {

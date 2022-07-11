@@ -14,9 +14,7 @@ import (
 	"k8s.io/utils/pointer"
 )
 
-func initializeDeployment(
-	namespace *corev1.Namespace,
-	deploymentName, deploymentSelectorName string) *appsv1.Deployment {
+func initializeDeployment(namespace *corev1.Namespace, deploymentName string) *appsv1.Deployment {
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: deploymentName,
@@ -28,7 +26,7 @@ func initializeDeployment(
 		},
 		Spec: appsv1.DeploymentSpec{
 			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{"app": deploymentSelectorName},
+				MatchLabels: map[string]string{"app": deploymentName},
 			},
 			Strategy: appsv1.DeploymentStrategy{
 				Type: appsv1.RollingUpdateDeploymentStrategyType,
@@ -41,18 +39,14 @@ func initializeDeployment(
 				ObjectMeta: metav1.ObjectMeta{
 					Name: deploymentName,
 					Labels: map[string]string{
-						"app":                          deploymentSelectorName,
+						"app":                          deploymentName,
 						"app.kubernetes.io/managed-by": global.Settings.ManagedApplication,
 					},
 				},
 				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{},
-					Tolerations: []corev1.Toleration{
-						{
-							Key:      "sandbox.gke.io/runtime",
-							Operator: "Exists",
-						},
-					},
+					Containers:   []corev1.Container{},
+					NodeSelector: getPodSpecNodeSelector(),
+					Tolerations:  getPodSpecTolerations(),
 
 					AutomountServiceAccountToken: pointer.BoolPtr(false), // False. Security, DO NOT REMOVE
 				},
@@ -132,4 +126,27 @@ func initializeHorizontalPodAutoscaler(
 			},
 		},
 	}
+}
+
+func getPodSpecNodeSelector() map[string]string {
+	if global.Settings.SandboxEnabled {
+		return map[string]string{
+			"sandbox.gke.io/runtime": "gvisor",
+		}
+	}
+
+	return nil
+}
+
+func getPodSpecTolerations() []corev1.Toleration {
+	if global.Settings.SandboxEnabled {
+		return []corev1.Toleration{
+			{
+				Key:      "sandbox.gke.io/runtime",
+				Operator: "Exists",
+			},
+		}
+	}
+
+	return nil
 }

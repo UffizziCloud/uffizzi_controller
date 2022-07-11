@@ -23,12 +23,15 @@ base: &base
   startup_probe_failure_threshold: ${STARTUP_PROBE_FAILURE_THRESHOLD:-80}
   startup_probe_period_seconds: ${STARTUP_PROBE_PERIOD_SECONDS:-15}
   ephemeral_storage_coefficient: ${EPHEMERAL_STORAGE_COEFFICIENT:-1.9}
-  cert_manager_cluster_issuer: ${CERT_MANAGER_CLUSTER_ISSUER:-letsencrypt}
+  cert_manager_cluster_issuer: ${CERT_MANAGER_CLUSTER_ISSUER:-}
+  sandbox_enabled: ${SANDBOX_ENABLED}
   ingress_default_port: 443
   service_checks:
     ip_ping_timeout: 1800s
     availability_timeout: 1800s
     await_status_timeout: 1800s
+    await_rolling_update_timeout: 900s
+    step_awaiting_rolling_update: 6s
     per_address_attempts: 180
     per_address_timeout: 1800s
 

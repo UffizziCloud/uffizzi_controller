@@ -32,15 +32,18 @@ type Settings struct {
 	StartupProbeDelaySeconds              int32                 `yaml:"startup_probe_delay_seconds"`
 	StartupProbeFailureThreshold          int32                 `yaml:"startup_probe_failure_threshold"`
 	StartupProbePeriodSettings            int32                 `yaml:"startup_probe_period_seconds"`
+	SandboxEnabled                        bool                  `yaml:"sandbox_enabled"`
 	CertManagerClusterIssuer              string                `yaml:"cert_manager_cluster_issuer"`
 	EphemeralStorageCoefficient           float64               `yaml:"ephemeral_storage_coefficient"`
 	IngressDefaultPort                    int                   `yaml:"ingress_default_port"`
 }
 
 type ServiceChecksSettings struct {
-	IPPingTimeout       time.Duration `yaml:"ip_ping_timeout"`
-	AvailabilityTimeout time.Duration `yaml:"availability_timeout"`
-	AwaitStatusTimeout  time.Duration `yaml:"await_status_timeout"`
-	PerAddressAttempts  uint          `yaml:"per_address_attempts"`
-	PerAddressTimeout   time.Duration `yaml:"per_address_timeout"`
+	IPPingTimeout             time.Duration `yaml:"ip_ping_timeout"`
+	AvailabilityTimeout       time.Duration `yaml:"availability_timeout"`
+	AwaitStatusTimeout        time.Duration `yaml:"await_status_timeout"`
+	AwaitRollingUpdateTimeout time.Duration `yaml:"await_rolling_update_timeout"`
+	StepAwaitingRollingUpdate time.Duration `yaml:"step_awaiting_rolling_update"`
+	PerAddressAttempts        uint          `yaml:"per_address_attempts"`
+	PerAddressTimeout         time.Duration `yaml:"per_address_timeout"`
 }

@@ -20,27 +20,27 @@ type INetworkBuilder interface {
 type NetworkDependencies struct {
 	DomainLogic    *Logic
 	Namespace      *corev1.Namespace
-	AppName        string
 	ContainerList  domainTypes.ContainerList
 	Deployment     *appsv1.Deployment
 	DeploymentHost string
+	Project        domainTypes.Project
 }
 
 func NewNetworkDependencies(
 	domainLogic *Logic,
 	namespace *corev1.Namespace,
-	appName string,
 	containerList domainTypes.ContainerList,
 	deployment *appsv1.Deployment,
 	deploymentHost string,
+	project domainTypes.Project,
 ) *NetworkDependencies {
 	return &NetworkDependencies{
 		DomainLogic:    domainLogic,
 		Namespace:      namespace,
-		AppName:        appName,
 		ContainerList:  containerList,
 		Deployment:     deployment,
 		DeploymentHost: deploymentHost,
+		Project:        project,
 	}
 }
 
@@ -78,6 +78,7 @@ func (builder *IngressNetworkBuilder) Create() error {
 	namespace := network.Namespace
 	domainLogic := network.DomainLogic
 	deploymentHost := network.DeploymentHost
+	project := network.Project
 
 	deploymentSelector, err := builder.GetDeploymentSelectorName()
 	if err != nil {
@@ -110,6 +111,7 @@ func (builder *IngressNetworkBuilder) Create() error {
 		service.Name,
 		generalPublicContainer,
 		deploymentHost,
+		project,
 	)
 	if err != nil {
 		return err

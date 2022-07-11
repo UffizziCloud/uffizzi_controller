@@ -1,0 +1,34 @@
+name: Test, Lint And Release
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: 'read'
+  id-token: 'write'
+  packages: 'read'
+  actions: 'read'
+
+jobs:
+  build-and-push-controller:
+    uses: ./.github/workflows/build-and-push-ci.yml
+    name: Build CI Web image
+    secrets: inherit
+  code-quality:
+    needs:
+      - build-and-push-controller
+    uses: ./.github/workflows/code-quality.yml
+    name: Test and Lint
+    secrets: inherit
+  deploy:
+    needs:
+      - build-and-push-controller
+      - code-quality
+    uses: ./.github/workflows/deploy.yml
+    with:
+      env: "production"
+      project_id: "uffizzi-pro-production-gke"
+      service_account_name: "PRODUCTION_GKE_SERVICE_ACCOUNT_NAME"
+      workload_identity_provider_name: "PRODUCTION_GKE_IDENTITY_PROVIDER"
+    name: Deploy Controller
+    secrets: inherit
