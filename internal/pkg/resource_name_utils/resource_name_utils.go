@@ -1,6 +1,9 @@
 package resource_name_utils
 
-import "fmt"
+import (
+	"fmt"
+	"regexp"
+)
 
 type ResouceNameUtils struct{}
 
@@ -26,4 +29,22 @@ func (resouceNameUtils *ResouceNameUtils) Deployment(namespace string) string {
 
 func (resouceNameUtils *ResouceNameUtils) Policy(namespace string) string {
 	return fmt.Sprintf("app-%v", namespace)
+}
+
+func (resouceNameUtils *ResouceNameUtils) PvcName(name string) string {
+	rfcName := toRfc(name)
+
+	return fmt.Sprintf("pvc-%v", rfcName)
+}
+
+func (resouceNameUtils *ResouceNameUtils) VolumeName(name string) string {
+	rfcName := toRfc(name)
+
+	return fmt.Sprintf("volume-%v", rfcName)
+}
+
+func toRfc(str string) string {
+	regexp := regexp.MustCompile(`(\/|~|\.|_)`)
+
+	return regexp.ReplaceAllString(str, "-")
 }

@@ -26,6 +26,7 @@ base: &base
   cert_manager_cluster_issuer: ${CERT_MANAGER_CLUSTER_ISSUER:-}
   sandbox_enabled: ${SANDBOX_ENABLED}
   ingress_default_port: 443
+  pvc_storage_class_name: uffizzi-standard
   service_checks:
     ip_ping_timeout: 1800s
     availability_timeout: 1800s
