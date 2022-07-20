@@ -69,47 +69,23 @@ func (list *ContainerList) AddContainer(container Container) {
 }
 
 func (list ContainerList) GetUniqNamedVolumes() []DeploymentVolume {
-	volumes := []DeploymentVolume{}
-
-	for i, container := range list.Items {
-		for _, containerVolume := range container.ContainerVolumes {
-			if containerVolume.Type != ContainerVolumeTypeNamed {
-				continue
-			}
-
-			isVolumeExists := false
-			uniqName := containerVolume.BuildUniqName(&list.Items[i])
-
-			for _, existsVolume := range volumes {
-				if existsVolume.UniqName == uniqName {
-					isVolumeExists = true
-					break
-				}
-			}
-
-			if isVolumeExists {
-				continue
-			}
-
-			volume := DeploymentVolume{
-				Volume:    containerVolume,
-				Container: &list.Items[i],
-				UniqName:  uniqName,
-			}
-
-			volumes = append(volumes, volume)
-		}
-	}
-
-	return volumes
+	return getUniqVolumesByType(list, ContainerVolumeTypeNamed)
 }
 
 func (list ContainerList) GetUniqAnonymousVolumes() []DeploymentVolume {
+	return getUniqVolumesByType(list, ContainerVolumeTypeAnonymous)
+}
+
+func (list ContainerList) GetUniqHostVolumes() []DeploymentVolume {
+	return getUniqVolumesByType(list, ContainerVolumeTypeHost)
+}
+
+func getUniqVolumesByType(list ContainerList, volumeType ContainerVolumeType) []DeploymentVolume {
 	volumes := []DeploymentVolume{}
 
 	for i, container := range list.Items {
 		for _, containerVolume := range container.ContainerVolumes {
-			if containerVolume.Type != ContainerVolumeTypeAnonymous {
+			if containerVolume.Type != volumeType {
 				continue
 			}
 
