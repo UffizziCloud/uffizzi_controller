@@ -86,6 +86,7 @@ func (l *Logic) ApplyContainers(
 	credentials []domainTypes.Credential,
 	deploymentHost string,
 	project domainTypes.Project,
+	composeFile domainTypes.ComposeFile,
 ) error {
 	namespaceName := l.KubernetesNamespaceName(deploymentID)
 
@@ -127,12 +128,7 @@ func (l *Logic) ApplyContainers(
 		return err
 	}
 
-	err = l.ApplyContainersNamedVolumes(namespaceName, containerList)
-	if err != nil {
-		return err
-	}
-
-	err = l.ApplyContainersAnonymousVolumes(namespaceName, containerList)
+	err = l.ApplyContainersVolumes(namespaceName, containerList)
 	if err != nil {
 		return err
 	}
@@ -146,7 +142,7 @@ func (l *Logic) ApplyContainers(
 		return l.handleDomainDeploymentError(namespace.Name, err)
 	}
 
-	deployment, err := l.KuberClient.CreateOrUpdateDeployments(namespace, deploymentName, containerList, credentials)
+	deployment, err := l.KuberClient.CreateOrUpdateDeployments(namespace, deploymentName, containerList, credentials, composeFile)
 	if err != nil {
 		return l.handleDomainDeploymentError(namespace.Name, err)
 	}

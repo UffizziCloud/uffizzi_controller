@@ -61,29 +61,13 @@ func (l *Logic) ApplyContainerSecrets(namespace string, containerList domainType
 	return nil
 }
 
-func (l *Logic) ApplyContainersNamedVolumes(namespace string, containerList domainTypes.ContainerList) error {
-	for _, volume := range containerList.GetUniqNamedVolumes() {
-		pvcName := global.Settings.ResourceName.PvcName(volume.UniqName)
-		pvc, err := l.KuberClient.FindOrInitializePersistentVolumeClaim(namespace, pvcName)
+func (l *Logic) ApplyContainersVolumes(namespace string, containerList domainTypes.ContainerList) error {
+	volumes := []domainTypes.DeploymentVolume{}
+	volumes = append(volumes, containerList.GetUniqNamedVolumes()...)
+	volumes = append(volumes, containerList.GetUniqAnonymousVolumes()...)
+	volumes = append(volumes, containerList.GetUniqHostVolumes()...)
 
-		if err != nil {
-			return err
-		}
-
-		if len(pvc.UID) == 0 {
-			_, err = l.KuberClient.CreatePersistentVolumeClaim(namespace, pvc)
-		}
-
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (l *Logic) ApplyContainersAnonymousVolumes(namespace string, containerList domainTypes.ContainerList) error {
-	for _, volume := range containerList.GetUniqAnonymousVolumes() {
+	for _, volume := range volumes {
 		pvcName := global.Settings.ResourceName.PvcName(volume.UniqName)
 		pvc, err := l.KuberClient.FindOrInitializePersistentVolumeClaim(namespace, pvcName)
 
