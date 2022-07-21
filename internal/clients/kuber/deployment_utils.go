@@ -72,6 +72,9 @@ func prepareContainerVolumeMounts(container domainTypes.Container) []corev1.Volu
 	anonymousVolumeMounts := prepareContainerAnonymousVolumeMounts(container)
 	volumeMounts = append(volumeMounts, anonymousVolumeMounts...)
 
+	hostVolumeMounts := prepareContainerHostVolumeMounts(container)
+	volumeMounts = append(volumeMounts, hostVolumeMounts...)
+
 	return volumeMounts
 }
 
@@ -154,6 +157,7 @@ func prepareDeploymentPvcVolumes(containerList domainTypes.ContainerList) []core
 	volumes := []corev1.Volume{}
 	pvcVolumes := containerList.GetUniqNamedVolumes()
 	pvcVolumes = append(pvcVolumes, containerList.GetUniqAnonymousVolumes()...)
+	pvcVolumes = append(pvcVolumes, containerList.GetUniqHostVolumes()...)
 
 	for _, pvcVolume := range pvcVolumes {
 		volume := corev1.Volume{
@@ -227,6 +231,27 @@ func prepareContainerAnonymousVolumeMounts(container domainTypes.Container) []co
 		volumeMount := corev1.VolumeMount{
 			Name:      global.Settings.ResourceName.VolumeName(name),
 			MountPath: containerVolume.Source,
+			ReadOnly:  containerVolume.ReadOnly,
+		}
+
+		volumeMounts = append(volumeMounts, volumeMount)
+	}
+
+	return volumeMounts
+}
+
+func prepareContainerHostVolumeMounts(container domainTypes.Container) []corev1.VolumeMount {
+	volumeMounts := []corev1.VolumeMount{}
+
+	for _, containerVolume := range container.ContainerVolumes {
+		if !containerVolume.IsHostType() {
+			continue
+		}
+
+		name := containerVolume.BuildUniqName(&container)
+		volumeMount := corev1.VolumeMount{
+			Name:      global.Settings.ResourceName.VolumeName(name),
+			MountPath: containerVolume.Target,
 			ReadOnly:  containerVolume.ReadOnly,
 		}
 

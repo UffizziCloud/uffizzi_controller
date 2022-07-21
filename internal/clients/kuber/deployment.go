@@ -80,6 +80,7 @@ func (client *Client) updateDeploymentAttributes(
 	namespace *corev1.Namespace,
 	deployment *appsv1.Deployment,
 	containerList domainTypes.ContainerList,
+	composeFile domainTypes.ComposeFile,
 ) (*appsv1.Deployment, error) {
 	var containers []corev1.Container
 
@@ -185,6 +186,19 @@ func (client *Client) updateDeploymentAttributes(
 
 	deployment.Spec.Template.Spec.Containers = containers
 
+	initContainers := []corev1.Container{}
+	initContainerForHostVolumes, err := buildInitContainerForHostVolumes(containerList, composeFile)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if initContainerForHostVolumes.Name != "" {
+		initContainers = append(initContainers, initContainerForHostVolumes)
+	}
+
+	deployment.Spec.Template.Spec.InitContainers = initContainers
+
 	return deployment, nil
 }
 
@@ -193,6 +207,7 @@ func (client *Client) CreateOrUpdateDeployments(
 	deploymentName string,
 	containerList domainTypes.ContainerList,
 	credentials []domainTypes.Credential,
+	composeFile domainTypes.ComposeFile,
 ) (*appsv1.Deployment, error) {
 	deployments := client.clientset.AppsV1().Deployments(namespace.Name)
 
@@ -201,7 +216,7 @@ func (client *Client) CreateOrUpdateDeployments(
 		return nil, err
 	}
 
-	deployment, err = client.updateDeploymentAttributes(namespace, deployment, containerList)
+	deployment, err = client.updateDeploymentAttributes(namespace, deployment, containerList, composeFile)
 	if err != nil {
 		return nil, err
 	}
