@@ -31,15 +31,6 @@ func (client *Client) FindOrCreateNetworkPolicy(namespaceName string, name strin
 				{
 					From: []v1.NetworkPolicyPeer{
 						{
-							PodSelector: &metav1.LabelSelector{},
-						},
-						{
-							IPBlock: &v1.IPBlock{
-								CIDR:   "0.0.0.0/0",
-								Except: []string{global.Settings.PodCidr},
-							},
-						},
-						{
 							NamespaceSelector: &metav1.LabelSelector{
 								MatchLabels: map[string]string{"kubernetes.io/metadata.name": "ingress-nginx"},
 							},
@@ -52,6 +43,22 @@ func (client *Client) FindOrCreateNetworkPolicy(namespaceName string, name strin
 						{
 							NamespaceSelector: &metav1.LabelSelector{
 								MatchLabels: map[string]string{"kubernetes.io/metadata.name": global.Settings.KubernetesNamespace},
+							},
+						},
+					},
+				},
+			},
+			Egress: []v1.NetworkPolicyEgressRule{
+				{
+					To: []v1.NetworkPolicyPeer{
+						{
+							IPBlock: &v1.IPBlock{
+								CIDR: "0.0.0.0/0",
+								Except: []string{
+									"10.0.0.0/8",
+									"172.16.0.0/12",
+									"192.168.0.0/16",
+								},
 							},
 						},
 					},
