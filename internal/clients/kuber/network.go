@@ -32,6 +32,11 @@ func (client *Client) FindOrCreateNetworkPolicy(namespaceName string, name strin
 					From: []v1.NetworkPolicyPeer{
 						{
 							NamespaceSelector: &metav1.LabelSelector{
+								MatchLabels: map[string]string{"kubernetes.io/metadata.name": "uffizzi-controller"},
+							},
+						},
+						{
+							NamespaceSelector: &metav1.LabelSelector{
 								MatchLabels: map[string]string{"kubernetes.io/metadata.name": global.Settings.KubernetesNamespace},
 							},
 						},
