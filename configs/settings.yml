@@ -10,7 +10,6 @@ base: &base
   customer_production_replication_factor: 2
   count_displayed_entries_for_logs_output: 50
   resource_request_back_off_period: 10s
-  pod_cidr: ${POD_CIDR:-10.24.0.0/14}
   pool_machine_total_cpu_millicores: ${POOL_MACHINE_TOTAL_CPU_MILLICORES:-2000}
   pool_machine_total_memory_bytes: ${POOL_MACHINE_TOTAL_MEMORY_BYTES:-17179869184}
   default_autoscaling_cpu_threshold: ${DEFAULT_AUTOSCALING_CPU_THRESHOLD:-75}
