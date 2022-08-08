@@ -43,7 +43,6 @@ The following secrets are configurable:
 
 The controller pod also has the following environment variables as Helm values:
 
-- `podCidr` - IP Network for Preview workload Pods
 - `env` - (Doesn't do much yet.)
 - `sandbox` - Enable `nodeSelector` and `taint` options for gVisor on GKE.
 
