@@ -21,7 +21,11 @@ func (client *Client) FindDeployment(namespaceName, name string) (*appsv1.Deploy
 	return deployments.Get(client.context, name, metav1.GetOptions{})
 }
 
-func (client *Client) findOrInitializeDeployment(namespace *corev1.Namespace, deploymentName string) (*appsv1.Deployment, error) {
+func (client *Client) findOrInitializeDeployment(
+	namespace *corev1.Namespace,
+	deploymentName string,
+	containerList *domainTypes.ContainerList,
+) (*appsv1.Deployment, error) {
 	deployments := client.clientset.AppsV1().Deployments(namespace.Name)
 
 	deployment, err := deployments.Get(client.context, deploymentName, metav1.GetOptions{})
@@ -31,7 +35,7 @@ func (client *Client) findOrInitializeDeployment(namespace *corev1.Namespace, de
 	}
 
 	if len(deployment.UID) == 0 {
-		deployment = initializeDeployment(namespace, deploymentName)
+		deployment = initializeDeployment(namespace, deploymentName, containerList)
 	}
 
 	return deployment, nil
@@ -92,6 +96,12 @@ func (client *Client) updateDeploymentAttributes(
 	}
 
 	deployment.Spec.Template.Spec.Volumes = prepareDeploymentVolumes(containerList)
+
+	if containerList.IsAnyVolumeExists() {
+		deployment.Spec.Strategy = buildRecreateDeploymentStrategy()
+	} else {
+		deployment.Spec.Strategy = buildDefaultDeploymentStrategy()
+	}
 
 	// DO NOT DELETE THIS LINE. This is necessary to get an up-to-date container image each time you deploy.
 	deployment.Spec.Template.Annotations["kubectl.kubernetes.io/restartedAt"] = time.Now().Format(time.RFC3339)
@@ -196,7 +206,7 @@ func (client *Client) CreateOrUpdateDeployments(
 ) (*appsv1.Deployment, error) {
 	deployments := client.clientset.AppsV1().Deployments(namespace.Name)
 
-	deployment, err := client.findOrInitializeDeployment(namespace, deploymentName)
+	deployment, err := client.findOrInitializeDeployment(namespace, deploymentName, &containerList)
 	if err != nil {
 		return nil, err
 	}

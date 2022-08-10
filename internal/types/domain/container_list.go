@@ -139,3 +139,19 @@ func (list ContainerList) GetUniqAnonymousVolumes() []DeploymentVolume {
 
 	return volumes
 }
+
+func (list ContainerList) IsAnyVolumeExists() bool {
+	isExists := false
+
+	for _, container := range list.Items {
+		if len(container.ContainerVolumes) > 0 {
+			isExists = true
+		}
+
+		if isExists {
+			continue
+		}
+	}
+
+	return isExists
+}
