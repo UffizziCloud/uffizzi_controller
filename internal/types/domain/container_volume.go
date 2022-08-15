@@ -20,9 +20,11 @@ const (
 func (volume ContainerVolume) BuildUniqName(container *Container) string {
 	switch volume.Type {
 	case ContainerVolumeTypeAnonymous:
-		return fmt.Sprintf("%s-%s", container.ServiceName, volume.Source)
+		return fmt.Sprintf("anonymous-%s-%s", container.ServiceName, volume.Source)
 	case ContainerVolumeTypeNamed:
 		return volume.Source
+	case ContainerVolumeTypeHost:
+		return fmt.Sprintf("host-%s-%s", container.ServiceName, volume.Source)
 	default:
 		return ""
 	}
