@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
+	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingV1 "k8s.io/api/autoscaling/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -14,7 +15,19 @@ import (
 	"k8s.io/utils/pointer"
 )
 
-func initializeDeployment(namespace *corev1.Namespace, deploymentName string) *appsv1.Deployment {
+func initializeDeployment(
+	namespace *corev1.Namespace,
+	deploymentName string,
+	containerList *domainTypes.ContainerList,
+) *appsv1.Deployment {
+	var deploymentStrategy appsv1.DeploymentStrategy
+
+	if containerList.IsAnyVolumeExists() {
+		deploymentStrategy = buildRecreateDeploymentStrategy()
+	} else {
+		deploymentStrategy = buildDefaultDeploymentStrategy()
+	}
+
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: deploymentName,
@@ -28,13 +41,7 @@ func initializeDeployment(namespace *corev1.Namespace, deploymentName string) *a
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{"app": deploymentName},
 			},
-			Strategy: appsv1.DeploymentStrategy{
-				Type: appsv1.RollingUpdateDeploymentStrategyType,
-				RollingUpdate: &appsv1.RollingUpdateDeployment{
-					MaxUnavailable: &intstr.IntOrString{Type: intstr.String, StrVal: "25%"},
-					MaxSurge:       &intstr.IntOrString{Type: intstr.String, StrVal: "25%"},
-				},
-			},
+			Strategy: deploymentStrategy,
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: deploymentName,
@@ -149,4 +156,20 @@ func getPodSpecTolerations() []corev1.Toleration {
 	}
 
 	return nil
+}
+
+func buildDefaultDeploymentStrategy() appsv1.DeploymentStrategy {
+	return appsv1.DeploymentStrategy{
+		Type: appsv1.RollingUpdateDeploymentStrategyType,
+		RollingUpdate: &appsv1.RollingUpdateDeployment{
+			MaxUnavailable: &intstr.IntOrString{Type: intstr.Int, IntVal: 0},
+			MaxSurge:       &intstr.IntOrString{Type: intstr.Int, IntVal: 1},
+		},
+	}
+}
+
+func buildRecreateDeploymentStrategy() appsv1.DeploymentStrategy {
+	return appsv1.DeploymentStrategy{
+		Type: appsv1.RecreateDeploymentStrategyType,
+	}
 }
