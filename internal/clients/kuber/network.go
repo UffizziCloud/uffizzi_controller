@@ -9,7 +9,10 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (client *Client) FindOrCreateNetworkPolicy(namespaceName string, name string) (*v1.NetworkPolicy, error) {
+func (client *Client) FindOrCreateNetworkPolicy( // nolint:funlen
+	namespaceName string,
+	name string,
+) (*v1.NetworkPolicy, error) {
 	policies := client.clientset.NetworkingV1().NetworkPolicies(namespaceName)
 	policy, err := policies.Get(client.context, name, metav1.GetOptions{})
 
@@ -19,7 +22,7 @@ func (client *Client) FindOrCreateNetworkPolicy(namespaceName string, name strin
 
 	// Define variables from contstants so we can make pointers later.
 	protocolUDP := corev1.ProtocolUDP
-	portDNS := intstr.FromInt(53)
+	portDNS := intstr.FromInt(53) // nolint: gomnd
 
 	policy, err = policies.Create(client.context, &v1.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
