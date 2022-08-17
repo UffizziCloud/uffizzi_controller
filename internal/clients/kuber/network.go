@@ -2,9 +2,11 @@ package kuber
 
 import (
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
+	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (client *Client) FindOrCreateNetworkPolicy(namespaceName string, name string) (*v1.NetworkPolicy, error) {
@@ -14,6 +16,10 @@ func (client *Client) FindOrCreateNetworkPolicy(namespaceName string, name strin
 	if err != nil && !errors.IsNotFound(err) || len(policy.UID) > 0 {
 		return policy, err
 	}
+
+	// Define variables from contstants so we can make pointers later.
+	protocolUDP := corev1.ProtocolUDP
+	portDNS := intstr.FromInt(53)
 
 	policy, err = policies.Create(client.context, &v1.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
@@ -55,6 +61,20 @@ func (client *Client) FindOrCreateNetworkPolicy(namespaceName string, name strin
 									"192.168.0.0/16",
 								},
 							},
+						},
+						{
+							NamespaceSelector: &metav1.LabelSelector{
+								MatchLabels: map[string]string{"kubernetes.io/metadata.name": "kube-system"},
+							},
+							PodSelector: &metav1.LabelSelector{
+								MatchLabels: map[string]string{"k8s-app": "kube-dns"},
+							},
+						},
+					},
+					Ports: []v1.NetworkPolicyPort{
+						{
+							Protocol: &protocolUDP,
+							Port:     &portDNS,
 						},
 					},
 				},
