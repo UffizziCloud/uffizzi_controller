@@ -67,7 +67,6 @@ Some of these may have defaults within `configs/settings.yml`.
 - `CERT_MANAGER_CLUSTER_ISSUER` - The issuer for signing certificates. Possible values:
     - `letsencrypt` (used by default)
     - `zerossl`
-- `POD_CIDR` - IP range to allowlist within `NetworkPolicy`. Default: `10.24.0.0/14`
 - `POOL_MACHINE_TOTAL_CPU_MILLICORES` - Node resource to divide for Pods. Default: 2000
 - `POOL_MACHINE_TOTAL_MEMORY_BYTES` - Node recourse to divide for Pods. Default: 17179869184
 - `DEFAULT_AUTOSCALING_CPU_THRESHOLD` - Default: 75

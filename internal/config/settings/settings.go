@@ -20,7 +20,6 @@ type Settings struct {
 	ServiceChecks                         ServiceChecksSettings `yaml:"service_checks"`
 	ResourceRequestBackOffPeriod          time.Duration         `yaml:"resource_request_back_off_period"`
 	CountDisplayedEntriesForLogsOutput    int64                 `yaml:"count_displayed_entries_for_logs_output"`
-	PodCidr                               string                `yaml:"pod_cidr"`
 	PoolMachineTotalCpuMillicores         int64                 `yaml:"pool_machine_total_cpu_millicores"`
 	PoolMachineTotalMemoryBytes           int64                 `yaml:"pool_machine_total_memory_bytes"`
 	DefaultAutoscalingCpuThreshold        int                   `yaml:"default_autoscaling_cpu_threshold"`

@@ -1,4 +1,4 @@
-name: Test, Lint And Release
+name: Test, Lint And Release Production
 on:
   push:
     branches:
@@ -12,7 +12,7 @@ permissions:
 jobs:
   build-and-push-controller:
     uses: ./.github/workflows/build-and-push-ci.yml
-    name: Build CI Web image
+    name: Build CI Image
     secrets: inherit
   code-quality:
     needs:
