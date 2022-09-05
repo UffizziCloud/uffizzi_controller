@@ -46,11 +46,12 @@ func (h *Handlers) handleGetContainers(w http.ResponseWriter, r *http.Request) {
 }
 
 type applyContainersRequest struct {
-	Containers     []domainTypes.Container  `json:"containers"`
-	Credentials    []domainTypes.Credential `json:"credentials,omitempty"`
-	DeploymentHost string                   `json:"deployment_url"`
-	Project        domainTypes.Project      `json:"project"`
-	ComposeFile    domainTypes.ComposeFile  `json:"compose_file"`
+	Containers      []domainTypes.Container      `json:"containers"`
+	Credentials     []domainTypes.Credential     `json:"credentials,omitempty"`
+	DeploymentHost  string                       `json:"deployment_url"`
+	Project         domainTypes.Project          `json:"project"`
+	ComposeFile     domainTypes.ComposeFile      `json:"compose_file"`
+	HostVolumeFiles []domainTypes.HostVolumeFile `json:"host_volume_files"`
 }
 
 // @Description Create or Update containers within a Deployment.
@@ -92,8 +93,18 @@ func (h *Handlers) handleApplyContainers(w http.ResponseWriter, r *http.Request)
 		deploymentHost := request.DeploymentHost
 		project := request.Project
 		composeFile := request.ComposeFile
+		hostVolumeFiles := request.HostVolumeFiles
+		hostVolumeFileList := domainTypes.HostVolumeFileList{Items: hostVolumeFiles}
 
-		err = domainLogic.ApplyContainers(deploymentId, containerList, credentials, deploymentHost, project, composeFile)
+		err = domainLogic.ApplyContainers(
+			deploymentId,
+			containerList,
+			credentials,
+			deploymentHost,
+			project,
+			composeFile,
+			&hostVolumeFileList,
+		)
 		if err != nil {
 			handleDomainError("domainLogic.ApplyContainers", err, localHub)
 		}

@@ -8,27 +8,28 @@ import (
 
 // Container example
 type Container struct {
-	ID                      uint64                 `json:"id"`
-	Image                   string                 `json:"image"`
-	Kind                    string                 `json:"kind"`
-	Entrypoint              []string               `json:"entrypoint,omitempty"`
-	Command                 []string               `json:"command,omitempty"`
-	Tag                     *string                `json:"tag"`
-	Port                    *int32                 `json:"port"`
-	TargetPort              *int32                 `json:"target_port"`
-	Public                  bool                   `json:"public"`
-	HasReachedRestartsLimit bool                   `json:"has_reached_restarts_limit"`
-	ReceiveIncomingRequests bool                   `json:"receive_incoming_requests"`
-	Variables               []*ContainerVariable   `json:"variables"`
-	SecretVariables         []*ContainerVariable   `json:"secret_variables"`
-	ControllerName          string                 `json:"controller_name"`
-	MemoryLimit             uint                   `json:"memory_limit"`
-	MemoryRequest           uint                   `json:"memory_request"`
-	ContainerConfigFiles    []*ContainerConfigFile `json:"container_config_files"`
-	Healthcheck             *Healthcheck           `json:"healthcheck"`
-	ContainerVolumes        []*ContainerVolume     `json:"volumes"`
-	ServiceName             string                 `json:"service_name"`
-	AdditionalSubdomains    []string               `json:"additional_subdomains"`
+	ID                       uint64                     `json:"id"`
+	Image                    string                     `json:"image"`
+	Kind                     string                     `json:"kind"`
+	Entrypoint               []string                   `json:"entrypoint,omitempty"`
+	Command                  []string                   `json:"command,omitempty"`
+	Tag                      *string                    `json:"tag"`
+	Port                     *int32                     `json:"port"`
+	TargetPort               *int32                     `json:"target_port"`
+	Public                   bool                       `json:"public"`
+	HasReachedRestartsLimit  bool                       `json:"has_reached_restarts_limit"`
+	ReceiveIncomingRequests  bool                       `json:"receive_incoming_requests"`
+	Variables                []*ContainerVariable       `json:"variables"`
+	SecretVariables          []*ContainerVariable       `json:"secret_variables"`
+	ControllerName           string                     `json:"controller_name"`
+	MemoryLimit              uint                       `json:"memory_limit"`
+	MemoryRequest            uint                       `json:"memory_request"`
+	ContainerConfigFiles     []*ContainerConfigFile     `json:"container_config_files"`
+	Healthcheck              *Healthcheck               `json:"healthcheck"`
+	ContainerVolumes         []*ContainerVolume         `json:"volumes"`
+	ServiceName              string                     `json:"service_name"`
+	AdditionalSubdomains     []string                   `json:"additional_subdomains"`
+	ContainerHostVolumeFiles []*ContainerHostVolumeFile `json:"container_host_volume_files"`
 }
 
 func (c Container) IsPublic() bool {

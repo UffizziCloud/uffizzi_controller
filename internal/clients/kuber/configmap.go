@@ -27,7 +27,8 @@ func (client Client) FindOrInitializeConfigMap(namespace, name string) (*corev1.
 				"app.kubernetes.io/managed-by": global.Settings.ManagedApplication,
 			},
 		},
-		Data: map[string]string{},
+		Data:       map[string]string{},
+		BinaryData: map[string][]byte{},
 	}
 
 	return configMapDraft, nil
