@@ -51,12 +51,17 @@ func prepareContainerSecrets(container domainTypes.Container, secret *corev1.Sec
 	return envVariables
 }
 
-func prepareDeploymentVolumes(containerList domainTypes.ContainerList) []corev1.Volume {
+func prepareDeploymentVolumes(
+	containerList domainTypes.ContainerList,
+	hostVolumeFileList *domainTypes.HostVolumeFileList,
+) []corev1.Volume {
 	volumes := []corev1.Volume{}
 	configFileVolumes := prepareDeploymentConfigFileVolumes(containerList)
 	volumes = append(volumes, configFileVolumes...)
-	pvcVolumes := prepareDeploymentPvcVolumes(containerList)
-	volumes = append(volumes, pvcVolumes...)
+	composeFileVolumes := prepareDeploymentComposeFileVolumes(containerList)
+	volumes = append(volumes, composeFileVolumes...)
+	hostVolumeFileVolumes := prepareHostVolumeFileDeploymentVolumes(hostVolumeFileList)
+	volumes = append(volumes, hostVolumeFileVolumes...)
 
 	return volumes
 }
@@ -153,18 +158,18 @@ func prepareDeploymentConfigFileVolumes(containerList domainTypes.ContainerList)
 	return volumes
 }
 
-func prepareDeploymentPvcVolumes(containerList domainTypes.ContainerList) []corev1.Volume {
+func prepareDeploymentComposeFileVolumes(containerList domainTypes.ContainerList) []corev1.Volume {
 	volumes := []corev1.Volume{}
-	pvcVolumes := containerList.GetUniqNamedVolumes()
-	pvcVolumes = append(pvcVolumes, containerList.GetUniqAnonymousVolumes()...)
-	pvcVolumes = append(pvcVolumes, containerList.GetUniqHostVolumes()...)
+	composeFileVolumes := containerList.GetUniqNamedVolumes()
+	composeFileVolumes = append(composeFileVolumes, containerList.GetUniqAnonymousVolumes()...)
+	composeFileVolumes = append(composeFileVolumes, containerList.GetUniqHostVolumes()...)
 
-	for _, pvcVolume := range pvcVolumes {
+	for _, composeFileVolume := range composeFileVolumes {
 		volume := corev1.Volume{
-			Name: global.Settings.ResourceName.VolumeName(pvcVolume.UniqName),
+			Name: global.Settings.ResourceName.VolumeName(composeFileVolume.UniqName),
 			VolumeSource: corev1.VolumeSource{
 				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-					ClaimName: global.Settings.ResourceName.PvcName(pvcVolume.UniqName),
+					ClaimName: global.Settings.ResourceName.PvcName(composeFileVolume.UniqName),
 				},
 			},
 		}
@@ -285,4 +290,27 @@ func prepareContainerHealthcheck(container domainTypes.Container) *corev1.Probe 
 	}
 
 	return probe
+}
+
+func prepareHostVolumeFileDeploymentVolumes(hostVolumeFileList *domainTypes.HostVolumeFileList) []corev1.Volume {
+	volumes := []corev1.Volume{}
+
+	for _, hostVolumeFile := range hostVolumeFileList.Items {
+		volume := corev1.Volume{Name: hostVolumeFile.VolumeName()}
+
+		items := []corev1.KeyToPath{
+			{Key: hostVolumeFile.ConfigMapKey(), Path: hostVolumeFile.ConfigMapPath()},
+		}
+
+		volume.ConfigMap = &corev1.ConfigMapVolumeSource{
+			LocalObjectReference: corev1.LocalObjectReference{
+				Name: hostVolumeFile.ConfigMapName(),
+			},
+			Items: items,
+		}
+
+		volumes = append(volumes, volume)
+	}
+
+	return volumes
 }

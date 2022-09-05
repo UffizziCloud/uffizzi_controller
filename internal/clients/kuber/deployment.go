@@ -85,6 +85,7 @@ func (client *Client) updateDeploymentAttributes(
 	deployment *appsv1.Deployment,
 	containerList domainTypes.ContainerList,
 	composeFile domainTypes.ComposeFile,
+	hostVolumeFileList *domainTypes.HostVolumeFileList,
 ) (*appsv1.Deployment, error) {
 	var containers []corev1.Container
 
@@ -96,7 +97,7 @@ func (client *Client) updateDeploymentAttributes(
 		deployment.Spec.Template.Annotations = make(map[string]string)
 	}
 
-	deployment.Spec.Template.Spec.Volumes = prepareDeploymentVolumes(containerList)
+	deployment.Spec.Template.Spec.Volumes = prepareDeploymentVolumes(containerList, hostVolumeFileList)
 
 	if containerList.IsAnyVolumeExists() {
 		deployment.Spec.Strategy = buildRecreateDeploymentStrategy()
@@ -197,7 +198,7 @@ func (client *Client) updateDeploymentAttributes(
 	deployment.Spec.Template.Spec.Containers = containers
 
 	initContainers := []corev1.Container{}
-	initContainerForHostVolumes, err := buildInitContainerForHostVolumes(containerList, composeFile)
+	initContainerForHostVolumes, err := buildInitContainerForHostVolumes(containerList, composeFile, hostVolumeFileList)
 
 	if err != nil {
 		return nil, err
@@ -218,6 +219,7 @@ func (client *Client) CreateOrUpdateDeployments(
 	containerList domainTypes.ContainerList,
 	credentials []domainTypes.Credential,
 	composeFile domainTypes.ComposeFile,
+	hostVolumeFileList *domainTypes.HostVolumeFileList,
 ) (*appsv1.Deployment, error) {
 	deployments := client.clientset.AppsV1().Deployments(namespace.Name)
 
@@ -226,7 +228,7 @@ func (client *Client) CreateOrUpdateDeployments(
 		return nil, err
 	}
 
-	deployment, err = client.updateDeploymentAttributes(namespace, deployment, containerList, composeFile)
+	deployment, err = client.updateDeploymentAttributes(namespace, deployment, containerList, composeFile, hostVolumeFileList)
 	if err != nil {
 		return nil, err
 	}

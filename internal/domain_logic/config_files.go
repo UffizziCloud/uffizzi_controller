@@ -201,3 +201,36 @@ func (l *Logic) ClearOldConfigMapConfigurationFiles(
 
 	return nil
 }
+
+func (l *Logic) ApplyHostVolumeFileAsConfigMap(namespace string, hostVolumeFile domainTypes.HostVolumeFile) error {
+	name := hostVolumeFile.ConfigMapName()
+
+	configMap, err := l.KuberClient.FindOrInitializeConfigMap(namespace, name)
+	if err != nil {
+		return err
+	}
+
+	binaryPayload, err := hostVolumeFile.BinaryPayload()
+
+	if err != nil {
+		return err
+	}
+
+	configMap.BinaryData = map[string][]byte{
+		hostVolumeFile.ConfigMapKey(): binaryPayload,
+	}
+
+	if len(configMap.UID) > 0 {
+		_, err = l.KuberClient.UpdateConfigMap(namespace, configMap)
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err = l.KuberClient.CreateConfigMap(namespace, configMap)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
