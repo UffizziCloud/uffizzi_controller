@@ -52,6 +52,11 @@ generate_docs:
 image_names:
 	export CONTROLLER_IMAGE=${CONTROLLER_IMAGE}:${VERSION}
 
+setup_gke_kube:
+	gcloud auth activate-service-account --key-file ${SERVICE_ACCOUNT_KEY}
+	gcloud config set project ${GCP_PROJECT_ID}
+	gcloud container clusters get-credentials ${CLUSTER_NAME} --region ${GCP_REGION}
+
 build_controller:
 	docker pull "${CONTROLLER_IMAGE}:${CI_COMMIT_REF_SLUG}" || true
 	docker pull "${CONTROLLER_IMAGE}:latest" || true
