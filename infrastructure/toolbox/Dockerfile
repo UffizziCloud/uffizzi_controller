@@ -1,5 +1,7 @@
 FROM docker:19.03.13
 
+ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
+
 RUN apk update
 RUN apk add --no-cache \
     python3-dev \
@@ -18,18 +20,22 @@ RUN apk add --no-cache \
     groff \
     cargo
 
+RUN pip3 install --upgrade pip
 RUN pip3 install "urllib3<1.25"
 RUN pip3 install pyrsistent==0.16.1
 RUN pip3 install docker-compose
+RUN echo "cryptography==3.3.2" > /tmp/requirements.txt \
+    && pip3 install -U docker-compose -r /tmp/requirements.txt \
+    && rm /tmp/requirements.txt
 
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl \
- && chmod +x ./kubectl \
- && mv ./kubectl /usr/local/bin/kubectl
+    && chmod +x ./kubectl \
+    && mv ./kubectl /usr/local/bin/kubectl
 
 ARG CLOUD_SDK_VERSION=266.0.0
 
 ENV PATH /google-cloud-sdk/bin:$PATH
-RUN apk --no-cache --update add curl python2 py-crcmod libc6-compat make less && \
+RUN apk --no-cache --update add curl python3 py-crcmod libc6-compat make less && \
     curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     rm google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
@@ -45,4 +51,3 @@ RUN curl -sL https://sentry.io/get-cli/ | bash
 
 RUN mkdir /app
 WORKDIR /app
-
