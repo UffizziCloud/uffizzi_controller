@@ -79,7 +79,6 @@ func (client *Client) UpdateIngressAttributes(
 ) (*networkingV1.Ingress, error) {
 	containerPort := *container.Port
 	additionalHosts := buildAdditionalHostnames(container.AdditionalSubdomains, deploymentHost)
-
 	deploymentHosts := []string{deploymentHost}
 	deploymentHosts = append(deploymentHosts, additionalHosts...)
 	tls := []networkingV1.IngressTLS{{Hosts: deploymentHosts}}
