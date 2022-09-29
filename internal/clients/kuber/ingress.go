@@ -2,6 +2,7 @@ package kuber
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -11,7 +12,7 @@ import (
 	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 	corev1 "k8s.io/api/core/v1"
 	networkingV1 "k8s.io/api/networking/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
+	coreErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -39,7 +40,7 @@ func (client *Client) FindIngress(namespace, name string) (*networkingV1.Ingress
 func (client *Client) findOrInitializeIngress(namespace, ingressName string) (*networkingV1.Ingress, error) {
 	ingress, err := client.FindIngress(namespace, ingressName)
 
-	if err != nil && !errors.IsNotFound(err) {
+	if err != nil && !coreErrors.IsNotFound(err) {
 		return ingress, err
 	}
 
@@ -75,15 +76,21 @@ func (client *Client) UpdateIngressAttributes(
 	namespace *corev1.Namespace,
 	container domainTypes.Container,
 	serviceName, deploymentHost string,
-	project domainTypes.Project) (*networkingV1.Ingress, error) {
+	project domainTypes.Project,
+) (*networkingV1.Ingress, error) {
 	containerPort := *container.Port
-	tls := []networkingV1.IngressTLS{
-		{Hosts: []string{deploymentHost}},
+	additionalHosts := buildAdditionalHostnames(container.AdditionalSubdomains, deploymentHost)
+
+	if len(global.Settings.CertManagerClusterIssuer) == 0 && len(additionalHosts) > 0 {
+		return nil, errors.New("cert manager should be defined if additional subdomains exists")
 	}
 
-	var err error
-
+	deploymentHosts := []string{deploymentHost}
+	deploymentHosts = append(deploymentHosts, additionalHosts...)
+	tls := []networkingV1.IngressTLS{{Hosts: deploymentHosts}}
 	ingress.ObjectMeta.Annotations["kubernetes.io/ingress.class"] = "nginx"
+
+	var err error
 
 	if project.IsPreviewsProtected {
 		ingress, err = client.AddBasicAuthToIngress(ingress, project, namespace.Name)
@@ -92,42 +99,20 @@ func (client *Client) UpdateIngressAttributes(
 	if err != nil {
 		return nil, err
 	}
-	// if a `ClusterIssuer` is specified, use it.
-	if len(global.Settings.CertManagerClusterIssuer) > 0 {
+
+	if len(additionalHosts) > 0 {
 		ingress.ObjectMeta.Annotations["cert-manager.io/cluster-issuer"] = global.Settings.CertManagerClusterIssuer
 		tls = []networkingV1.IngressTLS{
-			{Hosts: []string{deploymentHost}, SecretName: deploymentHost},
+			{Hosts: deploymentHosts, SecretName: deploymentHost},
 		}
 	}
 
-	ingressBackend := networkingV1.IngressBackend{
-		Service: &networkingV1.IngressServiceBackend{
-			Name: serviceName,
-			Port: networkingV1.ServiceBackendPort{
-				Number: containerPort,
-			},
-		},
-	}
-
-	// constants are not addressable.
-	pathTypePrefix := networkingV1.PathTypePrefix
-
-	paths := []networkingV1.HTTPIngressPath{
-		{
-			Path:     "/",
-			PathType: &pathTypePrefix,
-			Backend:  ingressBackend,
-		},
-	}
-
+	ingressPaths := buildIngressPaths(serviceName, containerPort)
 	ingressRuleValue := networkingV1.IngressRuleValue{
-		HTTP: &networkingV1.HTTPIngressRuleValue{Paths: paths},
+		HTTP: &networkingV1.HTTPIngressRuleValue{Paths: ingressPaths},
 	}
 
-	rules := []networkingV1.IngressRule{
-		{Host: deploymentHost, IngressRuleValue: ingressRuleValue},
-	}
-
+	rules := buildIngressRules(deploymentHosts, ingressRuleValue)
 	ingress.Spec = networkingV1.IngressSpec{TLS: tls, Rules: rules}
 
 	return ingress, nil
@@ -221,7 +206,7 @@ func (client *Client) RemoveIngress(namespace, name string) error {
 	err := ingresses.Delete(client.context, name, metav1.DeleteOptions{})
 
 	switch {
-	case errors.IsNotFound(err):
+	case coreErrors.IsNotFound(err):
 		return nil
 	default:
 		return err
@@ -298,4 +283,52 @@ func getBasicAuthAnnotation(secretName string) map[string]string {
 		"nginx.ingress.kubernetes.io/auth-secret": secretName,
 		"nginx.ingress.kubernetes.io/auth-realm":  "Authentication Required",
 	}
+}
+
+func buildAdditionalHostnames(additionalSubdomains []string, commonHostname string) []string {
+	hostnames := []string{}
+
+	for _, subdomain := range additionalSubdomains {
+		additionalHostname := fmt.Sprintf("%s.%s", subdomain, commonHostname)
+		hostnames = append(hostnames, additionalHostname)
+	}
+
+	return hostnames
+}
+
+func buildIngressRules(
+	deploymentHosts []string,
+	ingressRuleValue networkingV1.IngressRuleValue,
+) []networkingV1.IngressRule {
+	rules := []networkingV1.IngressRule{}
+
+	for _, deploymentHost := range deploymentHosts {
+		newRule := networkingV1.IngressRule{Host: deploymentHost, IngressRuleValue: ingressRuleValue}
+		rules = append(rules, newRule)
+	}
+
+	return rules
+}
+
+func buildIngressPaths(serviceName string, containerPort int32) []networkingV1.HTTPIngressPath {
+	ingressBackend := networkingV1.IngressBackend{
+		Service: &networkingV1.IngressServiceBackend{
+			Name: serviceName,
+			Port: networkingV1.ServiceBackendPort{
+				Number: containerPort,
+			},
+		},
+	}
+
+	// constants are not addressable.
+	pathTypePrefix := networkingV1.PathTypePrefix
+	paths := []networkingV1.HTTPIngressPath{
+		{
+			Path:     "/",
+			PathType: &pathTypePrefix,
+			Backend:  ingressBackend,
+		},
+	}
+
+	return paths
 }

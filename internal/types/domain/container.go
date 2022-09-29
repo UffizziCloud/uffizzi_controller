@@ -28,6 +28,7 @@ type Container struct {
 	Healthcheck             *Healthcheck           `json:"healthcheck"`
 	ContainerVolumes        []*ContainerVolume     `json:"volumes"`
 	ServiceName             string                 `json:"service_name"`
+	AdditionalSubdomains    []string               `json:"additional_subdomains"`
 }
 
 func (c Container) IsPublic() bool {
