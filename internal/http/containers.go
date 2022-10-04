@@ -45,7 +45,7 @@ func (h *Handlers) handleGetContainers(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, r, http.StatusOK, pods)
 }
 
-type applyContainersRequest struct {
+type ApplyContainersRequest struct {
 	Containers     []domainTypes.Container  `json:"containers"`
 	Credentials    []domainTypes.Credential `json:"credentials,omitempty"`
 	DeploymentHost string                   `json:"deployment_url"`
@@ -55,7 +55,7 @@ type applyContainersRequest struct {
 
 // @Description Create or Update containers within a Deployment.
 // @Param deploymentId path int true "unique Uffizzi Deployment ID"
-// @Param spec body applyContainersRequest true "container specification"
+// @Param spec body ApplyContainersRequest true "container specification"
 // @Success 200 "OK"
 // @Failure 500 "most errors including Not Found"
 // @Response 403 "Incorrect Token for HTTP Basic Auth"
@@ -71,7 +71,7 @@ func (h *Handlers) handleApplyContainers(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var request applyContainersRequest
+	var request ApplyContainersRequest
 
 	err = json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
@@ -86,16 +86,23 @@ func (h *Handlers) handleApplyContainers(w http.ResponseWriter, r *http.Request)
 			scope.SetTag("deploymentId", fmt.Sprint(deploymentId))
 		})
 
-		containers := request.Containers
-		containerList := domainTypes.ContainerList{Items: containers}
-		credentials := request.Credentials
-		deploymentHost := request.DeploymentHost
-		project := request.Project
-		composeFile := request.ComposeFile
+		err := startApplyContainers(request, deploymentId)
 
-		err = domainLogic.ApplyContainers(deploymentId, containerList, credentials, deploymentHost, project, composeFile)
 		if err != nil {
 			handleDomainError("domainLogic.ApplyContainers", err, localHub)
 		}
 	}(sentry.CurrentHub().Clone())
+}
+
+func startApplyContainers(request ApplyContainersRequest, deploymentId uint64) error {
+	containers := request.Containers
+	containerList := domainTypes.ContainerList{Items: containers}
+	credentials := request.Credentials
+	deploymentHost := request.DeploymentHost
+	project := request.Project
+	composeFile := request.ComposeFile
+
+	err := domainLogic.ApplyContainers(deploymentId, containerList, credentials, deploymentHost, project, composeFile)
+
+	return err
 }
