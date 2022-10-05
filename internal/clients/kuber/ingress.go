@@ -80,11 +80,6 @@ func (client *Client) UpdateIngressAttributes(
 	containerPort := *container.Port
 	additionalHosts := buildAdditionalHostnames(container.AdditionalSubdomains, deploymentHost)
 
-	// FIX: Uncomment after add cert manager
-	// if len(global.Settings.CertManagerClusterIssuer) == 0 && len(additionalHosts) > 0 {
-	// 	return nil, errors.New("cert manager should be defined if additional subdomains exists")
-	// }
-
 	deploymentHosts := []string{deploymentHost}
 	deploymentHosts = append(deploymentHosts, additionalHosts...)
 	tls := []networkingV1.IngressTLS{{Hosts: deploymentHosts}}
@@ -101,8 +96,6 @@ func (client *Client) UpdateIngressAttributes(
 	}
 
 	if len(additionalHosts) > 0 {
-		// ingress.ObjectMeta.Annotations["cert-manager.io/cluster-issuer"] = global.Settings.CertManagerClusterIssuer
-		// FIX: add cert manager env
 		ingress.ObjectMeta.Annotations["cert-manager.io/cluster-issuer"] = "zerossl"
 		tls = []networkingV1.IngressTLS{
 			{Hosts: deploymentHosts, SecretName: deploymentHost},
