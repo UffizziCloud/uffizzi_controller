@@ -81,6 +81,8 @@ func (l *Logic) ApplyContainersVolumes(
 
 		if len(pvc.UID) == 0 {
 			_, err = l.KuberClient.CreatePersistentVolumeClaim(namespace, pvc)
+
+			log.Printf("%v/pvc %v was created\n", namespace, pvcName)
 		}
 
 		if err != nil {
@@ -102,6 +104,7 @@ func (l *Logic) ApplyContainersVolumes(
 func (l *Logic) RemoveUnusedContainersVolumes(namespace string, containerList domainTypes.ContainerList) error {
 	uniqVolumes := containerList.GetUniqNamedVolumes()
 	uniqVolumes = append(uniqVolumes, containerList.GetUniqAnonymousVolumes()...)
+	uniqVolumes = append(uniqVolumes, containerList.GetUniqHostVolumes()...)
 	newPersistentVolumeClaimNames := []string{}
 
 	for _, volume := range uniqVolumes {
