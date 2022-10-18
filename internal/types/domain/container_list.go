@@ -131,3 +131,13 @@ func (list ContainerList) IsAnyVolumeExists() bool {
 
 	return isExists
 }
+
+func (list ContainerList) IsHostVolumesPresent() bool {
+	for _, container := range list.Items {
+		if len(container.ContainerVolumes) > 0 {
+			return true
+		}
+	}
+
+	return false
+}

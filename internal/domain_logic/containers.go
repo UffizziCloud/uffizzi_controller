@@ -61,14 +61,18 @@ func (l *Logic) ApplyContainerSecrets(namespace string, containerList domainType
 	return nil
 }
 
-func (l *Logic) ApplyContainersVolumes(namespace string, containerList domainTypes.ContainerList) error {
-	volumes := []domainTypes.DeploymentVolume{}
-	volumes = append(volumes, containerList.GetUniqNamedVolumes()...)
-	volumes = append(volumes, containerList.GetUniqAnonymousVolumes()...)
-	volumes = append(volumes, containerList.GetUniqHostVolumes()...)
+func (l *Logic) ApplyContainersVolumes(
+	namespace string,
+	containerList domainTypes.ContainerList,
+	hostVolumeFileList *domainTypes.HostVolumeFileList,
+) error {
+	composeFileVolumes := []domainTypes.DeploymentVolume{}
+	composeFileVolumes = append(composeFileVolumes, containerList.GetUniqNamedVolumes()...)
+	composeFileVolumes = append(composeFileVolumes, containerList.GetUniqAnonymousVolumes()...)
+	composeFileVolumes = append(composeFileVolumes, containerList.GetUniqHostVolumes()...)
 
-	for _, volume := range volumes {
-		pvcName := global.Settings.ResourceName.PvcName(volume.UniqName)
+	for _, composeFileVolume := range composeFileVolumes {
+		pvcName := global.Settings.ResourceName.PvcName(composeFileVolume.UniqName)
 		pvc, err := l.KuberClient.FindOrInitializePersistentVolumeClaim(namespace, pvcName)
 
 		if err != nil {
@@ -77,7 +81,17 @@ func (l *Logic) ApplyContainersVolumes(namespace string, containerList domainTyp
 
 		if len(pvc.UID) == 0 {
 			_, err = l.KuberClient.CreatePersistentVolumeClaim(namespace, pvc)
+
+			log.Printf("%v/pvc %v was created\n", namespace, pvcName)
 		}
+
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, hostVolumeFile := range hostVolumeFileList.Items {
+		err := l.ApplyHostVolumeFileAsConfigMap(namespace, hostVolumeFile)
 
 		if err != nil {
 			return err
@@ -90,6 +104,7 @@ func (l *Logic) ApplyContainersVolumes(namespace string, containerList domainTyp
 func (l *Logic) RemoveUnusedContainersVolumes(namespace string, containerList domainTypes.ContainerList) error {
 	uniqVolumes := containerList.GetUniqNamedVolumes()
 	uniqVolumes = append(uniqVolumes, containerList.GetUniqAnonymousVolumes()...)
+	uniqVolumes = append(uniqVolumes, containerList.GetUniqHostVolumes()...)
 	newPersistentVolumeClaimNames := []string{}
 
 	for _, volume := range uniqVolumes {
