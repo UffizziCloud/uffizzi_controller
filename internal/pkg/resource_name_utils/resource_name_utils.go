@@ -3,6 +3,7 @@ package resource_name_utils
 import (
 	"fmt"
 	"regexp"
+	"strings"
 )
 
 type ResouceNameUtils struct{}
@@ -43,8 +44,12 @@ func (resouceNameUtils *ResouceNameUtils) VolumeName(name string) string {
 	return fmt.Sprintf("volume-%v", rfcName)
 }
 
+// A lowercase RFC 1123 subdomain must consist of lower case alphanumeric characters, '-' or '.',
+// and must start and end with an alphanumeric character (e.g. 'example.com',
+// regex used for validation is '[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*')
 func toRfc(str string) string {
 	regexp := regexp.MustCompile(`(\/|~|\.|_)`)
+	replacedStr := regexp.ReplaceAllString(str, "-")
 
-	return regexp.ReplaceAllString(str, "-")
+	return strings.Trim(replacedStr, "-")
 }

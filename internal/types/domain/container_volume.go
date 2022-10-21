@@ -24,7 +24,7 @@ func (volume ContainerVolume) BuildUniqName(container *Container) string {
 	case ContainerVolumeTypeNamed:
 		return volume.Source
 	case ContainerVolumeTypeHost:
-		return fmt.Sprintf("host-%s-%s", container.ServiceName, volume.Source)
+		return fmt.Sprintf("host-%s", volume.Source)
 	default:
 		return ""
 	}
