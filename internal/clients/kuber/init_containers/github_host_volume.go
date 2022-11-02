@@ -64,7 +64,7 @@ func prepareGithubHostVolumeCommand(
 		volumeName := global.Settings.ResourceName.VolumeName(volume.UniqName)
 		sourceDir := volume.Volume.Source
 		targetDir := buildMountPathForHostVolume(volumeName)
-		copyCommand := fmt.Sprintf("cp -a %v/. %v", sourceDir, targetDir)
+		copyCommand := fmt.Sprintf("cp -a ./%v/. %v", sourceDir, targetDir)
 
 		commands = append(commands, copyCommand)
 	}
