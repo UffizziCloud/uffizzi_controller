@@ -48,8 +48,8 @@ func (resouceNameUtils *ResouceNameUtils) VolumeName(name string) string {
 // and must start and end with an alphanumeric character (e.g. 'example.com',
 // regex used for validation is '[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*')
 func toRfc(str string) string {
-	regexp := regexp.MustCompile(`(\/|~|\.|_)`)
-	replacedStr := regexp.ReplaceAllString(str, "-")
+	regex := regexp.MustCompile(`(\/|~|\.|_)`)
+	replacedStr := regex.ReplaceAllString(str, "-")
 
 	return strings.Trim(replacedStr, "-")
 }
