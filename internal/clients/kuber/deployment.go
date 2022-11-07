@@ -140,7 +140,7 @@ func (client *Client) updateDeploymentAttributes(
 		}
 
 		// podCpuLimit := podCpuProportion(&memoryLimit)
-		podCpuLimit := resource.NewMilliQuantity(int64(1000), resource.DecimalSI)
+		podCpuLimit := resource.NewMilliQuantity(int64(1000), resource.DecimalSI) //nolint: gomnd
 
 		limits := corev1.ResourceList{
 			corev1.ResourceMemory: memoryLimit,
