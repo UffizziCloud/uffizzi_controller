@@ -63,7 +63,7 @@ func prepareGithubHostVolumeCommand(
 
 	for _, hostVolume := range hostVolumes {
 		volumeName := global.Settings.ResourceName.VolumeName(hostVolume.UniqName)
-		copySource := buildCopySourceForGithubHostVolume(hostVolume.Volume.Source)
+		copySource := buildCopySourceForGithubHostVolume(composeFile.Path, hostVolume.Volume.Source)
 		targetDir := buildMountPathForHostVolume(volumeName)
 		copyCommand := fmt.Sprintf("cp -a %v %v", copySource, targetDir)
 		commands = append(commands, copyCommand)
@@ -76,11 +76,14 @@ func buildMountPathForHostVolume(volumeName string) string {
 	return fmt.Sprintf("/tmp_host_volumes/%v", volumeName)
 }
 
-func buildCopySourceForGithubHostVolume(path string) string {
-	regexDoubleSlashes := regexp.MustCompile(`\/\/`)
+func buildCopySourceForGithubHostVolume(composeFilePath string, volumeSourcePath string) string {
+	regexDoubleSlashes := regexp.MustCompile(`\/{2,}`)
 
-	newPath := path + "/"
-	newPath = regexDoubleSlashes.ReplaceAllString(newPath, "/") + "."
+	pathChunks := strings.Split(composeFilePath, "/")
+	pathChunksWithoutFilename := pathChunks[:len(pathChunks)-1]
+	dirPath := strings.Join(pathChunksWithoutFilename, "/")
+	nakedSourcePath := strings.TrimPrefix(volumeSourcePath, "./")
+	sourcePathWithSubDir := fmt.Sprintf("./%v/%v/.", dirPath, nakedSourcePath)
 
-	return newPath
+	return regexDoubleSlashes.ReplaceAllString(sourcePathWithSubDir, "/")
 }
