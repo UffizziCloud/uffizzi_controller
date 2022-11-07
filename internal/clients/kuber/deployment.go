@@ -127,11 +127,11 @@ func (client *Client) updateDeploymentAttributes(
 			return nil, err
 		}
 
-		podCpuRequest := podCpuProportion(&memoryRequest)
+		// podCpuRequest := podCpuProportion(&memoryRequest)
 
 		requests := corev1.ResourceList{
 			corev1.ResourceMemory: memoryRequest,
-			corev1.ResourceCPU:    *podCpuRequest,
+			// corev1.ResourceCPU:    *podCpuRequest,
 		}
 
 		memoryLimit, err := resource.ParseQuantity(fmt.Sprintf("%vMi", draftContainer.MemoryLimit))
@@ -139,7 +139,8 @@ func (client *Client) updateDeploymentAttributes(
 			return nil, err
 		}
 
-		podCpuLimit := podCpuProportion(&memoryLimit)
+		// podCpuLimit := podCpuProportion(&memoryLimit)
+		podCpuLimit := resource.NewMilliQuantity(int64(1000), resource.DecimalSI)
 
 		limits := corev1.ResourceList{
 			corev1.ResourceMemory: memoryLimit,
