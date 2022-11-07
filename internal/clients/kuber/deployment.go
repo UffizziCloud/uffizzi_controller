@@ -128,10 +128,11 @@ func (client *Client) updateDeploymentAttributes(
 		}
 
 		// podCpuRequest := podCpuProportion(&memoryRequest)
+		podCpuRequest := resource.NewMilliQuantity(int64(0), resource.DecimalSI) //nolint: gomnd
 
 		requests := corev1.ResourceList{
 			corev1.ResourceMemory: memoryRequest,
-			// corev1.ResourceCPU:    *podCpuRequest,
+			corev1.ResourceCPU:    *podCpuRequest,
 		}
 
 		memoryLimit, err := resource.ParseQuantity(fmt.Sprintf("%vMi", draftContainer.MemoryLimit))
