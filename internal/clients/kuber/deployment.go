@@ -127,7 +127,8 @@ func (client *Client) updateDeploymentAttributes(
 			return nil, err
 		}
 
-		podCpuRequest := podCpuProportion(&memoryRequest)
+		// podCpuRequest := podCpuProportion(&memoryRequest)
+		podCpuRequest := resource.NewMilliQuantity(int64(0), resource.DecimalSI) //nolint: gomnd
 
 		requests := corev1.ResourceList{
 			corev1.ResourceMemory: memoryRequest,
@@ -139,7 +140,8 @@ func (client *Client) updateDeploymentAttributes(
 			return nil, err
 		}
 
-		podCpuLimit := podCpuProportion(&memoryLimit)
+		// podCpuLimit := podCpuProportion(&memoryLimit)
+		podCpuLimit := resource.NewMilliQuantity(int64(1000), resource.DecimalSI) //nolint: gomnd
 
 		limits := corev1.ResourceList{
 			corev1.ResourceMemory: memoryLimit,
