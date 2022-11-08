@@ -34,10 +34,10 @@ func (client *Client) GetPodLogs(
 	previous bool,
 ) ([]string, error) {
 	logOptions := &v1.PodLogOptions{
-    Timestamps: true,
-		Container: containerName,
-		TailLines: &limit,
-		Previous:  previous,
+		Previous:   previous,
+		Container:  containerName,
+		TailLines:  &limit,
+		Timestamps: true,
 	}
 
 	request := client.clientset.CoreV1().Pods(namespace).GetLogs(podName, logOptions)
