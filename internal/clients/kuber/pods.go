@@ -37,6 +37,7 @@ func (client *Client) GetPodLogs(
 		Container: containerName,
 		TailLines: &limit,
 		Previous:  previous,
+		Timestamps: true,
 	}
 
 	request := client.clientset.CoreV1().Pods(namespace).GetLogs(podName, logOptions)
