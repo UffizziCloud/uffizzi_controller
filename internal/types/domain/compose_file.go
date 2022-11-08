@@ -12,6 +12,7 @@ type ComposeFile struct {
 	RepoName     string                `json:"repo_name"`
 	RepoUsername string                `json:"repo_username"`
 	RepoPassword string                `json:"repo_password"`
+	Path         string                `json:"path"`
 	SourceKind   ComposeFileSourceKind `json:"source_kind"`
 }
 

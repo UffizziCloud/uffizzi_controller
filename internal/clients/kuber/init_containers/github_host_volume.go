@@ -2,6 +2,7 @@ package init_containers
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
@@ -47,7 +48,7 @@ func prepareVolumeMountsForHostVolumes(volumes []domainTypes.DeploymentVolume) [
 }
 
 func prepareGithubHostVolumeCommand(
-	volumes []domainTypes.DeploymentVolume,
+	hostVolumes []domainTypes.DeploymentVolume,
 	composeFile domainTypes.ComposeFile,
 ) []string {
 	githubUrl := fmt.Sprintf(
@@ -60,12 +61,11 @@ func prepareGithubHostVolumeCommand(
 	gitCloneCommand := fmt.Sprintf("git clone --branch %v --single-branch %v %v", composeFile.Branch, githubUrl, "repo")
 	commands := []string{gitCloneCommand, "cd repo"}
 
-	for _, volume := range volumes {
-		volumeName := global.Settings.ResourceName.VolumeName(volume.UniqName)
-		sourceDir := volume.Volume.Source
+	for _, hostVolume := range hostVolumes {
+		volumeName := global.Settings.ResourceName.VolumeName(hostVolume.UniqName)
+		copySource := buildCopySourceForGithubHostVolume(composeFile.Path, hostVolume.Volume.Source)
 		targetDir := buildMountPathForHostVolume(volumeName)
-		copyCommand := fmt.Sprintf("cp -a %v/. %v", sourceDir, targetDir)
-
+		copyCommand := fmt.Sprintf("cp -a %v %v", copySource, targetDir)
 		commands = append(commands, copyCommand)
 	}
 
@@ -74,4 +74,16 @@ func prepareGithubHostVolumeCommand(
 
 func buildMountPathForHostVolume(volumeName string) string {
 	return fmt.Sprintf("/tmp_host_volumes/%v", volumeName)
+}
+
+func buildCopySourceForGithubHostVolume(composeFilePath string, volumeSourcePath string) string {
+	regexDoubleSlashes := regexp.MustCompile(`\/{2,}`)
+
+	pathChunks := strings.Split(composeFilePath, "/")
+	pathChunksWithoutFilename := pathChunks[:len(pathChunks)-1]
+	dirPath := strings.Join(pathChunksWithoutFilename, "/")
+	nakedSourcePath := strings.TrimPrefix(volumeSourcePath, "./")
+	sourcePathWithSubDir := fmt.Sprintf("./%v/%v/.", dirPath, nakedSourcePath)
+
+	return regexDoubleSlashes.ReplaceAllString(sourcePathWithSubDir, "/")
 }
