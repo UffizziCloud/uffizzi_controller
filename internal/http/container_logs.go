@@ -34,6 +34,13 @@ func (h *Handlers) handleGetContainerLogs(w http.ResponseWriter, r *http.Request
 
 	limit := global.Settings.CountDisplayedEntriesForLogsOutput
 	limitRaw := queries.Get("limit")
+	previousValue := queries.Get("previous")
+	previous, err := strconv.ParseBool(previousValue)
+
+	if err != nil {
+		handleError(err, w, r)
+		return
+	}
 
 	if limitRaw != "" {
 		limit, err = strconv.ParseInt(limitRaw, 10, 64) //nolint:gomnd
@@ -56,7 +63,7 @@ func (h *Handlers) handleGetContainerLogs(w http.ResponseWriter, r *http.Request
 	}
 
 	if len(pods) > 0 {
-		logs, err := domainLogic.GetPodLogs(deploymentId, pods[0].Name, vars["containerName"], limit)
+		logs, err := domainLogic.GetPodLogs(deploymentId, pods[0].Name, vars["containerName"], limit, previous)
 		if err != nil {
 			localHub := h.getLocalHub(deploymentId)
 			handleDomainError("domainLogic.handleGetContainerLogs", err, localHub)

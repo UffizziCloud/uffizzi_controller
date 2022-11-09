@@ -34,11 +34,12 @@ func (l *Logic) GetPodLogs(
 	podName string,
 	containerName string,
 	limit int64,
+	previous bool,
 ) ([]string, error) {
 	namespaceName := l.KubernetesNamespaceName(deploymentID)
 
 	namespace, _ := l.KuberClient.FindNamespace(namespaceName)
-	logs, err := l.KuberClient.GetPodLogs(namespace.Name, podName, containerName, limit)
+	logs, err := l.KuberClient.GetPodLogs(namespace.Name, podName, containerName, limit, previous)
 
 	return logs, err
 }
