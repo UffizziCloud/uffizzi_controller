@@ -60,7 +60,7 @@ func (c Container) KubernetesName() (string, error) {
 	}
 
 	kubernetesName := ""
-	unicodeRanges := []*unicode.RangeTable{unicode.Lower, unicode.Digit}
+	unicodeRanges := []*unicode.RangeTable{unicode.Lower, unicode.Upper, unicode.Digit}
 	dashRune := '-'
 
 	if !unicode.IsOneOf(unicodeRanges, rune(name[0])) {
