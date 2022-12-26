@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strconv"
 
 	"github.com/getsentry/sentry-go"
@@ -18,8 +19,9 @@ type deploymentRequest struct {
 // @Description Fetch the Kubernetes Namespace for a specified Uffizzi Deployment.
 // @Param deploymentId path int true "unique Uffizzi Deployment ID"
 // @Success 200 "OK"
-// @Failure 500 "most errors including Not Found"
+// @Failure 500 "most errors"
 // @Response 403 "incorrect token for HTTP Basic Auth"
+// @Response 404 "namespace not found"
 // @Security BasicAuth
 // @Produce json
 // @Router /deployments/{deploymentId} [get]
@@ -33,6 +35,12 @@ func (h *Handlers) handleGetNamespace(w http.ResponseWriter, r *http.Request) {
 	}
 
 	namespace, err := domainLogic.GetNamespace(deploymentID)
+
+	if err != nil && isNotFoundNamespaceError(err) {
+		respondWithJSON(w, r, http.StatusNotFound, namespace)
+		return
+	}
+
 	if err != nil {
 		handleError(err, w, r)
 		return
@@ -87,6 +95,7 @@ func (h *Handlers) handleCreateNamespace(w http.ResponseWriter, r *http.Request)
 // @Success 200 "OK"
 // @Failure 500 "most internal errors"
 // @Response 403 "incorrect token for HTTP Basic Auth"
+// @Response 404 "namespace not found"
 // @Security BasicAuth
 // @Accept json
 // @Produce json
@@ -111,6 +120,11 @@ func (h *Handlers) handleUpdateNamespace(w http.ResponseWriter, r *http.Request)
 	log.Printf("Decoded HTTP Request: %+v", request)
 
 	namespace, err := domainLogic.UpdateNamespace(deploymentID, request.Kind)
+	if err != nil && isNotFoundNamespaceError(err) {
+		respondWithJSON(w, r, http.StatusNotFound, namespace)
+		return
+	}
+
 	if err != nil {
 		handleError(err, w, r)
 		return
@@ -144,10 +158,22 @@ func (h *Handlers) handleDeleteNamespace(w http.ResponseWriter, r *http.Request)
 			scope.SetTag("deployment_id", fmt.Sprint(deploymentId))
 		})
 		// DeleteNamespace
-		if err = domainLogic.DeleteNamespace(deploymentId); err != nil {
+		err = domainLogic.DeleteNamespace(deploymentId)
+
+		if err != nil && !isNotFoundNamespaceError(err) {
 			handleDomainError("domainLogic.DeleteNamespace", err, localHub)
 		}
 	}(sentry.CurrentHub().Clone())
 
 	respondWithJSON(w, r, http.StatusNoContent, nil)
+}
+
+func isNotFoundNamespaceError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	notFound, _ := regexp.MatchString(`namespaces.*?not found`, err.Error())
+
+	return notFound
 }
