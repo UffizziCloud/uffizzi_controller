@@ -36,6 +36,7 @@ type Settings struct {
 	EphemeralStorageCoefficient           float64               `yaml:"ephemeral_storage_coefficient"`
 	IngressDefaultPort                    int                   `yaml:"ingress_default_port"`
 	PvcStorageClassName                   string                `yaml:"pvc_storage_class_name"`
+	DefaultIp                             string                `yaml:"default_ip"`
 }
 
 type ServiceChecksSettings struct {

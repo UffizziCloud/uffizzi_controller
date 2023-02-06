@@ -56,7 +56,7 @@ func initializeDeployment(
 					Tolerations:  getPodSpecTolerations(),
 					HostAliases: []corev1.HostAlias{
 						{
-							IP:        "127.0.0.1",
+							IP:        global.Settings.DefaultIp,
 							Hostnames: buildAllowedHostnames(containerList),
 						},
 					},
