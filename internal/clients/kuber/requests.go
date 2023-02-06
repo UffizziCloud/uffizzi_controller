@@ -54,7 +54,12 @@ func initializeDeployment(
 					Containers:   []corev1.Container{},
 					NodeSelector: getPodSpecNodeSelector(),
 					Tolerations:  getPodSpecTolerations(),
-
+					HostAliases: []corev1.HostAlias{
+						{
+							IP: "127.0.0.1",
+							Hostnames: buildAllowedHostnames(containerList),
+						},
+					},
 					AutomountServiceAccountToken: pointer.BoolPtr(false), // False. Security, DO NOT REMOVE
 				},
 			},
@@ -172,4 +177,15 @@ func buildRecreateDeploymentStrategy() appsv1.DeploymentStrategy {
 	return appsv1.DeploymentStrategy{
 		Type: appsv1.RecreateDeploymentStrategyType,
 	}
+}
+
+func buildAllowedHostnames(containerList *domainTypes.ContainerList) []string {
+	hostnames := []string{}
+
+	for _, container := range containerList.Items {
+		hostname := container.ServiceName
+		hostnames = append(hostnames, hostname)
+	}
+
+	return hostnames
 }
