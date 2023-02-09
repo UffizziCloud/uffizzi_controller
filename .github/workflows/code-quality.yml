@@ -19,7 +19,7 @@ jobs:
           registry: gcr.io
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
-      - name: Run rubocop
+      - name: Run linter
         run: |
           eval $(make image_names)
           docker-compose -f docker-compose.ci.yml run --rm controller bash -c "make lint"
