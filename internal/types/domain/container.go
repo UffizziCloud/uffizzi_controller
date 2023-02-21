@@ -30,6 +30,7 @@ type Container struct {
 	ServiceName              string                     `json:"service_name"`
 	AdditionalSubdomains     []string                   `json:"additional_subdomains"`
 	ContainerHostVolumeFiles []*ContainerHostVolumeFile `json:"container_host_volume_files"`
+	ApplyAt                  uint64                     `json:"apply_at"`
 }
 
 func (c Container) IsPublic() bool {
