@@ -31,7 +31,7 @@ base: &base
     ip_ping_timeout: 1800s
     availability_timeout: 1800s
     await_status_timeout: 1800s
-    await_rolling_update_timeout: 900s
+    await_rolling_update_timeout: 1800s
     step_awaiting_rolling_update: 6s
     per_address_attempts: 180
     per_address_timeout: 1800s
