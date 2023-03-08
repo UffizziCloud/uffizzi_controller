@@ -30,12 +30,12 @@ func TestCpuProportion(t *testing.T) {
 		cpuQuantity := cpuProportion(memoryQuantity)
 
 		if cpuQuantity.MilliValue() != expectedQuantity.MilliValue() {
-			t.Error(fmt.Sprintf(
+			t.Errorf(
 				"cpuProportion(%d) = %d; want %d",
 				memoryQuantity.Value(),
 				cpuQuantity.MilliValue(),
 				expectedQuantity.MilliValue(),
-			))
+			)
 		}
 	}
 }
@@ -74,11 +74,11 @@ func TestPodCpuProportion(t *testing.T) {
 		cpuQuantity := podCpuProportion(&memoryQuantity)
 
 		if cpuQuantity.MilliValue() != expectedQuantity.MilliValue() {
-			t.Error(fmt.Sprintf("podCpuProportion(%d) = %d; want %d",
+			t.Errorf("podCpuProportion(%d) = %d; want %d",
 				memoryQuantity.Value(),
 				cpuQuantity.MilliValue(),
 				expectedQuantity.MilliValue(),
-			))
+			)
 		}
 	}
 }
