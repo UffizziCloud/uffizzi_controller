@@ -168,7 +168,7 @@ func getPodSpecAffinity() *corev1.Affinity {
 								},
 							},
 						},
-						Weight: 99,
+						Weight: 100, //nolint: gomnd
 					},
 				},
 			},
