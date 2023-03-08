@@ -55,8 +55,9 @@ func Init(logic *domain.Logic, exitMgr *exitmanager.ExitMgr) *Server {
 
 	// Create http.Server instance
 	srv := &http.Server{
-		Addr:    addr,
-		Handler: sentryRecoveryHandler.Handle(r),
+		Addr:              addr,
+		Handler:           sentryRecoveryHandler.Handle(r),
+		ReadHeaderTimeout: 6 * time.Second, //nolint: gomnd
 	}
 
 	// Listen and serve
