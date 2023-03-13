@@ -1,4 +1,4 @@
-FROM golang:1.17
+FROM golang:1.20
 
 RUN apt-get update -y
 
@@ -10,7 +10,7 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s 
     && chmod +x ./kubectl \
     && mv ./kubectl /usr/local/bin/kubectl
 
-RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.44.0
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.51.2
 
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE:-}

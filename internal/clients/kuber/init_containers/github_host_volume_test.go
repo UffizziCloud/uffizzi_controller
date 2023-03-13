@@ -1,7 +1,6 @@
 package init_containers
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -56,12 +55,12 @@ func TestBuildCopySourceForGithubHostVolume(t *testing.T) {
 		buildedCopySource := buildCopySourceForGithubHostVolume(value.composeFilePath, value.hostVolumeSource)
 
 		if buildedCopySource != value.expected {
-			t.Error(fmt.Sprintf("buildCopySourceForGithubHostVolume(%v, %v) = %v; want %v",
+			t.Errorf("buildCopySourceForGithubHostVolume(%v, %v) = %v; want %v",
 				value.composeFilePath,
 				value.hostVolumeSource,
 				buildedCopySource,
 				value.expected,
-			))
+			)
 		}
 	}
 }
