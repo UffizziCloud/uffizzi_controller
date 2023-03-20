@@ -1,6 +1,7 @@
 FROM docker:19.03.13
 
 ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
+ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
 
 RUN apk update
 RUN apk add --no-cache \
@@ -32,7 +33,7 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s 
     && chmod +x ./kubectl \
     && mv ./kubectl /usr/local/bin/kubectl
 
-ARG CLOUD_SDK_VERSION=266.0.0
+ARG CLOUD_SDK_VERSION=412.0.0
 
 ENV PATH /google-cloud-sdk/bin:$PATH
 RUN apk --no-cache --update add curl python3 py-crcmod libc6-compat make less && \
@@ -40,6 +41,7 @@ RUN apk --no-cache --update add curl python3 py-crcmod libc6-compat make less &&
     tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     rm google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     ln -s /lib /lib64 && \
+    gcloud components install gke-gcloud-auth-plugin && \
     gcloud config set core/disable_usage_reporting true && \
     gcloud config set component_manager/disable_update_check true && \
     gcloud config set metrics/environment github_docker_image

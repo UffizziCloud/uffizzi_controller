@@ -9,6 +9,7 @@ base: &base
   customer_default_replication_factor: 1
   customer_production_replication_factor: 2
   count_displayed_entries_for_logs_output: 50
+  default_ip: 127.0.0.1
   resource_request_back_off_period: 10s
   pool_machine_total_cpu_millicores: ${POOL_MACHINE_TOTAL_CPU_MILLICORES:-2000}
   pool_machine_total_memory_bytes: ${POOL_MACHINE_TOTAL_MEMORY_BYTES:-17179869184}
@@ -30,7 +31,7 @@ base: &base
     ip_ping_timeout: 1800s
     availability_timeout: 1800s
     await_status_timeout: 1800s
-    await_rolling_update_timeout: 900s
+    await_rolling_update_timeout: 1800s
     step_awaiting_rolling_update: 6s
     per_address_attempts: 180
     per_address_timeout: 1800s

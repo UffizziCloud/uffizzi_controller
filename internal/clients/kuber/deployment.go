@@ -87,8 +87,6 @@ func (client *Client) updateDeploymentAttributes(
 	composeFile domainTypes.ComposeFile,
 	hostVolumeFileList *domainTypes.HostVolumeFileList,
 ) (*appsv1.Deployment, error) {
-	var containers []corev1.Container
-
 	replicaCount := client.calculateReplicaCount(namespace.Labels["kind"], containerList)
 
 	deployment.Spec.Replicas = &replicaCount
@@ -108,10 +106,46 @@ func (client *Client) updateDeploymentAttributes(
 	// DO NOT DELETE THIS LINE. This is necessary to get an up-to-date container image each time you deploy.
 	deployment.Spec.Template.Annotations["kubectl.kubernetes.io/restartedAt"] = time.Now().Format(time.RFC3339)
 
+	containers, err := client.updateDeploymentContainers(namespace, containerList)
+
+	if err != nil {
+		return deployment, err
+	}
+
+	deployment.Spec.Template.Spec.Containers = containers
+	deployment.Spec.Template.Spec.HostAliases = []corev1.HostAlias{
+		{
+			IP:        global.Settings.DefaultIp,
+			Hostnames: buildAllowedHostnames(&containerList),
+		},
+	}
+
+	initContainers := []corev1.Container{}
+	initContainerForHostVolumes, err := buildInitContainerForHostVolumes(containerList, composeFile, hostVolumeFileList)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if initContainerForHostVolumes.Name != "" {
+		initContainers = append(initContainers, initContainerForHostVolumes)
+	}
+
+	deployment.Spec.Template.Spec.InitContainers = initContainers
+
+	return deployment, nil
+}
+
+func (client *Client) updateDeploymentContainers(
+	namespace *corev1.Namespace,
+	containerList domainTypes.ContainerList,
+) ([]corev1.Container, error) {
+	var containers []corev1.Container
+
 	for _, draftContainer := range containerList.Items {
 		containerImage, err := draftContainer.NameWithTag()
 		if err != nil {
-			return deployment, err
+			return containers, err
 		}
 
 		var containerPorts []corev1.ContainerPort
@@ -197,22 +231,7 @@ func (client *Client) updateDeploymentAttributes(
 		containers = append(containers, container)
 	}
 
-	deployment.Spec.Template.Spec.Containers = containers
-
-	initContainers := []corev1.Container{}
-	initContainerForHostVolumes, err := buildInitContainerForHostVolumes(containerList, composeFile, hostVolumeFileList)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if initContainerForHostVolumes.Name != "" {
-		initContainers = append(initContainers, initContainerForHostVolumes)
-	}
-
-	deployment.Spec.Template.Spec.InitContainers = initContainers
-
-	return deployment, nil
+	return containers, nil
 }
 
 func (client *Client) CreateOrUpdateDeployments(

@@ -51,10 +51,15 @@ func initializeDeployment(
 					},
 				},
 				Spec: corev1.PodSpec{
-					Containers:   []corev1.Container{},
-					NodeSelector: getPodSpecNodeSelector(),
-					Tolerations:  getPodSpecTolerations(),
-
+					Containers:  []corev1.Container{},
+					Affinity:    getPodSpecAffinity(),
+					Tolerations: getPodSpecTolerations(),
+					HostAliases: []corev1.HostAlias{
+						{
+							IP:        global.Settings.DefaultIp,
+							Hostnames: buildAllowedHostnames(containerList),
+						},
+					},
 					AutomountServiceAccountToken: pointer.BoolPtr(false), // False. Security, DO NOT REMOVE
 				},
 			},
@@ -135,10 +140,38 @@ func initializeHorizontalPodAutoscaler(
 	}
 }
 
-func getPodSpecNodeSelector() map[string]string {
+func getPodSpecAffinity() *corev1.Affinity {
 	if global.Settings.SandboxEnabled {
-		return map[string]string{
-			"sandbox.gke.io/runtime": "gvisor",
+		return &corev1.Affinity{
+			NodeAffinity: &corev1.NodeAffinity{
+				RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
+					NodeSelectorTerms: []corev1.NodeSelectorTerm{
+						{
+							MatchExpressions: []corev1.NodeSelectorRequirement{
+								{
+									Key:      "sandbox.gke.io/runtime",
+									Operator: corev1.NodeSelectorOpIn,
+									Values:   []string{"gvisor"},
+								},
+							},
+						},
+					},
+				},
+				PreferredDuringSchedulingIgnoredDuringExecution: []corev1.PreferredSchedulingTerm{
+					{
+						Preference: corev1.NodeSelectorTerm{
+							MatchExpressions: []corev1.NodeSelectorRequirement{
+								{
+									Key:      "cloud.google.com/gke-spot",
+									Operator: corev1.NodeSelectorOpIn,
+									Values:   []string{"true"},
+								},
+							},
+						},
+						Weight: 100, //nolint: gomnd
+					},
+				},
+			},
 		}
 	}
 
@@ -172,4 +205,15 @@ func buildRecreateDeploymentStrategy() appsv1.DeploymentStrategy {
 	return appsv1.DeploymentStrategy{
 		Type: appsv1.RecreateDeploymentStrategyType,
 	}
+}
+
+func buildAllowedHostnames(containerList *domainTypes.ContainerList) []string {
+	hostnames := []string{}
+
+	for _, container := range containerList.Items {
+		hostname := container.ServiceName
+		hostnames = append(hostnames, hostname)
+	}
+
+	return hostnames
 }
