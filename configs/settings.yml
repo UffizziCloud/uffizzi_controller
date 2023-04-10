@@ -23,7 +23,7 @@ base: &base
   startup_probe_failure_threshold: ${STARTUP_PROBE_FAILURE_THRESHOLD:-80}
   startup_probe_period_seconds: ${STARTUP_PROBE_PERIOD_SECONDS:-15}
   ephemeral_storage_coefficient: ${EPHEMERAL_STORAGE_COEFFICIENT:-1.9}
-  cert_manager_cluster_issuer: ${CERT_MANAGER_CLUSTER_ISSUER:-}
+  cert_manager_cluster_issuer: ${CERT_MANAGER_CLUSTER_ISSUER:-zerossl}
   sandbox_enabled: ${SANDBOX_ENABLED}
   ingress_default_port: 443
   pvc_storage_class_name: uffizzi-standard

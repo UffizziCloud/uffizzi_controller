@@ -95,7 +95,8 @@ func (client *Client) UpdateIngressAttributes(
 	}
 
 	if len(additionalHosts) > 0 {
-		ingress.ObjectMeta.Annotations["cert-manager.io/cluster-issuer"] = "zerossl"
+		ingress.ObjectMeta.Annotations["cert-manager.io/cluster-issuer"] = global.Settings.CertManagerClusterIssuer
+
 		tls = []networkingV1.IngressTLS{
 			{Hosts: deploymentHosts, SecretName: deploymentHost},
 		}
