@@ -27,5 +27,6 @@ func drawRoutes(r *mux.Router, h *Handlers) {
 	r.HandleFunc("/deployments/usage_metrics/containers", h.handleGetContainersUsageMetrics).Methods(http.MethodGet)
 	r.HandleFunc("/deployments/{deploymentId:[0-9]+}/ingress/basic_auth", h.handleApplyIngressBasciAuth).Methods(http.MethodPost)
 	r.HandleFunc("/deployments/{deploymentId:[0-9]+}/ingress/basic_auth", h.handleDeleteIngressBasciAuth).Methods(http.MethodDelete)
+	r.HandleFunc("/deployments/{deploymentId:[0-9]+}/scale", h.handleUpdateScale).Methods(http.MethodPut)
 	r.PathPrefix("/docs/").Handler(httpSwagger.WrapHandler)
 }

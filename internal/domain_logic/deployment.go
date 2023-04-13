@@ -237,3 +237,19 @@ func (l *Logic) DeleteIngressBasciAuth(deploymentID uint64) error {
 
 	return nil
 }
+
+func (l *Logic) UpdateScale(deploymentID uint64, scaleEvent domainTypes.DeploymentScaleEvent) error {
+	namespaceName := l.KubernetesNamespaceName(deploymentID)
+	namespace, err := l.KuberClient.FindNamespace(namespaceName)
+
+	if err != nil {
+		return err
+	}
+
+	err = l.KuberClient.UpdateDeploymentReplicas(namespace, namespaceName, scaleEvent)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
