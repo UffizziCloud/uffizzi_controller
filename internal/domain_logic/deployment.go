@@ -150,41 +150,6 @@ func (l *Logic) ApplyContainers(
 
 	log.Printf("deployment/%s configured", deployment.Name)
 
-	shouldAutoscale := namespace.Labels["kind"] == domainTypes.DeploymentTypeEnterprise ||
-		namespace.Labels["kind"] == domainTypes.DeploymentTypePerformance
-
-	minReplicas := global.Settings.AutoscalingMinPerformanceReplicas
-	maxReplicas := global.Settings.AutoscalingMaxPerformanceReplicas
-
-	if namespace.Labels["kind"] == domainTypes.DeploymentTypeEnterprise {
-		minReplicas = global.Settings.AutoscalingMinEnterpriseReplicas
-		maxReplicas = global.Settings.AutoscalingMaxEnterpriseReplicas
-	}
-
-	if !shouldAutoscale {
-		err := l.KuberClient.DeleteHorizontalPodAutoscalerIfExists(
-			namespace,
-			deploymentName,
-		)
-		if err != nil {
-			return l.handleDomainDeploymentError(namespace.Name, err)
-		}
-
-		log.Printf("Removed Horizontal Pod Autoscaler (if one existed) from %s.", deploymentName)
-	} else {
-		autoscaler, err := l.KuberClient.CreateOrUpdateHorizontalPodAutoscaler(
-			namespace,
-			deploymentName,
-			minReplicas,
-			maxReplicas,
-		)
-		if err != nil {
-			return l.handleDomainDeploymentError(namespace.Name, err)
-		}
-
-		log.Printf("Horizontal Pod Autoscaler %s created.", autoscaler.Name)
-	}
-
 	var networkBuilder INetworkBuilder
 
 	networkDependencies := NewNetworkDependencies(l, namespace, containerList, deployment, deploymentHost, project)
