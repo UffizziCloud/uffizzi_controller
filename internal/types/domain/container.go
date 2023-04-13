@@ -14,6 +14,7 @@ type Container struct {
 	Entrypoint               []string                   `json:"entrypoint,omitempty"`
 	Command                  []string                   `json:"command,omitempty"`
 	Tag                      *string                    `json:"tag"`
+	FullImageName            string                     `json:"full_image_name"`
 	Port                     *int32                     `json:"port"`
 	TargetPort               *int32                     `json:"target_port"`
 	Public                   bool                       `json:"public"`
@@ -41,6 +42,10 @@ func (c Container) IsInternal() bool {
 }
 
 func (c Container) NameWithTag() (string, error) {
+	if len(c.FullImageName) > 0 {
+		return fmt.Sprintf("%v", c.FullImageName), nil
+	}
+
 	if len(c.Image) > 0 {
 		tag := "latest"
 		if c.Tag != nil {
