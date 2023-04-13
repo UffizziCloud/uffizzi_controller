@@ -267,3 +267,38 @@ func (client *Client) RemoveDeployments(namespaceName, name string) error {
 
 	return nil
 }
+
+func (client *Client) UpdateDeploymentReplicas(
+	namespace *corev1.Namespace,
+	namespaceName string,
+	scaleEvent domainTypes.DeploymentScaleEvent,
+) error {
+	deployments := client.clientset.AppsV1().Deployments(namespaceName)
+
+	deploymentName := global.Settings.ResourceName.Deployment(namespaceName)
+	deployment, err := client.FindDeployment(namespaceName, deploymentName)
+
+	if err != nil {
+		return err
+	}
+
+	var replicaCount int32
+
+	if scaleEvent == domainTypes.DeploymentScaleEventScaleUp {
+		replicaCount = global.Settings.CustomerDefaultReplicationFactor
+	}
+
+	if scaleEvent == domainTypes.DeploymentScaleEventScaleDown {
+		replicaCount = 0
+	}
+
+	deployment.Spec.Replicas = &replicaCount
+
+	if len(deployment.UID) > 0 {
+		_, err = deployments.Update(client.context, deployment, metav1.UpdateOptions{})
+	} else {
+		err = fmt.Errorf("Deployment not found")
+	}
+
+	return err
+}
