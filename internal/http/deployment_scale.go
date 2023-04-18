@@ -2,16 +2,26 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/getsentry/sentry-go"
 
 	"github.com/gorilla/mux"
 	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 )
 
-type updateScaleRequest struct {
+type Deployment struct {
 	ScaleEvent domainTypes.DeploymentScaleEvent `json:"scale_event"`
+}
+
+type updateScaleRequest struct {
+	Deployment     Deployment              `json:"deployment"`
+	Containers     []domainTypes.Container `json:"containers"`
+	DeploymentHost string                  `json:"deployment_url"`
+	Project        domainTypes.Project     `json:"project"`
 }
 
 // @Description Update Kubernetes Deployment Scale.
@@ -28,7 +38,7 @@ type updateScaleRequest struct {
 func (h *Handlers) handleUpdateScale(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
+	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
 	if err != nil {
 		handleError(err, w, r)
 		return
@@ -44,12 +54,27 @@ func (h *Handlers) handleUpdateScale(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Decoded HTTP Request: %+v", request)
 
-	err = domainLogic.UpdateScale(deploymentID, request.ScaleEvent)
+	go func(localHub *sentry.Hub) {
+		localHub.ConfigureScope(func(scope *sentry.Scope) {
+			scope.SetTag("deploymentId", fmt.Sprint(deploymentId))
+		})
 
-	if err != nil {
-		handleError(err, w, r)
-		return
-	}
+		containers := request.Containers
+		containerList := domainTypes.ContainerList{Items: containers}
+		deploymentHost := request.DeploymentHost
+		project := request.Project
+		scaleEvent := request.Deployment.ScaleEvent
 
-	respondWithJSON(w, r, http.StatusOK, nil)
+		err = domainLogic.UpdateScale(
+			scaleEvent,
+			deploymentId,
+			containerList,
+			deploymentHost,
+			project,
+		)
+
+		if err != nil {
+			handleDomainError("domainLogic.ApplyContainers", err, localHub)
+		}
+	}(sentry.CurrentHub().Clone())
 }

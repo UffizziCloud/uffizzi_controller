@@ -269,18 +269,11 @@ func (client *Client) RemoveDeployments(namespaceName, name string) error {
 }
 
 func (client *Client) UpdateDeploymentReplicas(
-	namespace *corev1.Namespace,
-	namespaceName string,
 	scaleEvent domainTypes.DeploymentScaleEvent,
+	namespaceName string,
+	deployment *appsv1.Deployment,
 ) error {
 	deployments := client.clientset.AppsV1().Deployments(namespaceName)
-
-	deploymentName := global.Settings.ResourceName.Deployment(namespaceName)
-	deployment, err := client.FindDeployment(namespaceName, deploymentName)
-
-	if err != nil {
-		return err
-	}
 
 	var replicaCount int32
 
@@ -293,6 +286,8 @@ func (client *Client) UpdateDeploymentReplicas(
 	}
 
 	deployment.Spec.Replicas = &replicaCount
+
+	var err error
 
 	if len(deployment.UID) > 0 {
 		_, err = deployments.Update(client.context, deployment, metav1.UpdateOptions{})

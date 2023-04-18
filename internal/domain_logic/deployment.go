@@ -238,17 +238,52 @@ func (l *Logic) DeleteIngressBasciAuth(deploymentID uint64) error {
 	return nil
 }
 
-func (l *Logic) UpdateScale(deploymentID uint64, scaleEvent domainTypes.DeploymentScaleEvent) error {
+func (l *Logic) UpdateScale(
+	scaleEvent domainTypes.DeploymentScaleEvent,
+	deploymentID uint64,
+	containerList domainTypes.ContainerList,
+	deploymentHost string,
+	project domainTypes.Project,
+) error {
 	namespaceName := l.KubernetesNamespaceName(deploymentID)
 	namespace, err := l.KuberClient.FindNamespace(namespaceName)
+	deploymentName := global.Settings.ResourceName.Deployment(namespace.Name)
 
 	if err != nil {
 		return err
 	}
 
-	err = l.KuberClient.UpdateDeploymentReplicas(namespace, namespaceName, scaleEvent)
+	deployment, err := l.KuberClient.FindDeployment(namespaceName, deploymentName)
+	if err != nil {
+		return l.handleDomainDeploymentError(namespace.Name, err)
+	}
+
+	err = l.KuberClient.UpdateDeploymentReplicas(scaleEvent, namespaceName, deployment)
 	if err != nil {
 		return err
+	}
+
+	if scaleEvent == domainTypes.DeploymentScaleEventScaleUp {
+		err = l.ResetNetworkConnectivityTemplate(namespace, containerList)
+		if err != nil {
+			return l.handleDomainDeploymentError(namespace.Name, err)
+		}
+
+		var networkBuilder INetworkBuilder
+
+		networkDependencies := NewNetworkDependencies(l, namespace, containerList, deployment, deploymentHost, project)
+
+		networkBuilder = NewIngressNetworkBuilder(networkDependencies)
+
+		err = networkBuilder.Create()
+		if err != nil {
+			return l.handleDomainDeploymentError(namespace.Name, err)
+		}
+
+		err = networkBuilder.AwaitNetworkCreation()
+		if err != nil {
+			return l.handleDomainDeploymentError(namespace.Name, err)
+		}
 	}
 
 	return nil
