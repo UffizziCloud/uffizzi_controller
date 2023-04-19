@@ -253,37 +253,44 @@ func (l *Logic) UpdateScale(
 		return err
 	}
 
-	deployment, err := l.KuberClient.FindDeployment(namespaceName, deploymentName)
+	oldDeployment, err := l.KuberClient.FindDeployment(namespaceName, deploymentName)
 	if err != nil {
 		return l.handleDomainDeploymentError(namespace.Name, err)
 	}
 
-	err = l.KuberClient.UpdateDeploymentReplicas(scaleEvent, namespaceName, deployment)
+	err = l.KuberClient.UpdateDeploymentReplicas(scaleEvent, namespaceName, oldDeployment)
 	if err != nil {
 		return err
 	}
 
-	if scaleEvent == domainTypes.DeploymentScaleEventScaleUp {
-		err = l.ResetNetworkConnectivityTemplate(namespace, containerList)
-		if err != nil {
-			return l.handleDomainDeploymentError(namespace.Name, err)
-		}
+	if scaleEvent == domainTypes.DeploymentScaleEventScaleDown {
+		return nil
+	}
 
-		var networkBuilder INetworkBuilder
+	newDeployment, err := l.KuberClient.FindDeployment(namespaceName, deploymentName)
+	if err != nil {
+		return l.handleDomainDeploymentError(namespace.Name, err)
+	}
 
-		networkDependencies := NewNetworkDependencies(l, namespace, containerList, deployment, deploymentHost, project)
+	err = l.ResetNetworkConnectivityTemplate(namespace, containerList)
+	if err != nil {
+		return l.handleDomainDeploymentError(namespace.Name, err)
+	}
 
-		networkBuilder = NewIngressNetworkBuilder(networkDependencies)
+	var networkBuilder INetworkBuilder
 
-		err = networkBuilder.Create()
-		if err != nil {
-			return l.handleDomainDeploymentError(namespace.Name, err)
-		}
+	networkDependencies := NewNetworkDependencies(l, namespace, containerList, newDeployment, deploymentHost, project)
 
-		err = networkBuilder.AwaitNetworkCreation()
-		if err != nil {
-			return l.handleDomainDeploymentError(namespace.Name, err)
-		}
+	networkBuilder = NewIngressNetworkBuilder(networkDependencies)
+
+	err = networkBuilder.Create()
+	if err != nil {
+		return l.handleDomainDeploymentError(namespace.Name, err)
+	}
+
+	err = networkBuilder.AwaitNetworkCreation()
+	if err != nil {
+		return l.handleDomainDeploymentError(namespace.Name, err)
 	}
 
 	return nil
