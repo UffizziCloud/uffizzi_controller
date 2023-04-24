@@ -150,41 +150,6 @@ func (l *Logic) ApplyContainers(
 
 	log.Printf("deployment/%s configured", deployment.Name)
 
-	shouldAutoscale := namespace.Labels["kind"] == domainTypes.DeploymentTypeEnterprise ||
-		namespace.Labels["kind"] == domainTypes.DeploymentTypePerformance
-
-	minReplicas := global.Settings.AutoscalingMinPerformanceReplicas
-	maxReplicas := global.Settings.AutoscalingMaxPerformanceReplicas
-
-	if namespace.Labels["kind"] == domainTypes.DeploymentTypeEnterprise {
-		minReplicas = global.Settings.AutoscalingMinEnterpriseReplicas
-		maxReplicas = global.Settings.AutoscalingMaxEnterpriseReplicas
-	}
-
-	if !shouldAutoscale {
-		err := l.KuberClient.DeleteHorizontalPodAutoscalerIfExists(
-			namespace,
-			deploymentName,
-		)
-		if err != nil {
-			return l.handleDomainDeploymentError(namespace.Name, err)
-		}
-
-		log.Printf("Removed Horizontal Pod Autoscaler (if one existed) from %s.", deploymentName)
-	} else {
-		autoscaler, err := l.KuberClient.CreateOrUpdateHorizontalPodAutoscaler(
-			namespace,
-			deploymentName,
-			minReplicas,
-			maxReplicas,
-		)
-		if err != nil {
-			return l.handleDomainDeploymentError(namespace.Name, err)
-		}
-
-		log.Printf("Horizontal Pod Autoscaler %s created.", autoscaler.Name)
-	}
-
 	var networkBuilder INetworkBuilder
 
 	networkDependencies := NewNetworkDependencies(l, namespace, containerList, deployment, deploymentHost, project)
@@ -268,6 +233,64 @@ func (l *Logic) DeleteIngressBasciAuth(deploymentID uint64) error {
 
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (l *Logic) UpdateScale(
+	scaleEvent domainTypes.DeploymentScaleEvent,
+	deploymentID uint64,
+	containerList domainTypes.ContainerList,
+	deploymentHost string,
+	project domainTypes.Project,
+) error {
+	namespaceName := l.KubernetesNamespaceName(deploymentID)
+	namespace, err := l.KuberClient.FindNamespace(namespaceName)
+	deploymentName := global.Settings.ResourceName.Deployment(namespace.Name)
+
+	if err != nil {
+		return err
+	}
+
+	oldDeployment, err := l.KuberClient.FindDeployment(namespaceName, deploymentName)
+	if err != nil {
+		return l.handleDomainDeploymentError(namespace.Name, err)
+	}
+
+	err = l.KuberClient.UpdateDeploymentReplicas(scaleEvent, namespaceName, oldDeployment)
+	if err != nil {
+		return err
+	}
+
+	if scaleEvent == domainTypes.DeploymentScaleEventScaleDown {
+		return nil
+	}
+
+	newDeployment, err := l.KuberClient.FindDeployment(namespaceName, deploymentName)
+	if err != nil {
+		return l.handleDomainDeploymentError(namespace.Name, err)
+	}
+
+	err = l.ResetNetworkConnectivityTemplate(namespace, containerList)
+	if err != nil {
+		return l.handleDomainDeploymentError(namespace.Name, err)
+	}
+
+	var networkBuilder INetworkBuilder
+
+	networkDependencies := NewNetworkDependencies(l, namespace, containerList, newDeployment, deploymentHost, project)
+
+	networkBuilder = NewIngressNetworkBuilder(networkDependencies)
+
+	err = networkBuilder.Create()
+	if err != nil {
+		return l.handleDomainDeploymentError(namespace.Name, err)
+	}
+
+	err = networkBuilder.AwaitNetworkCreation()
+	if err != nil {
+		return l.handleDomainDeploymentError(namespace.Name, err)
 	}
 
 	return nil

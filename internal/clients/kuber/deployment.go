@@ -64,22 +64,6 @@ func ephemeralStorageProportion(memoryQuantity resource.Quantity) *resource.Quan
 	return resource.NewQuantity(int64(math.Round(float64(memoryQuantity.Value())*ephemeralStorageCoefficient)), resource.DecimalSI)
 }
 
-func (client *Client) calculateReplicaCount(deploymentType string, containerList domainTypes.ContainerList) int32 {
-	replicaCount := global.Settings.CustomerDefaultReplicationFactor
-
-	// Set replicas to 3 IF this Deployment in Enterprise
-	if deploymentType == domainTypes.DeploymentTypeEnterprise {
-		replicaCount = global.Settings.CustomerProductionReplicationFactor
-	}
-
-	// Set the replicas on 0 IF the container is one and it has been restarts many times.
-	if containerList.Count() == 1 && containerList.Items[0].HasReachedRestartsLimit {
-		replicaCount = 0
-	}
-
-	return replicaCount
-}
-
 func (client *Client) updateDeploymentAttributes(
 	namespace *corev1.Namespace,
 	deployment *appsv1.Deployment,
@@ -87,7 +71,7 @@ func (client *Client) updateDeploymentAttributes(
 	composeFile domainTypes.ComposeFile,
 	hostVolumeFileList *domainTypes.HostVolumeFileList,
 ) (*appsv1.Deployment, error) {
-	replicaCount := client.calculateReplicaCount(namespace.Labels["kind"], containerList)
+	replicaCount := global.Settings.CustomerDefaultReplicationFactor
 
 	deployment.Spec.Replicas = &replicaCount
 
@@ -282,4 +266,34 @@ func (client *Client) RemoveDeployments(namespaceName, name string) error {
 	}
 
 	return nil
+}
+
+func (client *Client) UpdateDeploymentReplicas(
+	scaleEvent domainTypes.DeploymentScaleEvent,
+	namespaceName string,
+	deployment *appsv1.Deployment,
+) error {
+	deployments := client.clientset.AppsV1().Deployments(namespaceName)
+
+	var replicaCount int32
+
+	if scaleEvent == domainTypes.DeploymentScaleEventScaleUp {
+		replicaCount = global.Settings.CustomerDefaultReplicationFactor
+	}
+
+	if scaleEvent == domainTypes.DeploymentScaleEventScaleDown {
+		replicaCount = 0
+	}
+
+	deployment.Spec.Replicas = &replicaCount
+
+	var err error
+
+	if len(deployment.UID) > 0 {
+		_, err = deployments.Update(client.context, deployment, metav1.UpdateOptions{})
+	} else {
+		err = fmt.Errorf("Deployment not found")
+	}
+
+	return err
 }
