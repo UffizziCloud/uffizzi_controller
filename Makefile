@@ -88,6 +88,12 @@ tag_image:
 	docker tag ${CONTROLLER_IMAGE}:${SHORT_VERSION} ${GCP_CONTROLLER_IMAGE}:${CI_COMMIT_REF_SLUG} || true
 	docker tag ${CONTROLLER_IMAGE}:${SHORT_VERSION} ${GCP_CONTROLLER_IMAGE}:latest
 
+publish_image:
+	docker tag ${CONTROLLER_IMAGE}:${SHORT_VERSION} uffizzi/controller:latest
+	docker tag ${CONTROLLER_IMAGE}:${SHORT_VERSION} uffizzi/controller:${SHORT_VERSION}
+	docker push uffizzi/controller:latest
+	docker push uffizzi/controller:${SHORT_VERSION}
+
 push_gcp_controller:
 	docker push ${GCP_CONTROLLER_IMAGE}:${VERSION}
 	docker push ${GCP_CONTROLLER_IMAGE}:${SHORT_VERSION}
