@@ -173,7 +173,8 @@ func (l *Logic) MarkUnresponsiveContainersAsFailed(namespaceName string) error {
 
 	for key := range networkConnectivityTemplate.Containers {
 		if networkConnectivityTemplate.Containers[key].Ingress != nil {
-			if networkConnectivityTemplate.Containers[key].Ingress.Status == networkConnectivity.StatusPending {
+			if networkConnectivityTemplate.Containers[key].Ingress.Status == networkConnectivity.StatusPending ||
+				networkConnectivityTemplate.Containers[key].Ingress.Status == networkConnectivity.StatusSuccessTcp {
 				networkConnectivityTemplate.Containers[key].Ingress.Status = networkConnectivity.StatusFailed
 			}
 		}
