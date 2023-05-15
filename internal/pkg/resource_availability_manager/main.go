@@ -27,7 +27,7 @@ const (
 	NetworkPointService                     NetworkPointType                = "service"
 	ResourceAvailabilityRequestIngress      ResourceAvailabilityRequestType = "ingress"
 	ResourceAvailabilityRequestLoadbalancer ResourceAvailabilityRequestType = "loadbalancer"
-	FailedHttpCode                          int                             = 500
+	FailedHttpCode                          int                             = 503
 	HttpsPortNumber                         int                             = 443
 )
 
@@ -207,7 +207,7 @@ func (r *ResourceAvailabilityManager) CheckHttpStatus(ctx context.Context, addre
 			return err
 		}
 
-		if resp.StatusCode >= FailedHttpCode {
+		if resp.StatusCode == FailedHttpCode {
 			err = fmt.Errorf("Status is %s", resp.Status)
 		}
 
