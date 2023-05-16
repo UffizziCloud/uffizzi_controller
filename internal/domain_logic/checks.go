@@ -39,6 +39,7 @@ func (l *Logic) BuildResourceAvailabilityRequests(containerList domainTypes.Cont
 	loadBalancerRequest := availabilityManager.ResourceAvailabilityRequest{}
 	loadBalancerRequest.Entrypoint = service.Spec.ClusterIP
 	loadBalancerRequest.Points = []availabilityManager.ResourceAvailabilityPoint{}
+	loadBalancerRequest.Kind = availabilityManager.ResourceAvailabilityRequestLoadbalancer
 
 	for _, container := range containerList.Items {
 		containerPort := *container.Port
@@ -59,6 +60,7 @@ func (l *Logic) BuildResourceAvailabilityRequests(containerList domainTypes.Cont
 	if ingress != nil {
 		ingressRequest := availabilityManager.ResourceAvailabilityRequest{}
 		ingressRequest.Entrypoint = ingress.Spec.Rules[0].Host
+		ingressRequest.Kind = availabilityManager.ResourceAvailabilityRequestIngress
 
 		generalPublicContainer, err := containerList.GetPublicContainer()
 		if err != nil {
@@ -171,7 +173,8 @@ func (l *Logic) MarkUnresponsiveContainersAsFailed(namespaceName string) error {
 
 	for key := range networkConnectivityTemplate.Containers {
 		if networkConnectivityTemplate.Containers[key].Ingress != nil {
-			if networkConnectivityTemplate.Containers[key].Ingress.Status == networkConnectivity.StatusPending {
+			if networkConnectivityTemplate.Containers[key].Ingress.Status == networkConnectivity.StatusPending ||
+				networkConnectivityTemplate.Containers[key].Ingress.Status == networkConnectivity.StatusSuccessTcp {
 				networkConnectivityTemplate.Containers[key].Ingress.Status = networkConnectivity.StatusFailed
 			}
 		}
@@ -282,9 +285,11 @@ func (l *Logic) CheckResourcesAvailability(
 
 	for _, request := range requests {
 		go func(request availabilityManager.ResourceAvailabilityRequest) {
-			resourceAvailability.CheckResourceAvailability(ctx, ch, &request)
+			resourceAvailability.CheckResourceAvailabilityByTcp(ctx, ch, &request)
 		}(request)
 	}
+
+	countSuccessPoints := 0
 
 	for i := 0; i < countPoints; i++ {
 		select {
@@ -293,13 +298,74 @@ func (l *Logic) CheckResourcesAvailability(
 		case <-time.After(global.Settings.ServiceChecks.AvailabilityTimeout):
 			return fmt.Errorf("resources check timeout")
 		case point := <-ch:
-			status := networkConnectivity.StatusSuccess
+			var status networkConnectivity.ConnectivityStatus
+
+			if point.Kind == availabilityManager.NetworkPointIngress {
+				status = networkConnectivity.StatusSuccessTcp
+			} else {
+				status = networkConnectivity.StatusSuccess
+			}
 
 			if !point.Status {
 				status = networkConnectivity.StatusFailed
 			}
 
 			err = l.UpdateContainerInNetworkConnectivity(
+				namespaceName, point.Kind, point.Entrypoint, point.Payload["id"], status)
+			if err != nil {
+				log.Printf("error UpdateContainerInNetworkConnectivity %+#v\n", err)
+			}
+
+			if status == networkConnectivity.StatusSuccess || status == networkConnectivity.StatusSuccessTcp {
+				countSuccessPoints++
+			}
+		}
+	}
+
+	if countSuccessPoints != countPoints {
+		return nil
+	}
+
+	err = l.CheckResouresAvailabilityByHttp(ctx, namespaceName, requests, settings)
+
+	return err
+}
+
+func (l *Logic) CheckResouresAvailabilityByHttp(
+	ctx context.Context,
+	namespaceName string,
+	requests []availabilityManager.ResourceAvailabilityRequest,
+	settings availabilityManager.ResourceAvailabilitySettings) error {
+	resourceAvailability := availabilityManager.NewResourceAvailabilityManager(settings)
+
+	ch := make(chan availabilityManager.ResourceAvailabilityPointResponse, 1)
+
+	var ingressRequest availabilityManager.ResourceAvailabilityRequest
+
+	for _, request := range requests {
+		if request.Kind == availabilityManager.ResourceAvailabilityRequestIngress {
+			ingressRequest = request
+		}
+	}
+
+	go func(request availabilityManager.ResourceAvailabilityRequest) {
+		resourceAvailability.CheckResourceAvailabilityByHttp(ctx, ch, &request)
+	}(ingressRequest)
+
+	for i := 0; i < len(ingressRequest.Points); i++ {
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-time.After(global.Settings.ServiceChecks.AvailabilityTimeout):
+			return fmt.Errorf("Http resources check timeout")
+		case point := <-ch:
+			status := networkConnectivity.StatusSuccess
+
+			if !point.Status {
+				status = networkConnectivity.StatusFailed
+			}
+
+			err := l.UpdateContainerInNetworkConnectivity(
 				namespaceName, point.Kind, point.Entrypoint, point.Payload["id"], status)
 			if err != nil {
 				log.Printf("error UpdateContainerInNetworkConnectivity %+#v\n", err)

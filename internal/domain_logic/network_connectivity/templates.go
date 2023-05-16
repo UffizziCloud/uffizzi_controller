@@ -9,6 +9,7 @@ import (
 
 const StatusPending ConnectivityStatus = "pending"
 const StatusSuccess ConnectivityStatus = "success"
+const StatusSuccessTcp ConnectivityStatus = "success_tcp"
 const StatusFailed ConnectivityStatus = "failed"
 
 type ConnectivityStatus string
@@ -21,13 +22,19 @@ type ConnectivityContainerStatus struct {
 }
 
 type ConnectivityContainer struct {
-	Service *ConnectivityContainerStatus `json:"service,omitempty"`
-	Ingress *ConnectivityContainerStatus `json:"ingress,omitempty"`
+	Service     *ConnectivityContainerStatus `json:"service,omitempty"`
+	Ingress     *ConnectivityContainerStatus `json:"ingress,omitempty"`
+	IngressHttp *ConnectivityContainerStatus `json:"ingress_http,omitempty"`
 }
 
 func (c *ConnectivityContainer) SetIngressStatus(status ConnectivityStatus, entrypoint string) {
 	c.Ingress.Status = status
 	c.Ingress.Entrypoint = entrypoint
+}
+
+func (c *ConnectivityContainer) SetIngressHttpStatus(status ConnectivityStatus, entrypoint string) {
+	c.IngressHttp.Status = status
+	c.IngressHttp.Entrypoint = entrypoint
 }
 
 func (c *ConnectivityContainer) SetLoadBalancerStatus(status ConnectivityStatus, entrypoint string) {
@@ -70,6 +77,16 @@ func (response *ConnectivityResponse) AddIngressContainer(container *domainTypes
 	networkConnectivityContainer := response.Containers[containerID]
 	networkConnectivityContainer.Ingress = &ConnectivityContainerStatus{
 		Port:   global.Settings.IngressDefaultPort,
+		Status: StatusPending,
+	}
+
+	response.Containers[containerID] = networkConnectivityContainer
+}
+
+func (response *ConnectivityResponse) AddIngressHttpStatus(container *domainTypes.Container) {
+	containerID := fmt.Sprint(container.ID)
+	networkConnectivityContainer := response.Containers[containerID]
+	networkConnectivityContainer.IngressHttp = &ConnectivityContainerStatus{
 		Status: StatusPending,
 	}
 

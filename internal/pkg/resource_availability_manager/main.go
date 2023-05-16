@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"time"
 
 	"github.com/avast/retry-go"
@@ -19,10 +20,15 @@ func NewResourceAvailabilityManager(settings ResourceAvailabilitySettings) *Reso
 }
 
 type NetworkPointType string
+type ResourceAvailabilityRequestType string
 
 const (
-	NetworkPointIngress NetworkPointType = "ingress"
-	NetworkPointService NetworkPointType = "service"
+	NetworkPointIngress                     NetworkPointType                = "ingress"
+	NetworkPointService                     NetworkPointType                = "service"
+	ResourceAvailabilityRequestIngress      ResourceAvailabilityRequestType = "ingress"
+	ResourceAvailabilityRequestLoadbalancer ResourceAvailabilityRequestType = "loadbalancer"
+	FailedHttpCode                          int                             = 503
+	HttpsPortNumber                         int                             = 443
 )
 
 type ResourceAvailabilityManager struct {
@@ -32,6 +38,7 @@ type ResourceAvailabilityManager struct {
 type ResourceAvailabilityRequest struct {
 	Entrypoint string
 	Points     []ResourceAvailabilityPoint
+	Kind       ResourceAvailabilityRequestType
 }
 
 type ResourceAvailabilityPoint struct {
@@ -54,10 +61,10 @@ type ResourceAvailabilityPointResponse struct {
 	Payload    map[string]string
 }
 
-func (r *ResourceAvailabilityManager) CheckResourceAvailability(ctx context.Context,
+func (r *ResourceAvailabilityManager) CheckResourceAvailabilityByTcp(ctx context.Context,
 	ch chan ResourceAvailabilityPointResponse,
 	request *ResourceAvailabilityRequest) {
-	log.Printf("start naive TCP/HTTP checks for: %v", request)
+	log.Printf("start naive TCP checks for: %v", request)
 
 	dialer := net.Dialer{
 		Timeout: r.settings.IPPingTimeout,
@@ -65,7 +72,7 @@ func (r *ResourceAvailabilityManager) CheckResourceAvailability(ctx context.Cont
 
 	for _, point := range request.Points {
 		go func(point ResourceAvailabilityPoint) {
-			err := r.checkAddressConnectivityWithLogger(ctx, &dialer, request.Entrypoint, point.Port)
+			err := r.checkAddressConnectivityWithLoggerByTcp(ctx, &dialer, request.Entrypoint, point.Port)
 
 			pointResponse := ResourceAvailabilityPointResponse{
 				Entrypoint: request.Entrypoint,
@@ -79,10 +86,10 @@ func (r *ResourceAvailabilityManager) CheckResourceAvailability(ctx context.Cont
 	}
 }
 
-func (r *ResourceAvailabilityManager) checkAddressConnectivityWithLogger(ctx context.Context,
+func (r *ResourceAvailabilityManager) checkAddressConnectivityWithLoggerByTcp(ctx context.Context,
 	dialer *net.Dialer,
 	entrypoint string, port int) error {
-	err := r.checkAddressConnectivity(ctx, dialer, entrypoint, port)
+	err := r.checkAddressConnectivityByTcp(ctx, dialer, entrypoint, port)
 	if err != nil {
 		log.Printf("[tcp] checks failed for %s:%v with err: %s", entrypoint, port, err)
 		return err
@@ -93,7 +100,7 @@ func (r *ResourceAvailabilityManager) checkAddressConnectivityWithLogger(ctx con
 	return nil
 }
 
-func (r *ResourceAvailabilityManager) checkAddressConnectivity(ctx context.Context,
+func (r *ResourceAvailabilityManager) checkAddressConnectivityByTcp(ctx context.Context,
 	dialer *net.Dialer, entrypoint string, port int) error {
 	address := fmt.Sprintf("%s:%v", entrypoint, port)
 
@@ -134,6 +141,94 @@ func (r *ResourceAvailabilityManager) checkAddressConnectivity(ctx context.Conte
 		retry.DelayType(retry.FixedDelay),
 		retry.OnRetry(func(n uint, err error) {
 			log.Printf("[tcp] dial failed for %s with err %s, retry attempt: %d", address, err, n)
+		}),
+	)
+
+	return err
+}
+
+func (r *ResourceAvailabilityManager) CheckResourceAvailabilityByHttp(ctx context.Context,
+	ch chan ResourceAvailabilityPointResponse,
+	request *ResourceAvailabilityRequest) {
+	log.Printf("start naive HTTP checks for: %v", request)
+
+	for _, point := range request.Points {
+		go func(point ResourceAvailabilityPoint) {
+			err := r.checkAddressConnectivityWithLoggerByHttp(ctx, request.Entrypoint, point.Port)
+
+			pointResponse := ResourceAvailabilityPointResponse{
+				Entrypoint: request.Entrypoint,
+				Kind:       point.Kind,
+				Status:     err == nil,
+				Payload:    point.Payload,
+			}
+
+			ch <- pointResponse
+		}(point)
+	}
+}
+
+func (r *ResourceAvailabilityManager) checkAddressConnectivityWithLoggerByHttp(
+	ctx context.Context,
+	entrypoint string,
+	port int) error {
+	err := r.CheckHttpStatus(ctx, entrypoint, port)
+	if err != nil {
+		log.Printf("[http] checks failed for %s with err: %s", entrypoint, err)
+		return err
+	}
+
+	log.Printf("[http] checks finished for %s", entrypoint)
+
+	return nil
+}
+
+func (r *ResourceAvailabilityManager) CheckHttpStatus(ctx context.Context, address string, port int) error {
+	var protocol string
+
+	if port == HttpsPortNumber {
+		protocol = "https"
+	} else {
+		protocol = "http"
+	}
+
+	retryableFunc := func() error {
+		log.Printf("[%s] dial %s", protocol, address)
+
+		var err error
+
+		resp, err := http.Get(fmt.Sprintf("%s://%s", protocol, address))
+
+		if err == nil {
+			defer resp.Body.Close()
+		}
+
+		if err != nil {
+			return err
+		}
+
+		if resp.StatusCode == FailedHttpCode {
+			err = fmt.Errorf("Status is %s", resp.Status)
+		}
+
+		select {
+		case <-ctx.Done():
+			return retry.Unrecoverable(ctx.Err())
+		case <-time.After(r.settings.PerAddressTimeout):
+			return nil
+		default:
+			return err
+		}
+	}
+
+	err := retry.Do(
+		retryableFunc,
+		retry.LastErrorOnly(true),
+		retry.Attempts(r.settings.PerAddressAttempts),
+		retry.Delay(r.settings.ResourceRequestBackOffPeriod),
+		retry.DelayType(retry.FixedDelay),
+		retry.OnRetry(func(n uint, err error) {
+			log.Printf("[%s] dial failed for %s with err %s, retry attempt: %d", protocol, address, err, n)
 		}),
 	)
 
