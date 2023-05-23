@@ -45,6 +45,7 @@ icon: https://app.uffizzi.com/favicon.png
 appVersion: "1.1.8"
 deprecated: false
 annotations:
-  # Use this annotation to indicate that this chart version is a pre-release.
   # https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/prerelease: "false"
+  artifacthub.io/category: integration-delivery
+  artifacthub.io/license: Apache-2.0
