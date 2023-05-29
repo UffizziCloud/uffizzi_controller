@@ -1,10 +1,10 @@
 package networks
 
 import (
-	corev1 "k8s.io/api/core/v1"
+	networkingV1 "k8s.io/api/networking/v1"
 )
 
-func GetIngresEntrypoint(ingress corev1.LoadBalancerIngress) string {
+func GetIngresEntrypoint(ingress networkingV1.IngressLoadBalancerIngress) string {
 	if len(ingress.Hostname) > 0 {
 		return ingress.Hostname
 	}
