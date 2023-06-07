@@ -15,7 +15,7 @@ func (client *Client) CreateCluster(
 	name string,
 	helm []apiUffizziClusterV1.HelmChart,
 	ingressService domainTypes.ClusterIngressService,
-) {
+) error {
 	cluster := clientsetUffizziClusterV1.UffizziClusterProps{
 		Name: name,
 		Spec: apiUffizziClusterV1.UffizziClusterSpec{
@@ -23,7 +23,7 @@ func (client *Client) CreateCluster(
 				Host:  "deleteme2023.uffizzi.cloud",
 				Class: "nginx",
 				Services: []apiUffizziClusterV1.ExposedVClusterService{
-					apiUffizziClusterV1.ExposedVClusterService{
+					{
 						Name:      ingressService.Name,
 						Namespace: ingressService.Namespace,
 						Port:      ingressService.Port,
@@ -40,6 +40,7 @@ func (client *Client) CreateCluster(
 		log.Println("Vcluster ERROR")
 		log.Println(err)
 	}
+	return nil
 }
 
 func (client *Client) GetCluster(namespace, name string) {

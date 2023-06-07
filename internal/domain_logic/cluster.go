@@ -3,6 +3,7 @@ package domain
 import (
 	"log"
 
+	apiUffizziClusterV1 "github.com/UffizziCloud/uffizzi-cluster-operator/api/v1alpha1"
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
 	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 )
@@ -10,7 +11,7 @@ import (
 func (l *Logic) CreateCluster(
 	deploymentID uint64,
 	clusterName string,
-	helm []domainTypes.Helm,
+	helm []apiUffizziClusterV1.HelmChart,
 	ingressService domainTypes.ClusterIngressService,
 	deploymentHost string,
 ) error {
@@ -36,8 +37,8 @@ func (l *Logic) CreateCluster(
 
 	log.Printf("networkPolicy/%s configured", policy.Name)
 
-	deployment, err := l.KuberClient.CreateCluster(
-		namespace,
+	err = l.KuberClient.CreateCluster(
+		namespace.Name,
 		clusterName,
 		helm,
 		ingressService,
