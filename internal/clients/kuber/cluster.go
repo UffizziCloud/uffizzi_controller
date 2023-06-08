@@ -35,11 +35,11 @@ func (client *Client) CreateCluster(
 	}
 
 	_, err := client.uffizziClusterClient.UffizziClusterV1(namespace).Create(cluster)
-
 	if err != nil {
 		log.Println("Vcluster ERROR")
 		log.Println(err)
 	}
+
 	return nil
 }
 
@@ -54,7 +54,6 @@ func (client *Client) GetCluster(namespace, name string) {
 
 func (client *Client) GetClusters(namespace string) {
 	_, err := client.uffizziClusterClient.UffizziClusterV1(namespace).List(metav1.ListOptions{})
-
 	if err != nil {
 		log.Println("Vcluster ERROR")
 		log.Println(err)
@@ -63,7 +62,6 @@ func (client *Client) GetClusters(namespace string) {
 
 func (client *Client) DeleteCluster(namespace, name string) {
 	err := client.uffizziClusterClient.UffizziClusterV1(namespace).Delete(name)
-
 	if err != nil {
 		log.Println("Vcluster ERROR")
 		log.Println(err)

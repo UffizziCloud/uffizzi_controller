@@ -31,6 +31,7 @@ func (l *Logic) CreateCluster(
 
 	policyName := global.Settings.ResourceName.Policy(namespace.Name)
 	policy, err := l.KuberClient.FindOrCreateNetworkPolicy(namespace.Name, policyName)
+
 	if err != nil {
 		return err
 	}

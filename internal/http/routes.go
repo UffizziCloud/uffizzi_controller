@@ -11,6 +11,7 @@ import (
 func drawRoutes(r *mux.Router, h *Handlers) {
 	r.HandleFunc("/", h.handleRoot)
 	r.HandleFunc("/nodes", h.handleGetNodes).Methods(http.MethodGet)
+	r.HandleFunc("/clusters", h.handleCreateCluster).Methods(http.MethodPost)
 	r.HandleFunc("/default_ingress/service", h.handleGetDefaultIngressService).Methods(http.MethodGet)
 	r.HandleFunc("/deployments/{deploymentId:[0-9]+}", h.handleGetNamespace).Methods(http.MethodGet)
 	r.HandleFunc("/deployments/{deploymentId:[0-9]+}", h.handleCreateNamespace).Methods(http.MethodPost)

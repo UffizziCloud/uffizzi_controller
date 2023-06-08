@@ -3,12 +3,12 @@ package networks
 import (
 	"testing"
 
-	corev1 "k8s.io/api/core/v1"
+	networkingV1 "k8s.io/api/networking/v1"
 )
 
 func TestGetIngresEntrypoint(t *testing.T) {
 	type args struct {
-		ingress corev1.LoadBalancerIngress
+		ingress networkingV1.IngressLoadBalancerIngress
 	}
 
 	tests := []struct {
@@ -19,7 +19,7 @@ func TestGetIngresEntrypoint(t *testing.T) {
 		{
 			name: "get hostname",
 			args: args{
-				ingress: corev1.LoadBalancerIngress{
+				ingress: networkingV1.IngressLoadBalancerIngress{
 					Hostname: "example.com",
 				},
 			},
@@ -28,7 +28,7 @@ func TestGetIngresEntrypoint(t *testing.T) {
 		{
 			name: "get IP",
 			args: args{
-				ingress: corev1.LoadBalancerIngress{
+				ingress: networkingV1.IngressLoadBalancerIngress{
 					IP: "8.8.8.8",
 				},
 			},
@@ -37,7 +37,7 @@ func TestGetIngresEntrypoint(t *testing.T) {
 		{
 			name: "get entrypoint",
 			args: args{
-				ingress: corev1.LoadBalancerIngress{
+				ingress: networkingV1.IngressLoadBalancerIngress{
 					Hostname: "example.com",
 					IP:       "8.8.8.8",
 				},
@@ -47,7 +47,7 @@ func TestGetIngresEntrypoint(t *testing.T) {
 		{
 			name: "get empty entrypoint",
 			args: args{
-				ingress: corev1.LoadBalancerIngress{},
+				ingress: networkingV1.IngressLoadBalancerIngress{},
 			},
 			want: "",
 		},

@@ -28,7 +28,7 @@ type createClusterRequest struct {
 // @Response 403 "Incorrect Token for HTTP Basic Auth"
 // @Security BasicAuth
 // @Produce plain
-// @Router /deployments/{deploymentId}/clusters [post]
+// @Router /clusters [post]
 func (h *Handlers) handleCreateCluster(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
