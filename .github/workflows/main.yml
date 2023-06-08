@@ -27,3 +27,7 @@ jobs:
           go-version: '1.20'
       - name: Run tests
         run: make test
+  build-and-push-controller:
+    uses: ./.github/workflows/build-and-push-ci.yml
+    name: Build CI Image
+    secrets: inherit
