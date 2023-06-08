@@ -5,6 +5,11 @@ on:
       - develop
   pull_request:
     types: [opened,synchronize,reopened]
+permissions:
+  contents: 'read'
+  id-token: 'write'
+  packages: 'read'
+  actions: 'read'
 
 jobs:
   lint:
@@ -28,6 +33,9 @@ jobs:
       - name: Run tests
         run: make test
   build-and-push-controller:
+    needs:
+      - lint
+      - test
     uses: ./.github/workflows/build-and-push-ci.yml
     name: Build CI Image
     secrets: inherit
