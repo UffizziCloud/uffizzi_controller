@@ -2,38 +2,32 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/gorilla/mux"
 )
 
-type deploymentRequest struct {
-	Kind string `json:"kind"`
+type namespaceRequest struct {
+	Namespace string `json:"namespace"`
 }
 
-// @Description Fetch the Kubernetes Namespace for a specified Uffizzi Deployment.
-// @Param deploymentId path int true "unique Uffizzi Deployment ID"
+// @Description Fetch the Kubernetes Namespace for a specified Uffizzi Deployment of Uffizzi C;ister.
+// @Param namespace path string true "prefix plus unique Uffizzi Deployment/Cluster ID"
 // @Success 200 "OK"
 // @Failure 500 "most errors"
 // @Response 403 "incorrect token for HTTP Basic Auth"
 // @Response 404 "namespace not found"
 // @Security BasicAuth
 // @Produce json
-// @Router /deployments/{deploymentId} [get]
-func (h *Handlers) handleGetNamespace(w http.ResponseWriter, r *http.Request) {
+// @Router /namespaces/{namespace} [get]
+func (h *Handlers) handleGetNamespaceV2(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
-	if err != nil {
-		handleError(err, w, r)
-		return
-	}
+	namespaceName := vars["namespace"]
 
-	namespace, err := domainLogic.GetNamespace(deploymentID)
+	namespace, err := domainLogic.GetNamespaceV2(namespaceName)
 
 	if err != nil && isNotFoundNamespaceError(err) {
 		respondWithJSON(w, r, http.StatusNotFound, namespace)
@@ -57,18 +51,10 @@ func (h *Handlers) handleGetNamespace(w http.ResponseWriter, r *http.Request) {
 // @Security BasicAuth
 // @Produce json
 // @Router /deployments/{deploymentId} [post]
-func (h *Handlers) handleCreateNamespace(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+func (h *Handlers) handleCreateNamespaceV2(w http.ResponseWriter, r *http.Request) {
+	var request namespaceRequest
 
-	deploymentID, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
-	if err != nil {
-		handleError(err, w, r)
-		return
-	}
-
-	var request deploymentRequest
-
-	err = json.NewDecoder(r.Body).Decode(&request)
+	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		handleError(err, w, r)
 		return
@@ -76,7 +62,9 @@ func (h *Handlers) handleCreateNamespace(w http.ResponseWriter, r *http.Request)
 
 	log.Printf("Decoded HTTP Request: %+v", request)
 
-	namespace, err := domainLogic.CreateNamespace(deploymentID)
+	namespaceName := request.Namespace
+
+	namespace, err := domainLogic.CreateNamespaceV2(namespaceName)
 	if err != nil {
 		handleError(err, w, r)
 		return
@@ -93,24 +81,20 @@ func (h *Handlers) handleCreateNamespace(w http.ResponseWriter, r *http.Request)
 // @Security BasicAuth
 // @Produce plain
 // @Router /deployments/{deploymentId} [delete]
-func (h *Handlers) handleDeleteNamespace(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) handleDeleteNamespaceV2(w http.ResponseWriter, r *http.Request) {
 	// Get path vars
 	vars := mux.Vars(r)
+	namespaceName := vars["namespace"]
 
-	// Get deployment id
-	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
-	if err != nil {
-		handleError(err, w, r)
-		return
-	}
+	log.Printf("Namespace Name: %+v", namespaceName)
 
 	go func(localHub *sentry.Hub) {
 		// Configure scope
 		localHub.ConfigureScope(func(scope *sentry.Scope) {
-			scope.SetTag("deployment_id", fmt.Sprint(deploymentId))
+			scope.SetTag("namespaceName", namespaceName)
 		})
 		// DeleteNamespace
-		err = domainLogic.DeleteNamespace(deploymentId)
+		err := domainLogic.DeleteNamespaceV2(namespaceName)
 
 		if err != nil && !isNotFoundNamespaceError(err) {
 			handleDomainError("domainLogic.DeleteNamespace", err, localHub)
