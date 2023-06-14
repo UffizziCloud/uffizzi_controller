@@ -13,7 +13,7 @@ type namespaceRequest struct {
 	Namespace string `json:"namespace"`
 }
 
-// @Description Fetch the Kubernetes Namespace for a specified Uffizzi Deployment of Uffizzi C;ister.
+// @Description Fetch the Kubernetes Namespace for a specified Uffizzi Deployment of Uffizzi Cluster.
 // @Param namespace path string true "prefix plus unique Uffizzi Deployment/Cluster ID"
 // @Success 200 "OK"
 // @Failure 500 "most errors"
@@ -42,15 +42,14 @@ func (h *Handlers) handleGetNamespaceV2(w http.ResponseWriter, r *http.Request) 
 	respondWithJSON(w, r, http.StatusOK, namespace)
 }
 
-// @Description Create Kubernetes Namespace for a new Uffizzi Deployment.
-// @Param deploymentId path int true "unique Uffizzi Deployment ID"
-// @Param spec body deploymentRequest true "Uffizzi Deployment Specification"
+// @Description Create Kubernetes Namespace.
+// @Param spec body namespaceRequest true "New prefix plus unique Uffizzi Deployment/Cluster ID"
 // @Success 201 "created successfully"
 // @Failure 500 "most internal errors"
 // @Response 403 "incorrect token for HTTP Basic Auth"
 // @Security BasicAuth
 // @Produce json
-// @Router /deployments/{deploymentId} [post]
+// @Router /namespaces [post]
 func (h *Handlers) handleCreateNamespaceV2(w http.ResponseWriter, r *http.Request) {
 	var request namespaceRequest
 
@@ -74,13 +73,13 @@ func (h *Handlers) handleCreateNamespaceV2(w http.ResponseWriter, r *http.Reques
 }
 
 // @Description Delete Kubernetes Namespace and all Resources within.
-// @Param deploymentId path int true "unique Uffizzi Deployment ID"
+// @Param namespace path string true "prefix plus unique Uffizzi Deployment/Cluster ID"
 // @Success 204 "No Content (success)"
 // @Failure 500 "most internal errors"
 // @Response 403 "incorrect token for HTTP Basic Auth"
 // @Security BasicAuth
 // @Produce plain
-// @Router /deployments/{deploymentId} [delete]
+// @Router /namespaces/{namespace} [delete]
 func (h *Handlers) handleDeleteNamespaceV2(w http.ResponseWriter, r *http.Request) {
 	// Get path vars
 	vars := mux.Vars(r)
