@@ -91,7 +91,7 @@ func (h *Handlers) handleDeleteNamespaceV2(w http.ResponseWriter, r *http.Reques
 	go func(localHub *sentry.Hub) {
 		// Configure scope
 		localHub.ConfigureScope(func(scope *sentry.Scope) {
-			scope.SetTag("namespaceName", namespaceName)
+			scope.SetTag("namespace", namespaceName)
 		})
 		// DeleteNamespace
 		err := domainLogic.DeleteNamespaceV2(namespaceName)

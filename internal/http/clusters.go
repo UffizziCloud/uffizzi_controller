@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	apiUffizziClusterV1 "github.com/UffizziCloud/uffizzi-cluster-operator/api/v1alpha1"
 	"github.com/getsentry/sentry-go"
@@ -17,12 +16,11 @@ type createClusterRequest struct {
 	Helm           []apiUffizziClusterV1.HelmChart   `json:"helm"`
 	IngressService domainTypes.ClusterIngressService `json:"ingress_service"`
 	Name           string                            `json:"name"`
-	DeploymentHost string                            `json:"deployment_url"`
 }
 
-// @Description Create or Update containers within a Deployment.
-// @Param deploymentId path int true "unique Uffizzi Deployment ID"
-// @Param spec body createClusterRequest true "container specification"
+// @Description Create a clusters within a Namespace.
+// @Param namespace in path string true "unique Uffizzi Namespace"
+// @Param spec body createClusterRequest true "cluster specification"
 // @Success 200 "OK"
 // @Failure 500 "most errors including Not Found"
 // @Response 403 "Incorrect Token for HTTP Basic Auth"
@@ -32,15 +30,11 @@ type createClusterRequest struct {
 func (h *Handlers) handleCreateCluster(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	deploymentId, err := strconv.ParseUint(vars["deploymentId"], 10, 64) //nolint: gomnd
-	if err != nil {
-		handleError(err, w, r)
-		return
-	}
+	namespaceName := vars["namespace"]
 
 	var request createClusterRequest
 
-	err = json.NewDecoder(r.Body).Decode(&request)
+	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		handleError(err, w, r)
 		return
@@ -50,23 +44,21 @@ func (h *Handlers) handleCreateCluster(w http.ResponseWriter, r *http.Request) {
 
 	go func(localHub *sentry.Hub) {
 		localHub.ConfigureScope(func(scope *sentry.Scope) {
-			scope.SetTag("deploymentId", fmt.Sprint(deploymentId))
+			scope.SetTag("namespace", fmt.Sprint(namespaceName))
 		})
 
 		name := request.Name
 		helm := request.Helm
 		ingressService := request.IngressService
-		deploymentHost := request.DeploymentHost
 
 		err = domainLogic.CreateCluster(
-			deploymentId,
+			namespaceName,
 			name,
 			helm,
 			ingressService,
-			deploymentHost,
 		)
 		if err != nil {
-			handleDomainError("domainLogic.ApplyContainers", err, localHub)
+			handleDomainError("domainLogic.CreateCluster", err, localHub)
 		}
 	}(sentry.CurrentHub().Clone())
 }

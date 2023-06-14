@@ -9,14 +9,11 @@ import (
 )
 
 func (l *Logic) CreateCluster(
-	deploymentID uint64,
+	namespaceName string,
 	clusterName string,
 	helm []apiUffizziClusterV1.HelmChart,
 	ingressService domainTypes.ClusterIngressService,
-	deploymentHost string,
 ) error {
-	namespaceName := l.KubernetesNamespaceName(deploymentID)
-
 	namespace, err := l.KuberClient.FindNamespace(namespaceName)
 	if err != nil {
 		return err
