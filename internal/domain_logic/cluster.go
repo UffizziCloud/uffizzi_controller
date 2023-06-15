@@ -25,11 +25,13 @@ func (l *Logic) mapUffizziClusterToCluster(
 
 	cluster.Status.Ready = ufizziCluster.Status.Ready
 
-	if ufizziCluster.Status.Ready != true {
+	if !ufizziCluster.Status.Ready {
 		return cluster
 	}
 
-	secret, err := l.KuberClient.GetSecret(ufizziCluster.ObjectMeta.Namespace, ufizziCluster.Status.KubeConfig.SecretRef.Name)
+	secret, err := l.KuberClient.GetSecret(ufizziCluster.ObjectMeta.Namespace,
+		ufizziCluster.Status.KubeConfig.SecretRef.Name,
+	)
 
 	if err != nil {
 		return cluster
@@ -41,6 +43,7 @@ func (l *Logic) mapUffizziClusterToCluster(
 	}
 
 	cluster.Status.KubeConfig = base64.StdEncoding.EncodeToString(kubeConfigData)
+
 	return cluster
 }
 

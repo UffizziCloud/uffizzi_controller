@@ -2,8 +2,6 @@ module gitlab.com/dualbootpartners/idyl/uffizzi_controller
 
 go 1.20
 
-// replace github.com/UffizziCloud/uffizzi-cluster-operator => ./uffizzi-cluster-operator
-
 require (
 	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962
 	github.com/UffizziCloud/uffizzi-cluster-operator v0.0.6

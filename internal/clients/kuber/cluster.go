@@ -22,6 +22,5 @@ func (client *Client) GetCluster(
 	namespace string,
 	name string,
 ) (*v1alpha1.UffizziCluster, error) {
-
 	return client.uffizziClusterClient.UffizziClusterV1(namespace).Get(name, metav1.GetOptions{})
 }
