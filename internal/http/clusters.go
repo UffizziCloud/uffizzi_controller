@@ -1,12 +1,18 @@
 package http
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/gorilla/mux"
 )
+
+type createClusterRequest struct {
+	Manifest string `json:"manifest"`
+}
 
 // @Description Create a cluster within a Namespace.
 // @Param namespace path string true "unique Uffizzi Namespace"
@@ -19,14 +25,25 @@ import (
 func (h *Handlers) handleCreateCluster(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
+	var request createClusterRequest
+
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		handleError(err, w, r)
+		return
+	}
+
+	log.Printf("Decoded HTTP Request: %+v", request)
+
 	namespaceName := vars["namespace"]
+	manifest := request.Manifest
 
 	localHub := sentry.CurrentHub().Clone()
 	localHub.ConfigureScope(func(scope *sentry.Scope) {
 		scope.SetTag("namespace", fmt.Sprint(namespaceName))
 	})
 
-	cluster, err := domainLogic.CreateCluster(namespaceName)
+	cluster, err := domainLogic.CreateCluster(namespaceName, manifest)
 
 	if err != nil {
 		handleError(err, w, r)

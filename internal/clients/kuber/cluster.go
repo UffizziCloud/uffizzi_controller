@@ -10,9 +10,13 @@ import (
 func (client *Client) CreateCluster(
 	namespace string,
 	name string,
+	manifest string,
 ) (*v1alpha1.UffizziCluster, error) {
 	clusterSpec := clientsetUffizziClusterV1.UffizziClusterProps{
 		Name: name,
+		Spec: v1alpha1.UffizziClusterSpec{
+			Manifests: &manifest,
+		},
 	}
 
 	return client.uffizziClusterClient.UffizziClusterV1(namespace).Create(clusterSpec)

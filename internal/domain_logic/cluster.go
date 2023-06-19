@@ -2,9 +2,11 @@ package domain
 
 import (
 	"encoding/base64"
+
+	"log"
+
 	"github.com/UffizziCloud/uffizzi-cluster-operator/api/v1alpha1"
 	types "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
-	"log"
 )
 
 func (l *Logic) getClusterNameBy(
@@ -49,6 +51,7 @@ func (l *Logic) mapUffizziClusterToCluster(
 
 func (l *Logic) CreateCluster(
 	namespaceName string,
+	manifest string,
 ) (*types.Cluster, error) {
 	namespace, err := l.KuberClient.FindNamespace(namespaceName)
 
@@ -63,6 +66,7 @@ func (l *Logic) CreateCluster(
 	ufizziCluster, err := l.KuberClient.CreateCluster(
 		namespace.Name,
 		clusterName,
+		manifest,
 	)
 
 	if err != nil {

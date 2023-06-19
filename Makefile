@@ -102,3 +102,6 @@ sentry_release:
 	sentry-cli releases set-commits --auto ${SHORT_VERSION} --ignore-missing
 	sentry-cli releases finalize ${SHORT_VERSION}
 	sentry-cli releases deploys ${SHORT_VERSION} new -e ${ENV}
+
+get_token:
+	gcloud config config-helper --format="value(credential.access_token)"
