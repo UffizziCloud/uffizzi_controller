@@ -2,10 +2,9 @@ package domain
 
 import (
 	"encoding/base64"
-	"log"
-
 	"github.com/UffizziCloud/uffizzi-cluster-operator/api/v1alpha1"
 	types "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
+	"log"
 )
 
 func (l *Logic) getClusterNameBy(
@@ -23,9 +22,10 @@ func (l *Logic) mapUffizziClusterToCluster(
 		UID:       string(ufizziCluster.ObjectMeta.UID),
 	}
 
-	cluster.Status.Ready = ufizziCluster.Status.Ready
+	status := clusterStatus(ufizziCluster)
+	cluster.Status.Ready = status
 
-	if !ufizziCluster.Status.Ready {
+	if !status {
 		return cluster
 	}
 
@@ -99,4 +99,16 @@ func (l *Logic) GetCluster(
 	cluster := l.mapUffizziClusterToCluster(ufizziCluster)
 
 	return cluster, err
+}
+
+func clusterStatus(ufizziCluster *v1alpha1.UffizziCluster) bool {
+	if len(ufizziCluster.Status.Conditions) == 0 {
+		return false
+	}
+
+	if ufizziCluster.Status.Conditions[0].Status == "False" {
+		return false
+	} else {
+		return true
+	}
 }

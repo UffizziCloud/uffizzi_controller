@@ -58,8 +58,8 @@ github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAE
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
 github.com/Shopify/goreferrer v0.0.0-20181106222321-ec9c9a553398/go.mod h1:a1uqRtAwp2Xwc6WNPJEufxJ7fx3npB4UV/JOLmbu5I0=
-github.com/UffizziCloud/uffizzi-cluster-operator v0.0.10 h1:v656WLG26zkq2RRW5w+BiDPK6gfIvkcnj8/iwUtw59U=
-github.com/UffizziCloud/uffizzi-cluster-operator v0.0.10/go.mod h1:jSyAkV5svJYybuvNpfxfZxsgNzeU8mR/iEBEm1TBoMk=
+github.com/UffizziCloud/uffizzi-cluster-operator v0.0.12 h1:idb/gqDxgXhM5RTKiLht71ww0w+4aqDUYCRke3UBJFg=
+github.com/UffizziCloud/uffizzi-cluster-operator v0.0.12/go.mod h1:jSyAkV5svJYybuvNpfxfZxsgNzeU8mR/iEBEm1TBoMk=
 github.com/a8m/envsubst v1.3.0 h1:GmXKmVssap0YtlU3E230W98RWtWCyIZzjtf1apWWyAg=
 github.com/a8m/envsubst v1.3.0/go.mod h1:MVUTQNGQ3tsjOOtKCNd+fl8RzhsXcDvvAEzkhGtlsbY=
 github.com/agiledragon/gomonkey/v2 v2.3.1 h1:k+UnUY0EMNYUFUAQVETGY9uUTxjMdnUkP0ARyJS1zzs=
