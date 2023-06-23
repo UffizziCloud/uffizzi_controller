@@ -5,6 +5,55 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 1.0.1
+    created: "2023-06-23T17:28:02.899485038Z"
+    dependencies:
+    - name: ingress-nginx
+      repository: https://kubernetes.github.io/ingress-nginx
+      version: ~4.6.1
+    - name: cert-manager
+      repository: https://charts.jetstack.io
+      version: ~1.12.0
+    - name: uffizzi-cluster-operator
+      repository: https://uffizzicloud.github.io/uffizzi-cluster-operator/
+      version: 0.x.x
+    description: A smart proxy service that handles requests from Uffizzi App to the
+      Kubernetes API - 1 of 3 services (controller, uffizzi_app, uffizzi_cli) that
+      comprise the uffizzi full-stack previews engine which automates trigger-based
+      on-demand preview environments
+    digest: 901c492220966e5dd8774eb6bc1b2cbfb54e3cda05093861a1c5f9a06c368205
+    home: https://uffizzi.com/
+    icon: https://app.uffizzi.com/favicon.png
+    keywords:
+    - devops
+    - uffizzi
+    - continuous-previews
+    - ephemeral
+    - environments
+    - pull-request
+    - merge-request
+    - on-demand
+    - ci
+    - cd
+    kubeVersion: '>= 1.21.6-0'
+    maintainers:
+    - email: info@uffizzi.com
+      name: Uffizzi
+      url: https://uffizzi.com
+    - email: adam.vollrath@uffizzi.com
+      name: Adam Vollrath
+      url: https://github.com/axisofentropy
+    name: uffizzi-controller
+    sources:
+    - https://github.com/UffizziCloud/uffizzi_controller
+    - https://gitlab.com/dualbootpartners/idyl/uffizzi_controller
+    type: application
+    urls:
+    - https://github.com/UffizziCloud/uffizzi_controller/releases/download/uffizzi-controller-2.0.0/uffizzi-controller-2.0.0.tgz
+    version: 2.0.0
+  - annotations:
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: 1.0.1
     created: "2023-05-23T18:59:05.334491844Z"
     dependencies:
     - name: ingress-nginx
@@ -415,4 +464,4 @@ entries:
     urls:
     - https://github.com/UffizziCloud/uffizzi_controller/releases/download/uffizzi-controller-0.0.2/uffizzi-controller-0.0.2.tgz
     version: 0.0.2
-generated: "2023-05-23T18:59:05.334616951Z"
+generated: "2023-06-23T17:28:02.899518638Z"
