@@ -9,7 +9,13 @@ global:
       password: ChangeMeNow
 
 cert-manager: # dependency
+  enabled: true
   installCRDs: true
+
+ingress-nginx:
+  controller:
+    extraArgs:
+      enable-ssl-passthrough: true
 
 certEmail: "user@example.com"
 
