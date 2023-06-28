@@ -11,7 +11,8 @@ import (
 )
 
 type createClusterRequest struct {
-	Manifest string `json:"manifest"`
+	Manifest        string `json:"manifest"`
+	BaseIngressHost string `json:"base_ingress_host"`
 }
 
 // @Description Create a cluster within a Namespace.
@@ -37,13 +38,14 @@ func (h *Handlers) handleCreateCluster(w http.ResponseWriter, r *http.Request) {
 
 	namespaceName := vars["namespace"]
 	manifest := request.Manifest
+	baseIngressHost := request.BaseIngressHost
 
 	localHub := sentry.CurrentHub().Clone()
 	localHub.ConfigureScope(func(scope *sentry.Scope) {
 		scope.SetTag("namespace", fmt.Sprint(namespaceName))
 	})
 
-	cluster, err := domainLogic.CreateCluster(namespaceName, manifest)
+	cluster, err := domainLogic.CreateCluster(namespaceName, manifest, baseIngressHost)
 
 	if err != nil {
 		handleError(err, w, r)

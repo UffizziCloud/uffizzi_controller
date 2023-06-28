@@ -11,11 +11,23 @@ func (client *Client) CreateCluster(
 	namespace string,
 	name string,
 	manifest string,
+	baseIngressHost string,
 ) (*v1alpha1.UffizziCluster, error) {
 	clusterSpec := clientsetUffizziClusterV1.UffizziClusterProps{
 		Name: name,
 		Spec: v1alpha1.UffizziClusterSpec{
 			Manifests: &manifest,
+			Ingress: v1alpha1.UffizziClusterIngress{
+				Host:  baseIngressHost,
+				Class: "nginx",
+				Cluster: v1alpha1.VClusterIngressSpec{
+					IngressAnnotations: map[string]string{
+						"nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
+						"nginx.ingress.kubernetes.io/ssl-passthrough":  "true",
+						"nginx.ingress.kubernetes.io/ssl-redirect":     "true",
+					},
+				},
+			},
 		},
 	}
 

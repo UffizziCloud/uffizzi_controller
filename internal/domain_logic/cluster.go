@@ -52,6 +52,7 @@ func (l *Logic) mapUffizziClusterToCluster(
 func (l *Logic) CreateCluster(
 	namespaceName string,
 	manifest string,
+	baseIngressHost string,
 ) (*types.Cluster, error) {
 	namespace, err := l.KuberClient.FindNamespace(namespaceName)
 
@@ -67,6 +68,7 @@ func (l *Logic) CreateCluster(
 		namespace.Name,
 		clusterName,
 		manifest,
+		baseIngressHost,
 	)
 
 	if err != nil {
