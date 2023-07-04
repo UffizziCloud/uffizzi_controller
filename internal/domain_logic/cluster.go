@@ -9,12 +9,6 @@ import (
 	types "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 )
 
-func (l *Logic) getClusterNameBy(
-	namespaceName string,
-) string {
-	return namespaceName + "-" + "vcluster"
-}
-
 func (l *Logic) mapUffizziClusterToCluster(
 	ufizziCluster *v1alpha1.UffizziCluster,
 ) *types.Cluster {
@@ -50,6 +44,7 @@ func (l *Logic) mapUffizziClusterToCluster(
 }
 
 func (l *Logic) CreateCluster(
+	clusterName string,
 	namespaceName string,
 	manifest string,
 	baseIngressHost string,
@@ -62,11 +57,9 @@ func (l *Logic) CreateCluster(
 
 	log.Printf("namespace/%s found", namespace.Name)
 
-	clusterName := l.getClusterNameBy(namespaceName)
-
 	ufizziCluster, err := l.KuberClient.CreateCluster(
-		namespace.Name,
 		clusterName,
+		namespace.Name,
 		manifest,
 		baseIngressHost,
 	)
@@ -82,6 +75,7 @@ func (l *Logic) CreateCluster(
 }
 
 func (l *Logic) GetCluster(
+	clusterName string,
 	namespaceName string,
 ) (*types.Cluster, error) {
 	namespace, err := l.KuberClient.FindNamespace(namespaceName)
@@ -91,11 +85,9 @@ func (l *Logic) GetCluster(
 
 	log.Printf("namespace/%s found", namespace.Name)
 
-	clusterName := l.getClusterNameBy(namespaceName)
-
 	ufizziCluster, err := l.KuberClient.GetCluster(
-		namespace.Name,
 		clusterName,
+		namespace.Name,
 	)
 	if err != nil {
 		log.Printf("ClusterError: %s", err)

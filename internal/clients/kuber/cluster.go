@@ -8,8 +8,8 @@ import (
 )
 
 func (client *Client) CreateCluster(
-	namespace string,
 	name string,
+	namespace string,
 	manifest string,
 	baseIngressHost string,
 ) (*v1alpha1.UffizziCluster, error) {
@@ -35,8 +35,8 @@ func (client *Client) CreateCluster(
 }
 
 func (client *Client) GetCluster(
-	namespace string,
 	name string,
+	namespace string,
 ) (*v1alpha1.UffizziCluster, error) {
 	return client.uffizziClusterClient.UffizziClusterV1(namespace).Get(name, metav1.GetOptions{})
 }

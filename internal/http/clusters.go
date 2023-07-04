@@ -11,6 +11,7 @@ import (
 )
 
 type createClusterRequest struct {
+	Name            string `json:"name"`
 	Manifest        string `json:"manifest"`
 	BaseIngressHost string `json:"base_ingress_host"`
 }
@@ -37,6 +38,7 @@ func (h *Handlers) handleCreateCluster(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Decoded HTTP Request: %+v", request)
 
 	namespaceName := vars["namespace"]
+	name := request.Name
 	manifest := request.Manifest
 	baseIngressHost := request.BaseIngressHost
 
@@ -45,7 +47,7 @@ func (h *Handlers) handleCreateCluster(w http.ResponseWriter, r *http.Request) {
 		scope.SetTag("namespace", fmt.Sprint(namespaceName))
 	})
 
-	cluster, err := domainLogic.CreateCluster(namespaceName, manifest, baseIngressHost)
+	cluster, err := domainLogic.CreateCluster(name, namespaceName, manifest, baseIngressHost)
 
 	if err != nil {
 		handleError(err, w, r)
@@ -67,13 +69,14 @@ func (h *Handlers) handleGetCluster(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	namespaceName := vars["namespace"]
+	name := vars["name"]
 
 	localHub := sentry.CurrentHub().Clone()
 	localHub.ConfigureScope(func(scope *sentry.Scope) {
 		scope.SetTag("namespace", fmt.Sprint(namespaceName))
 	})
 
-	cluster, err := domainLogic.GetCluster(namespaceName)
+	cluster, err := domainLogic.GetCluster(name, namespaceName)
 
 	if err != nil {
 		handleError(err, w, r)
