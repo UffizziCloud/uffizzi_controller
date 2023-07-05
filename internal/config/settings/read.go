@@ -2,7 +2,7 @@ package settings
 
 import (
 	"flag"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -35,7 +35,7 @@ func Read(env, path string) (*Settings, error) {
 	}
 
 	// Read file
-	bytes, err := ioutil.ReadAll(file)
+	bytes, err := io.ReadAll(file)
 	if err != nil {
 		return nil, err
 	}

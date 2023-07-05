@@ -4,25 +4,51 @@ definitions:
       config_file:
         type: string
     type: object
-  http.ApplyResourceRequest:
+  http.Deployment:
     properties:
-      resource:
+      scale_event:
         type: string
     type: object
   http.applyContainersRequest:
     properties:
+      compose_file:
+        type: string
       containers:
         type: string
       credentials:
         type: string
       deployment_url:
         type: string
-      resources:
+      host_volume_files:
+        type: string
+      project:
+        type: string
+    type: object
+  http.applyIngressBasicAuthRequest:
+    properties:
+      project:
         type: string
     type: object
   http.deploymentRequest:
     properties:
       kind:
+        type: string
+    type: object
+  http.namespaceRequest:
+    properties:
+      namespace:
+        type: string
+    type: object
+  http.updateScaleRequest:
+    properties:
+      containers:
+        type: string
+      deployment:
+        $ref: '#/definitions/http.Deployment'
+        type: object
+      deployment_url:
+        type: string
+      project:
         type: string
     type: object
   requests.GetContainersUsageMetricsRequestSpec:
@@ -116,7 +142,7 @@ paths:
         "200":
           description: OK
         "500":
-          description: most errors including Not Found
+          description: most errors
       security:
       - BasicAuth: []
     post:
@@ -138,31 +164,6 @@ paths:
       responses:
         "201":
           description: created successfully
-        "500":
-          description: most internal errors
-      security:
-      - BasicAuth: []
-    put:
-      consumes:
-      - application/json
-      description: Update Kubernetes Namespace.
-      parameters:
-      - description: unique Uffizzi Deployment ID
-        in: path
-        name: Id
-        required: true
-        type: integer
-      - description: Uffizzi Deployment specification
-        in: body
-        name: spec
-        required: true
-        schema:
-          $ref: '#/definitions/http.deploymentRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
         "500":
           description: most internal errors
       security:
@@ -252,6 +253,24 @@ paths:
           description: most errors including Not Found
       security:
       - BasicAuth: []
+  /deployments/{deploymentId}/containers/events:
+    get:
+      description: Fetch Pod events TODO
+      parameters:
+      - description: unique Uffizzi Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
   /deployments/{deploymentId}/containers/metrics:
     get:
       description: Fetch metrics for all containers within a Deployment.
@@ -317,6 +336,32 @@ paths:
           description: no content (success)
         "500":
           description: most errors including Not Found
+      security:
+      - BasicAuth: []
+  /deployments/{deploymentId}/replicas:
+    put:
+      consumes:
+      - application/json
+      description: Update Kubernetes Deployment Scale.
+      parameters:
+      - description: unique Uffizzi Deployment ID
+        in: path
+        name: Id
+        required: true
+        type: integer
+      - description: Uffizzi Deployment specification
+        in: body
+        name: spec
+        required: true
+        schema:
+          $ref: '#/definitions/http.updateScaleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most internal errors
       security:
       - BasicAuth: []
   /deployments/{deploymentId}/services:
@@ -392,6 +437,95 @@ paths:
           description: most errors including Not Found
       security:
       - BasicAuth: []
+  /namespaces:
+    post:
+      description: Create Kubernetes Namespace.
+      parameters:
+      - description: New prefix plus unique Uffizzi Deployment/Cluster ID
+        in: body
+        name: spec
+        required: true
+        schema:
+          $ref: '#/definitions/http.namespaceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created successfully
+        "500":
+          description: most internal errors
+      security:
+      - BasicAuth: []
+  /namespaces/{namespace}:
+    delete:
+      description: Delete Kubernetes Namespace and all Resources within.
+      parameters:
+      - description: prefix plus unique Uffizzi Deployment/Cluster ID
+        in: path
+        name: namespace
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "204":
+          description: No Content (success)
+        "500":
+          description: most internal errors
+      security:
+      - BasicAuth: []
+    get:
+      description: Fetch the Kubernetes Namespace for a specified Uffizzi Deployment of Uffizzi Cluster.
+      parameters:
+      - description: prefix plus unique Uffizzi Deployment/Cluster ID
+        in: path
+        name: namespace
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors
+      security:
+      - BasicAuth: []
+  /namespaces/{namespace}/cluster:
+    get:
+      description: Get a virtual cluster within a Namespace.
+      parameters:
+      - description: unique Uffizzi Namespace
+        in: path
+        name: namespace
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
+    post:
+      description: Create a cluster within a Namespace.
+      parameters:
+      - description: unique Uffizzi Namespace
+        in: path
+        name: namespace
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: most errors including Not Found
+      security:
+      - BasicAuth: []
   /nodes:
     get:
       description: Fetch list of Kubernetes nodes.
@@ -404,24 +538,6 @@ paths:
           description: most errors including Not Found
       security:
       - BasicAuth: []
-  /resources/{resourceId}:
-    post:
-      description: Create or update Uffizzi Resource.
-      parameters:
-      - description: unique Uffizzi Resource ID
-        in: path
-        name: resourceId
-        required: true
-        type: integer
-      - description: Uffizzi Resource specification
-        in: body
-        name: spec
-        required: true
-        schema:
-          $ref: '#/definitions/http.ApplyResourceRequest'
-      responses:
-        "200":
-          description: OK
 securityDefinitions:
   BasicAuth:
     type: basic

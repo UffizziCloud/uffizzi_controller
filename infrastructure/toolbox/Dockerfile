@@ -47,7 +47,7 @@ RUN apk --no-cache --update add curl python3 py-crcmod libc6-compat make less &&
     gcloud config set metrics/environment github_docker_image
 
 RUN pip3 install --upgrade awscli==1.19.41
-RUN pip3 install azure-cli==2.27.1
+# RUN pip3 install azure-cli==2.27.1
 
 RUN curl -sL https://sentry.io/get-cli/ | bash
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"regexp"
 
 	"github.com/getsentry/sentry-go"
 )
@@ -54,4 +55,14 @@ func respondWithJSON(w http.ResponseWriter, r *http.Request, code int, payload i
 
 		return
 	}
+}
+
+func isNotFoundNamespaceError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	notFound, _ := regexp.MatchString(`namespaces.*?not found`, err.Error())
+
+	return notFound
 }

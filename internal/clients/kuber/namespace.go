@@ -17,7 +17,7 @@ func (client *Client) FindNamespace(name string) (*corev1.Namespace, error) {
 	return namespace, nil
 }
 
-func (client *Client) CreateNamespace(name, kind string) (*corev1.Namespace, error) {
+func (client *Client) CreateNamespace(name string) (*corev1.Namespace, error) {
 	namespaces := client.clientset.CoreV1().Namespaces()
 
 	draftNamespace := &corev1.Namespace{
@@ -25,7 +25,6 @@ func (client *Client) CreateNamespace(name, kind string) (*corev1.Namespace, err
 			Name: name,
 			Labels: map[string]string{
 				"name":                         name,
-				"kind":                         kind,
 				"app.kubernetes.io/managed-by": global.Settings.ManagedApplication,
 			},
 			Annotations: map[string]string{},
