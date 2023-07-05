@@ -60,7 +60,7 @@ func initializeDeployment(
 							Hostnames: buildAllowedHostnames(containerList),
 						},
 					},
-					AutomountServiceAccountToken: pointer.BoolPtr(false), // False. Security, DO NOT REMOVE
+					AutomountServiceAccountToken: pointer.Bool(false), // False. Security, DO NOT REMOVE
 				},
 			},
 		},

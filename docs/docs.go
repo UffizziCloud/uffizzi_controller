@@ -174,47 +174,7 @@ var doc = `{
                         "description": "OK"
                     },
                     "500": {
-                        "description": "most errors including Not Found"
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Update Kubernetes Namespace.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "unique Uffizzi Deployment ID",
-                        "name": "Id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Uffizzi Deployment specification",
-                        "name": "spec",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/http.deploymentRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "500": {
-                        "description": "most internal errors"
+                        "description": "most errors"
                     }
                 }
             },
@@ -365,6 +325,36 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/http.applyContainersRequest"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "most errors including Not Found"
+                    }
+                }
+            }
+        },
+        "/deployments/{deploymentId}/containers/events": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Fetch Pod events TODO",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "unique Uffizzi Deployment ID",
+                        "name": "deploymentId",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -529,6 +519,48 @@ var doc = `{
                 }
             }
         },
+        "/deployments/{deploymentId}/replicas": {
+            "put": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Update Kubernetes Deployment Scale.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "unique Uffizzi Deployment ID",
+                        "name": "Id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Uffizzi Deployment specification",
+                        "name": "spec",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.updateScaleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "most internal errors"
+                    }
+                }
+            }
+        },
         "/deployments/{deploymentId}/services": {
             "get": {
                 "security": [
@@ -545,6 +577,154 @@ var doc = `{
                         "type": "integer",
                         "description": "unique Uffizzi Deployment ID",
                         "name": "deploymentId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "most errors including Not Found"
+                    }
+                }
+            }
+        },
+        "/namespaces": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Create Kubernetes Namespace.",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "New prefix plus unique Uffizzi Deployment/Cluster ID",
+                        "name": "spec",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.namespaceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "created successfully"
+                    },
+                    "500": {
+                        "description": "most internal errors"
+                    }
+                }
+            }
+        },
+        "/namespaces/{namespace}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Fetch the Kubernetes Namespace for a specified Uffizzi Deployment of Uffizzi Cluster.",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "prefix plus unique Uffizzi Deployment/Cluster ID",
+                        "name": "namespace",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "most errors"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete Kubernetes Namespace and all Resources within.",
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "prefix plus unique Uffizzi Deployment/Cluster ID",
+                        "name": "namespace",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content (success)"
+                    },
+                    "500": {
+                        "description": "most internal errors"
+                    }
+                }
+            }
+        },
+        "/namespaces/{namespace}/cluster": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get a virtual cluster within a Namespace.",
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "unique Uffizzi Namespace",
+                        "name": "namespace",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "most errors including Not Found"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Create a cluster within a Namespace.",
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "unique Uffizzi Namespace",
+                        "name": "namespace",
                         "in": "path",
                         "required": true
                     }
@@ -579,34 +759,6 @@ var doc = `{
                     }
                 }
             }
-        },
-        "/resources/{resourceId}": {
-            "post": {
-                "description": "Create or update Uffizzi Resource.",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "unique Uffizzi Resource ID",
-                        "name": "resourceId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Uffizzi Resource specification",
-                        "name": "spec",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/http.ApplyResourceRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -618,10 +770,10 @@ var doc = `{
                 }
             }
         },
-        "http.ApplyResourceRequest": {
+        "http.Deployment": {
             "type": "object",
             "properties": {
-                "resource": {
+                "scale_event": {
                     "type": "string"
                 }
             }
@@ -629,6 +781,9 @@ var doc = `{
         "http.applyContainersRequest": {
             "type": "object",
             "properties": {
+                "compose_file": {
+                    "type": "string"
+                },
                 "containers": {
                     "type": "string"
                 },
@@ -638,7 +793,18 @@ var doc = `{
                 "deployment_url": {
                     "type": "string"
                 },
-                "resources": {
+                "host_volume_files": {
+                    "type": "string"
+                },
+                "project": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.applyIngressBasicAuthRequest": {
+            "type": "object",
+            "properties": {
+                "project": {
                     "type": "string"
                 }
             }
@@ -647,6 +813,32 @@ var doc = `{
             "type": "object",
             "properties": {
                 "kind": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.namespaceRequest": {
+            "type": "object",
+            "properties": {
+                "namespace": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.updateScaleRequest": {
+            "type": "object",
+            "properties": {
+                "containers": {
+                    "type": "string"
+                },
+                "deployment": {
+                    "type": "object",
+                    "$ref": "#/definitions/http.Deployment"
+                },
+                "deployment_url": {
+                    "type": "string"
+                },
+                "project": {
                     "type": "string"
                 }
             }

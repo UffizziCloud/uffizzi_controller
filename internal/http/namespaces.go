@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"regexp"
 	"strconv"
 
 	"github.com/getsentry/sentry-go"
@@ -77,10 +76,7 @@ func (h *Handlers) handleCreateNamespace(w http.ResponseWriter, r *http.Request)
 
 	log.Printf("Decoded HTTP Request: %+v", request)
 
-	namespace, err := domainLogic.CreateNamespace(
-		deploymentID,
-		request.Kind,
-	)
+	namespace, err := domainLogic.CreateNamespace(deploymentID)
 	if err != nil {
 		handleError(err, w, r)
 		return
@@ -122,14 +118,4 @@ func (h *Handlers) handleDeleteNamespace(w http.ResponseWriter, r *http.Request)
 	}(sentry.CurrentHub().Clone())
 
 	respondWithJSON(w, r, http.StatusNoContent, nil)
-}
-
-func isNotFoundNamespaceError(err error) bool {
-	if err == nil {
-		return false
-	}
-
-	notFound, _ := regexp.MatchString(`namespaces.*?not found`, err.Error())
-
-	return notFound
 }

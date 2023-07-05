@@ -8,9 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-func (l *Logic) GetNamespace(deploymentID uint64) (*corev1.Namespace, error) {
-	namespaceName := l.KubernetesNamespaceName(deploymentID)
-
+func (l *Logic) GetNamespaceV2(namespaceName string) (*corev1.Namespace, error) {
 	namespace, err := l.KuberClient.FindNamespace(namespaceName)
 	if err != nil {
 		return nil, err
@@ -19,10 +17,9 @@ func (l *Logic) GetNamespace(deploymentID uint64) (*corev1.Namespace, error) {
 	return namespace, nil
 }
 
-func (l *Logic) CreateNamespace(deploymentID uint64) (*corev1.Namespace, error) {
-	namespaceName := l.KubernetesNamespaceName(deploymentID)
-
+func (l *Logic) CreateNamespaceV2(namespaceName string) (*corev1.Namespace, error) {
 	namespace, err := l.KuberClient.CreateNamespace(namespaceName)
+
 	if err != nil {
 		return nil, err
 	}
@@ -30,10 +27,8 @@ func (l *Logic) CreateNamespace(deploymentID uint64) (*corev1.Namespace, error) 
 	return namespace, nil
 }
 
-func (l *Logic) DeleteNamespace(deploymentID uint64) error {
-	namespaceName := l.KubernetesNamespaceName(deploymentID)
-
-	log.Printf("Clear all deployment resources namespace: %v\n", namespaceName)
+func (l *Logic) DeleteNamespaceV2(namespaceName string) error {
+	log.Printf("Clear all resources namespace: %v\n", namespaceName)
 
 	err := l.KuberClient.RemoveNamespace(namespaceName)
 	if err != nil {
