@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build-and-push-controller:
-    uses: ./.github/workflows/build-and-push-ci.yml
+    uses: ./.github/workflows/build-and-push-image.yml
     name: Build CI Image
     secrets: inherit
   code-quality:
@@ -30,5 +30,6 @@ jobs:
       project_id: "uffizzi-pro-qa-gke"
       service_account_name: "QA_GKE_SERVICE_ACCOUNT_NAME"
       workload_identity_provider_name: "QA_GKE_IDENTITY_PROVIDER"
+      image_name: uffizzi/controller:qa
     name: Deploy Controller
     secrets: inherit
