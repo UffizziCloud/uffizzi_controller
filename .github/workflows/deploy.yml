@@ -27,8 +27,6 @@ env:
 jobs:
   update-gke-controller:
     runs-on: ubuntu-latest
-    needs:
-      - update-gke-image 
     container: 
       image: ghcr.io/uffizzicloud/controller_toolbox:v2
     steps:
@@ -63,7 +61,6 @@ jobs:
 
   notify:
     needs:
-      - update-gke-image 
       - update-gke-controller
       - create-sentry-release
     if: ${{ always() }}
