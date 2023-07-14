@@ -67,7 +67,8 @@ jobs:
           repository: uffizzi/controller
   notify:
     needs:
-      - code-quality
+      - lint
+      - test
       - build-and-push-some-branches
     if: ${{ always() }}
     uses: ./.github/workflows/notify.yml
