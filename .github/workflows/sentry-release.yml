@@ -29,3 +29,4 @@ jobs:
           SENTRY_PROJECT: ${{ inputs.sentry_project }}
         with:
           environment: ${{ inputs.env }}
+          ignore_missing: true
