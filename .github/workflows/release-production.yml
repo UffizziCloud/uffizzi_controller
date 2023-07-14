@@ -11,11 +11,11 @@ permissions:
 
 jobs:
   code-quality:
-    needs:
-      - build-and-push-controller
     uses: ./.github/workflows/code-quality.yml
     name: Test and Lint
   build-and-push-controller:
+    needs:
+      - code-quality
     uses: ./.github/workflows/build-and-push-image.yml
     name: Build CI Image
     secrets: inherit
