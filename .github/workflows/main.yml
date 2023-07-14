@@ -7,38 +7,20 @@ on:
     types: [opened,synchronize,reopened]
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version: '1.20'
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: v1.51.2
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version: '1.20'
-      - name: Run tests
-        run: make test
+  code-quality:
+    name: Test and Lint
+    uses: ./.github/workflows/code-quality.yml
+
   build-and-push-image:
     needs:
-      - lint
-      - test
+      - code-quality
     if: ${{ github.event_name == 'pull_request' }}
     uses: ./.github/workflows/build-and-push-image.yml
     secrets: inherit
 
   notify:
     needs:
-      - lint
-      - test
+      - code-quality
       - build-and-push-image
     if: ${{ always() }}
     uses: ./.github/workflows/notify.yml

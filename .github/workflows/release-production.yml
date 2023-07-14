@@ -10,20 +10,19 @@ permissions:
   actions: 'read'
 
 jobs:
-  build-and-push-controller:
-    uses: ./.github/workflows/build-and-push-image.yml
-    name: Build CI Image
-    secrets: inherit
   code-quality:
     needs:
       - build-and-push-controller
     uses: ./.github/workflows/code-quality.yml
     name: Test and Lint
+  build-and-push-controller:
+    uses: ./.github/workflows/build-and-push-image.yml
+    name: Build CI Image
     secrets: inherit
   deploy:
     needs:
-      - build-and-push-controller
       - code-quality
+      - build-and-push-controller
     uses: ./.github/workflows/deploy.yml
     with:
       env: 'production'
