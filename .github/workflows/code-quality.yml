@@ -1,46 +1,23 @@
 on:
   workflow_call:
 jobs:
-  lint-controller:
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v0'
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
-          token_format: 'access_token'
-          workload_identity_provider: ${{ secrets.CI_IDENTITY_PROVIDER_LOCATION }}
-          service_account: ${{ secrets.CI_SERVICE_ACCOUNT_NAME }}
-      - name: Login to GCR
-        uses: docker/login-action@v2
+          go-version: '1.20'
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
         with:
-          registry: gcr.io
-          username: oauth2accesstoken
-          password: ${{ steps.auth.outputs.access_token }}
-      - name: Run linter
-        run: |
-          eval $(make image_names)
-          docker-compose -f docker-compose.ci.yml run --rm controller bash -c "make lint"
-  test-controller:
+          version: v1.51.2
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v0'
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
-          token_format: 'access_token'
-          workload_identity_provider: ${{ secrets.CI_IDENTITY_PROVIDER_LOCATION }}
-          service_account: ${{ secrets.CI_SERVICE_ACCOUNT_NAME }}
-      - name: Login to GCR
-        uses: docker/login-action@v2
-        with:
-          registry: gcr.io
-          username: oauth2accesstoken
-          password: ${{ steps.auth.outputs.access_token }}
+          go-version: '1.20'
       - name: Run tests
-        run: |
-          eval $(make image_names)
-          docker-compose -f docker-compose.ci.yml run --rm controller bash -c "make test"
+        run: make test
