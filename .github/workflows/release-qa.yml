@@ -10,25 +10,25 @@ permissions:
   actions: 'read'
 
 jobs:
-  build-and-push-controller:
-    uses: ./.github/workflows/build-and-push-ci.yml
-    name: Build CI Image
-    secrets: inherit
   code-quality:
-    needs:
-      - build-and-push-controller
     uses: ./.github/workflows/code-quality.yml
     name: Test and Lint
+  build-and-push-controller:
+    needs:
+      - code-quality
+    uses: ./.github/workflows/build-and-push-image.yml
+    name: Build Controller Image
     secrets: inherit
   deploy:
     needs:
-      - build-and-push-controller
       - code-quality
+      - build-and-push-controller
     uses: ./.github/workflows/deploy.yml
     with:
-      env: "qa"
-      project_id: "uffizzi-pro-qa-gke"
-      service_account_name: "QA_GKE_SERVICE_ACCOUNT_NAME"
-      workload_identity_provider_name: "QA_GKE_IDENTITY_PROVIDER"
+      env: 'qa'
+      project_id: 'uffizzi-pro-qa-gke'
+      service_account_name: 'QA_GKE_SERVICE_ACCOUNT_NAME'
+      workload_identity_provider_name: 'QA_GKE_IDENTITY_PROVIDER'
+      image_name: uffizzi/controller:qa
     name: Deploy Controller
     secrets: inherit
