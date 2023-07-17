@@ -19,7 +19,7 @@ jobs:
         with:
           images: uffizzi/controller
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.ref_name == 'main') }}
+            type=raw,value=latest,enable=${{ github.ref_name == 'main') }}
             type=ref,event=branch,enable=${{ github.ref_name == 'qa'}}
             type=ref,event=pr
       - name: Build and Push Image to Docker Hub
