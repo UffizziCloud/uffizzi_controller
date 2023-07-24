@@ -7,5 +7,6 @@ type Cluster struct {
 	Status    struct {
 		Ready      bool   `json:"ready"`
 		KubeConfig string `json:"kubeConfig"`
+		Host       string `json:"host"`
 	} `json:"status"`
 }

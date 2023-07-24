@@ -39,6 +39,7 @@ func (l *Logic) mapUffizziClusterToCluster(
 	}
 
 	cluster.Status.KubeConfig = base64.StdEncoding.EncodeToString(kubeConfigData)
+	cluster.Status.Host = *ufizziCluster.Status.Host
 
 	return cluster
 }
