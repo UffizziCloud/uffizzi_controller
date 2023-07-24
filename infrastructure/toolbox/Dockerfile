@@ -29,9 +29,20 @@ RUN echo "cryptography==3.3.2" > /tmp/requirements.txt \
     && pip3 install -U docker-compose -r /tmp/requirements.txt \
     && rm /tmp/requirements.txt
 
+RUN wget -O /usr/local/bin/semver \
+  https://raw.githubusercontent.com/fsaintjacques/semver-tool/master/src/semver \
+  && chmod +x /usr/local/bin/semver  
+
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl \
     && chmod +x ./kubectl \
     && mv ./kubectl /usr/local/bin/kubectl
+
+ARG HELM_VERSION=v3.12.2
+
+RUN wget https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz \
+    && tar -zxvf helm-${HELM_VERSION}-linux-amd64.tar.gz \
+    && mv ./linux-amd64/helm /usr/local/bin/helm \
+    && rm helm-${HELM_VERSION}-linux-amd64.tar.gz
 
 ARG CLOUD_SDK_VERSION=412.0.0
 
@@ -47,7 +58,6 @@ RUN apk --no-cache --update add curl python3 py-crcmod libc6-compat make less &&
     gcloud config set metrics/environment github_docker_image
 
 RUN pip3 install --upgrade awscli==1.19.41
-# RUN pip3 install azure-cli==2.27.1
 
 RUN curl -sL https://sentry.io/get-cli/ | bash
 
