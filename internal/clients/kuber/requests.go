@@ -12,7 +12,7 @@ import (
 	networkingV1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 )
 
 func initializeDeployment(
@@ -60,7 +60,7 @@ func initializeDeployment(
 							Hostnames: buildAllowedHostnames(containerList),
 						},
 					},
-					AutomountServiceAccountToken: pointer.Bool(false), // False. Security, DO NOT REMOVE
+					AutomountServiceAccountToken: ptr.To(false), // False. Security, DO NOT REMOVE
 				},
 			},
 		},

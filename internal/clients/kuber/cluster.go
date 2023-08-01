@@ -4,21 +4,20 @@ import (
 	"github.com/UffizziCloud/uffizzi-cluster-operator/api/v1alpha1"
 	clientsetUffizziClusterV1 "github.com/UffizziCloud/uffizzi-cluster-operator/clientset/v1alpha1"
 
+	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (client *Client) CreateCluster(
-	name string,
 	namespace string,
-	manifest string,
-	baseIngressHost string,
+	clusterParams domainTypes.ClusterParams,
 ) (*v1alpha1.UffizziCluster, error) {
 	clusterSpec := clientsetUffizziClusterV1.UffizziClusterProps{
-		Name: name,
+		Name: clusterParams.Name,
 		Spec: v1alpha1.UffizziClusterSpec{
-			Manifests: &manifest,
+			Manifests: &clusterParams.Manifest,
 			Ingress: v1alpha1.UffizziClusterIngress{
-				Host: baseIngressHost,
+				Host: clusterParams.BaseIngressHost,
 				Cluster: v1alpha1.VClusterIngressSpec{
 					IngressAnnotations: map[string]string{
 						"nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
@@ -27,6 +26,8 @@ func (client *Client) CreateCluster(
 					},
 				},
 			},
+			ResourceQuota: &clusterParams.ResourceSettings.ResourceQuota,
+			LimitRange:    &clusterParams.ResourceSettings.LimitRange,
 		},
 	}
 
