@@ -19,7 +19,7 @@ env:
   SENTRY_ORG: "${{ secrets.SENTRY_ORG }}"
   SENTRY_PROJECT: "${{ secrets.SENTRY_PROJECT }}"
   GCP_PROJECT_ID: "${{ inputs.project_id }}"
-  CONTROLLER_IMAGE: uffizzi-controller:${{ inputs.image_tag }}
+  CONTROLLER_IMAGE: uffizzi/controller:${{ inputs.image_tag }}
 
 jobs:
   update-gke-controller:
