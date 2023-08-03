@@ -19,6 +19,7 @@ env:
   SENTRY_ORG: "${{ secrets.SENTRY_ORG }}"
   SENTRY_PROJECT: "${{ secrets.SENTRY_PROJECT }}"
   GCP_PROJECT_ID: "${{ inputs.project_id }}"
+  CONTROLLER_IMAGE: uffizzi-controller:${{ inputs.image_tag }}
 
 jobs:
   update-gke-controller:
@@ -28,12 +29,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Package Helm Charts
-        run: |
-          helm dependency update $GITHUB_WORKSPACE/charts/uffizzi-controller
-          helm package $GITHUB_WORKSPACE/charts/uffizzi-controller
-          export VERSION=$(cat version)
-          echo CHART_PATH=$GITHUB_WORKSPACE/uffizzi-controller-${VERSION}.tgz >> $GITHUB_ENV
       - name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v0'
         with:
@@ -43,17 +38,14 @@ jobs:
         with:
           cluster_name: uffizzi-client
           location: us-central1
-      - name: Upgrade helm release on uffizzi-client
-        run: |
-          helm upgrade uffizzi ${{ env.CHART_PATH }} --install --wait --set=image=uffizzi-controller:${{ inputs.image_tag }} -n uffizzi
+      - name: Update image on uffizzi-client
+        run: make update_gke_controller_service
       - uses: 'google-github-actions/get-gke-credentials@v0'
         with:
           cluster_name: uffizzi-uclusters
           location: us-central1
       - name: Upgrade helm release on uffizzi-uclusters
-        run: |
-          helm upgrade uffizzi ${{ env.CHART_PATH }} --install --wait --set=image=uffizzi-controller:${{ inputs.image_tag }} -n uffizzi
-
+        run: make update_gke_controller_service
 
 # ----------- sentry release and notification -----------
 
