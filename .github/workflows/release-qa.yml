@@ -28,6 +28,5 @@ jobs:
       project_id: 'uffizzi-pro-qa-gke'
       service_account_name: 'QA_GKE_SERVICE_ACCOUNT_NAME'
       workload_identity_provider_name: 'QA_GKE_IDENTITY_PROVIDER'
-      image_tag: qa
     name: Deploy Controller
     secrets: inherit
