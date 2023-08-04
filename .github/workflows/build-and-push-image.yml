@@ -19,7 +19,7 @@ jobs:
         with:
           images: uffizzi/controller
           tags: |
-            type=raw,value=${{ github.sha }}
+            type=raw,value=${{ github.sha }},enable=${{ github.ref_name == 'main' ||  github.ref_name == 'qa'}}
             type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
             type=ref,event=branch,enable=${{ github.ref_name == 'qa' }}
             type=ref,event=pr
