@@ -179,8 +179,10 @@ func (l *Logic) MarkUnresponsiveContainersAsFailed(namespaceName string) error {
 			}
 		}
 
-		if networkConnectivityTemplate.Containers[key].Service.Status == networkConnectivity.StatusPending {
-			networkConnectivityTemplate.Containers[key].Service.Status = networkConnectivity.StatusFailed
+		if networkConnectivityTemplate.Containers[key].Service != nil {
+			if networkConnectivityTemplate.Containers[key].Service.Status == networkConnectivity.StatusPending {
+				networkConnectivityTemplate.Containers[key].Service.Status = networkConnectivity.StatusFailed
+			}
 		}
 	}
 

@@ -24,7 +24,7 @@ func (l *Logic) ResetNamespaceErrors(namespace *corev1.Namespace) (*corev1.Names
 }
 
 func (l *Logic) handleDomainDeploymentError(namespaceName string, domainErr error) error {
-	log.Printf("DomainError: %s", domainErr)
+	log.Printf("DomainError: %s, namespace: %s", domainErr, namespaceName)
 
 	err := l.MarkUnresponsiveContainersAsFailed(namespaceName)
 	if err != nil {

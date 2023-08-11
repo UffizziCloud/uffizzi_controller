@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/getsentry/sentry-go"
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/pkg/networks"
 	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 	appsv1 "k8s.io/api/apps/v1"
@@ -89,6 +90,7 @@ func (builder *IngressNetworkBuilder) Create() error {
 
 	service, err := domainLogic.KuberClient.CreateOrUpdateService(namespace, deploymentSelector, publicContainerList)
 	if err != nil {
+		sentry.CaptureException(fmt.Errorf("DomainError: %s, namespace: %s", err, namespace))
 		return err
 	}
 
