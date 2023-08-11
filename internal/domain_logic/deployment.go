@@ -1,10 +1,8 @@
 package domain
 
 import (
-	"fmt"
 	"log"
 
-	"github.com/getsentry/sentry-go"
 	"gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/global"
 	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 	corev1 "k8s.io/api/core/v1"
@@ -26,12 +24,9 @@ func (l *Logic) ResetNamespaceErrors(namespace *corev1.Namespace) (*corev1.Names
 }
 
 func (l *Logic) handleDomainDeploymentError(namespaceName string, domainErr error) error {
-	msg := fmt.Sprintf("DomainError: %s, namespace: %s", domainErr, namespaceName)
-	log.Println(msg)
-	err := fmt.Errorf(msg)
-	sentry.CaptureException(err)
+	log.Printf("DomainError: %s, namespace: %s", domainErr, namespaceName)
 
-	err = l.MarkUnresponsiveContainersAsFailed(namespaceName)
+	err := l.MarkUnresponsiveContainersAsFailed(namespaceName)
 	if err != nil {
 		return err
 	}
