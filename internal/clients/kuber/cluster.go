@@ -19,7 +19,6 @@ func (client *Client) CreateCluster(
 			Manifests: &manifest,
 			Ingress: v1alpha1.UffizziClusterIngress{
 				Host:  baseIngressHost,
-				Class: "nginx",
 				Cluster: v1alpha1.VClusterIngressSpec{
 					IngressAnnotations: map[string]string{
 						"nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
