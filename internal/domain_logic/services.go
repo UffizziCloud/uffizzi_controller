@@ -27,7 +27,7 @@ func (l *Logic) GetDefaultIngressService() (*v1.Service, error) {
 	// https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors/
 	services, err := l.KuberClient.GetServicesByLabel(
 		global.Settings.KubernetesNamespace,
-		"app.kubernetes.io/name=ingress-nginx",
+		"app.kubernetes.io/name=uffizzi",
 	)
 
 	if err != nil {
