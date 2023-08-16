@@ -44,7 +44,6 @@ metadata:
   name: uffizzi-controller
   namespace: uffizzi-controller
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt"
 spec:
   rules:
