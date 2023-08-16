@@ -82,7 +82,6 @@ func (client *Client) UpdateIngressAttributes(
 	deploymentHosts := []string{deploymentHost}
 	deploymentHosts = append(deploymentHosts, additionalHosts...)
 	tls := []networkingV1.IngressTLS{{Hosts: deploymentHosts}}
-	ingress.ObjectMeta.Annotations["kubernetes.io/ingress.class"] = "nginx"
 
 	var err error
 
