@@ -42,7 +42,7 @@ setup_gke_kube:
 	gcloud container clusters get-credentials ${CLUSTER_NAME} --region ${GCP_REGION}
 
 update_gke_controller_service:
-	kubectl set image deployment/uffizzi-controller -n uffizzi uffizzi-controller=${CONTROLLER_IMAGE}
+	kubectl set image deployment/uffizzi-controller -n uffizzi controller=${CONTROLLER_IMAGE}
 
 sentry_release:
 	sentry-cli releases new ${SHORT_VERSION}
