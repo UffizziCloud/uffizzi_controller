@@ -8,13 +8,8 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"github.com/gorilla/mux"
+	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 )
-
-type createClusterRequest struct {
-	Name            string `json:"name"`
-	Manifest        string `json:"manifest"`
-	BaseIngressHost string `json:"base_ingress_host"`
-}
 
 // @Description Create a cluster within a Namespace.
 // @Param namespace path string true "unique Uffizzi Namespace"
@@ -27,27 +22,24 @@ type createClusterRequest struct {
 func (h *Handlers) handleCreateCluster(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	var request createClusterRequest
+	var clusterParams domainTypes.ClusterParams
 
-	err := json.NewDecoder(r.Body).Decode(&request)
+	err := json.NewDecoder(r.Body).Decode(&clusterParams)
 	if err != nil {
 		handleError(err, w, r)
 		return
 	}
 
-	log.Printf("Decoded HTTP Request: %+v", request)
+	log.Printf("Decoded HTTP Request: %+v", clusterParams)
 
 	namespaceName := vars["namespace"]
-	name := request.Name
-	manifest := request.Manifest
-	baseIngressHost := request.BaseIngressHost
 
 	localHub := sentry.CurrentHub().Clone()
 	localHub.ConfigureScope(func(scope *sentry.Scope) {
 		scope.SetTag("namespace", fmt.Sprint(namespaceName))
 	})
 
-	cluster, err := domainLogic.CreateCluster(name, namespaceName, manifest, baseIngressHost)
+	cluster, err := domainLogic.CreateCluster(namespaceName, clusterParams)
 
 	if err != nil {
 		handleError(err, w, r)
