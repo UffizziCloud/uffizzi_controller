@@ -25,10 +25,8 @@ jobs:
       - build-and-push-controller
     uses: ./.github/workflows/deploy.yml
     with:
-      env: 'qa'
       project_id: 'uffizzi-pro-qa-gke'
       service_account_name: 'QA_GKE_SERVICE_ACCOUNT_NAME'
       workload_identity_provider_name: 'QA_GKE_IDENTITY_PROVIDER'
-      image_name: uffizzi/controller:qa
     name: Deploy Controller
     secrets: inherit

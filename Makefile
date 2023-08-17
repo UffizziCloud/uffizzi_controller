@@ -8,6 +8,11 @@ RED='\033[1;31m'
 CYAN='\033[1;36m'
 NO_COLOR='\033[0m'
 
+CURRENT_VERSION=$(cat version)
+NEXT_PATCH=$(shell docker-compose run --rm toolbox bash -c "semver bump patch $CURRENT_VERSION")
+NEXT_MINOR=$(shell docker-compose run --rm toolbox bash -c "semver bump minor $CURRENT_VERSION")
+NEXT_MAJOR=$(shell docker-compose run --rm toolbox bash -c "semver bump major $CURRENT_VERSION")
+
 # Development targets
 
 clean_world: destroy_shell build_shell up
@@ -44,11 +49,39 @@ setup_gke_kube:
 update_gke_controller_service:
 	kubectl set image deployment/uffizzi-controller -n uffizzi controller=${CONTROLLER_IMAGE}
 
-sentry_release:
-	sentry-cli releases new ${SHORT_VERSION}
-	sentry-cli releases set-commits --auto ${SHORT_VERSION} --ignore-missing
-	sentry-cli releases finalize ${SHORT_VERSION}
-	sentry-cli releases deploys ${SHORT_VERSION} new -e ${ENV}
-
 get_token:
 	gcloud config config-helper --format="value(credential.access_token)"
+
+version:
+	echo ${CURRENT_VERSION}
+
+release_patch: export NEW_VERSION=${NEXT_PATCH}
+release_patch:
+	make release
+
+release_minor: export NEW_VERSION=${NEXT_MINOR}
+release_minor:
+	make release
+
+release_major: export NEW_VERSION=${NEXT_MAJOR}
+release_major:
+	make release
+
+release:
+	git checkout develop
+	@echo 'Set a new version'
+	echo $NEW_VERSION > 'version'
+	@echo 'Set a new chart version'
+	sed -i 's/^\(version: \).*$/\1'"$NEW_VERSION"'/' ./charts/uffizzi-controller/Chart.yaml
+	git commit -am "Change version to ${NEW_VERSION}"
+	@echo 'Update remote origin'
+	git push origin develop
+	git checkout main
+	@echo 'Update remote origin'
+	git remote update
+	git pull origin --rebase main
+	git merge --no-ff --no-edit origin/develop
+	git push origin main
+	@echo 'Create a new tag'
+	git tag uffizzi-controller-${NEW_VERSION}
+	git push origin uffizzi-controller-${NEW_VERSION}
