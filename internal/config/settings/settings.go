@@ -37,6 +37,7 @@ type Settings struct {
 	IngressDefaultPort                    int                   `yaml:"ingress_default_port"`
 	PvcStorageClassName                   string                `yaml:"pvc_storage_class_name"`
 	DefaultIp                             string                `yaml:"default_ip"`
+	TlsPerDeploymentEnabled               bool                  `yaml:"tls_per_deployment_enabled"`
 }
 
 type ServiceChecksSettings struct {
