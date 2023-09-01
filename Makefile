@@ -74,13 +74,13 @@ release:
 	echo $(NEW_VERSION) > 'version'
 	@echo 'Set a new chart version'
 	sed 's/^\(version: \).*$$/\1$(NEW_VERSION)/' ./charts/uffizzi-controller/Chart.yaml > temp.yaml && mv temp.yaml ./charts/uffizzi-controller/Chart.yaml
-	# git push origin develop
-	# git checkout main
-	# @echo 'Update remote origin'
-	# git remote update
-	# git pull origin --rebase main
-	# git merge --no-ff --no-edit origin/develop
-	# git push origin main
-	# @echo 'Create a new tag'
-	# git tag uffizzi-controller-${NEW_VERSION}
-	# git push origin uffizzi-controller-${NEW_VERSION}
+	git push origin develop
+	git checkout main
+	@echo 'Update remote origin'
+	git remote update
+	git pull origin --rebase main
+	git merge --no-ff --no-edit origin/develop
+	git push origin main
+	@echo 'Create a new tag'
+	git tag uffizzi-controller-${NEW_VERSION}
+	git push origin uffizzi-controller-${NEW_VERSION}
