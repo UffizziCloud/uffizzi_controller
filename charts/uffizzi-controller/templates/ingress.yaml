@@ -1,3 +1,4 @@
+{{ if not .Values.ingress.disabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -20,3 +21,4 @@ spec:
   - hosts:
     - {{ .Values.ingress.hostname }}
     secretName: {{ .Values.ingress.hostname }}
+{{ end }}
