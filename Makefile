@@ -1,3 +1,4 @@
+.PHONY: release
 ifeq (${BRANCH},)
 BRANCH = $$(git rev-parse --abbrev-ref HEAD)
 endif
@@ -8,10 +9,10 @@ RED='\033[1;31m'
 CYAN='\033[1;36m'
 NO_COLOR='\033[0m'
 
-CURRENT_VERSION=$(cat version)
-NEXT_PATCH=$(shell docker-compose run --rm toolbox bash -c "semver bump patch $CURRENT_VERSION")
-NEXT_MINOR=$(shell docker-compose run --rm toolbox bash -c "semver bump minor $CURRENT_VERSION")
-NEXT_MAJOR=$(shell docker-compose run --rm toolbox bash -c "semver bump major $CURRENT_VERSION")
+CURRENT_VERSION := $(shell cat version)
+NEXT_PATCH := $(shell docker-compose run --rm toolbox bash -c 'CURRENT_VERSION=$(CURRENT_VERSION) && semver bump patch $$CURRENT_VERSION')
+NEXT_MINOR := $(shell docker-compose run --rm toolbox bash -c 'CURRENT_VERSION=$(CURRENT_VERSION) && semver bump minor $$CURRENT_VERSION')
+NEXT_MAJOR := $(shell docker-compose run --rm toolbox bash -c 'CURRENT_VERSION=$(CURRENT_VERSION) && semver bump major $$CURRENT_VERSION')
 
 # Development targets
 
@@ -69,19 +70,17 @@ release_major:
 
 release:
 	git checkout develop
-	@echo 'Set a new version'
-	echo $NEW_VERSION > 'version'
+	@echo "Bumping version from $(CURRENT_VERSION) to $(NEW_VERSION)"
+	echo $(NEW_VERSION) > 'version'
 	@echo 'Set a new chart version'
-	sed -i 's/^\(version: \).*$/\1'"$NEW_VERSION"'/' ./charts/uffizzi-controller/Chart.yaml
-	git commit -am "Change version to ${NEW_VERSION}"
-	@echo 'Update remote origin'
-	git push origin develop
-	git checkout main
-	@echo 'Update remote origin'
-	git remote update
-	git pull origin --rebase main
-	git merge --no-ff --no-edit origin/develop
-	git push origin main
-	@echo 'Create a new tag'
-	git tag uffizzi-controller-${NEW_VERSION}
-	git push origin uffizzi-controller-${NEW_VERSION}
+	sed 's/^\(version: \).*$$/\1$(NEW_VERSION)/' ./charts/uffizzi-controller/Chart.yaml > temp.yaml && mv temp.yaml ./charts/uffizzi-controller/Chart.yaml
+	# git push origin develop
+	# git checkout main
+	# @echo 'Update remote origin'
+	# git remote update
+	# git pull origin --rebase main
+	# git merge --no-ff --no-edit origin/develop
+	# git push origin main
+	# @echo 'Create a new tag'
+	# git tag uffizzi-controller-${NEW_VERSION}
+	# git push origin uffizzi-controller-${NEW_VERSION}
