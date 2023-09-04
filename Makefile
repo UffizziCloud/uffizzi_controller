@@ -74,6 +74,7 @@ release:
 	echo $(NEW_VERSION) > 'version'
 	@echo 'Set a new chart version'
 	sed 's/^\(version: \).*$$/\1$(NEW_VERSION)/' ./charts/uffizzi-controller/Chart.yaml > temp.yaml && mv temp.yaml ./charts/uffizzi-controller/Chart.yaml
+	git commit -am "Change version to $(NEW_VERSION)"
 	git push origin develop
 	git checkout main
 	@echo 'Update remote origin'
