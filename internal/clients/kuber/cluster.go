@@ -18,13 +18,6 @@ func (client *Client) CreateCluster(
 			Manifests: &clusterParams.Manifest,
 			Ingress: v1alpha1.UffizziClusterIngress{
 				Host: clusterParams.BaseIngressHost,
-				Cluster: v1alpha1.VClusterIngressSpec{
-					IngressAnnotations: map[string]string{
-						"nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
-						"nginx.ingress.kubernetes.io/ssl-passthrough":  "true",
-						"nginx.ingress.kubernetes.io/ssl-redirect":     "true",
-					},
-				},
 			},
 			ResourceQuota: &clusterParams.ResourceSettings.ResourceQuota,
 			LimitRange:    &clusterParams.ResourceSettings.LimitRange,
