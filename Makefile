@@ -9,6 +9,7 @@ RED='\033[1;31m'
 CYAN='\033[1;36m'
 NO_COLOR='\033[0m'
 
+QA_VERSION := $(shell date +%s | md5sum | head -c 20; echo;)
 CURRENT_VERSION := $(shell cat version)
 NEXT_PATCH := $(shell docker-compose run --rm toolbox bash -c 'CURRENT_VERSION=$(CURRENT_VERSION) && semver bump patch $$CURRENT_VERSION')
 NEXT_MINOR := $(shell docker-compose run --rm toolbox bash -c 'CURRENT_VERSION=$(CURRENT_VERSION) && semver bump minor $$CURRENT_VERSION')
@@ -58,22 +59,47 @@ version:
 
 release_patch: export NEW_VERSION=${NEXT_PATCH}
 release_patch:
-	make release
+	make release_controller
 
 release_minor: export NEW_VERSION=${NEXT_MINOR}
 release_minor:
-	make release
+	make release_controller
 
 release_major: export NEW_VERSION=${NEXT_MAJOR}
 release_major:
-	make release
+	make release_controller
 
-release:
+# make release_cluster_operator version=1.1.1
+release_cluster_operator: export NEW_VERSION=${NEXT_PATCH}
+release_cluster_operator:
+	git checkout develop
+	@echo "Bumping chart version from $(CURRENT_VERSION) to $(NEW_VERSION)"
+	@echo "New cluster operator version=$(version)"
+	echo $(NEW_VERSION) > 'version'
+	@ruby ./release_helper.rb update_cluster_operator_version --version $(version)
+	@ruby ./release_helper.rb update_controller_version --version $(NEW_VERSION)
+	make commit
+
+deploy_to_qa:
+	git checkout qa
+	@echo $(QA_VERSION) > 'version'
+	@ruby ./release_helper.rb update_chart_values_image_tag --version $(QA_VERSION)
+	git add .
+	git commit -m "New controller image tag $(QA_VERSION)"
+	git push origin qa
+
+release_controller:
 	git checkout develop
 	@echo "Bumping version from $(CURRENT_VERSION) to $(NEW_VERSION)"
 	echo $(NEW_VERSION) > 'version'
 	@echo 'Set a new chart version'
-	sed 's/^\(version: \).*$$/\1$(NEW_VERSION)/' ./charts/uffizzi-controller/Chart.yaml > temp.yaml && mv temp.yaml ./charts/uffizzi-controller/Chart.yaml
+	@ruby ./release_helper.rb update_controller_version --version $(NEW_VERSION)
+	make commit
+
+helm_upgrade:
+	helm upgrade uffizzi charts/uffizzi-controller --install --dependency-update --atomic --cleanup-on-fail --namespace uffizzi --reuse-values
+
+commit:
 	git commit -am "Change version to $(NEW_VERSION)"
 	git push origin develop
 	git checkout main
@@ -85,6 +111,3 @@ release:
 	@echo 'Create a new tag'
 	git tag uffizzi-controller-${NEW_VERSION}
 	git push origin uffizzi-controller-${NEW_VERSION}
-
-helm_upgrade:
-	helm upgrade uffizzi charts/uffizzi-controller --install --dependency-update --atomic --cleanup-on-fail --namespace uffizzi --reuse-values --set image=${CONTROLLER_IMAGE}
