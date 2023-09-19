@@ -27,7 +27,7 @@ base: &base
   sandbox_enabled: ${SANDBOX_ENABLED}
   ingress_default_port: 443
   pvc_storage_class_name: uffizzi-standard
-  enable_tls_per_deployment: ${TLS_PER_DEPLOYMENT_ENABLED}
+  tls_per_deployment_enabled: ${TLS_PER_DEPLOYMENT_ENABLED}
   service_checks:
     ip_ping_timeout: 1800s
     availability_timeout: 1800s
