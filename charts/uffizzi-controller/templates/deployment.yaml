@@ -15,8 +15,6 @@ spec:
       maxUnavailable: 25%
     type: RollingUpdate
   template:
-    annotations:
-      checksum/config: {{ include (print $.Template.BasePath "/controller-secret-env.yaml") . | sha256sum }}
     metadata:
       labels:
         app: {{ .Release.Name }}-controller
