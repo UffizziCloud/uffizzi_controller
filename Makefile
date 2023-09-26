@@ -9,8 +9,10 @@ RED='\033[1;31m'
 CYAN='\033[1;36m'
 NO_COLOR='\033[0m'
 
-QA_VERSION := $(shell date +%s | md5sum | head -c 20; echo;)
+QA_RANDOM_VERSION := $(shell date +%s | md5sum | head -c 20; echo;)
 CURRENT_VERSION := $(shell cat version)
+CURRENT_CONTROLLER_IMAGE := $(shell ruby ./release_helper.rb controller_image)
+CURRENT_CLUSTER_OPERATOR_IMAGE_TAG := $(shell ruby ./release_helper.rb cluster_operator_image_tag)
 NEXT_PATCH := $(shell docker-compose run --rm toolbox bash -c 'CURRENT_VERSION=$(CURRENT_VERSION) && semver bump patch $$CURRENT_VERSION')
 NEXT_MINOR := $(shell docker-compose run --rm toolbox bash -c 'CURRENT_VERSION=$(CURRENT_VERSION) && semver bump minor $$CURRENT_VERSION')
 NEXT_MAJOR := $(shell docker-compose run --rm toolbox bash -c 'CURRENT_VERSION=$(CURRENT_VERSION) && semver bump major $$CURRENT_VERSION')
@@ -82,10 +84,10 @@ release_cluster_operator:
 
 deploy_to_qa:
 	git checkout qa
-	@echo $(QA_VERSION) > 'version'
-	@ruby ./release_helper.rb update_chart_values_image_tag --version $(QA_VERSION)
+	@echo $(QA_RANDOM_VERSION) > 'version'
+	@ruby ./release_helper.rb update_chart_values_image_tag --version $(QA_RANDOM_VERSION)
 	git add .
-	git commit -m "New controller image tag $(QA_VERSION)"
+	git commit -m "New controller image tag $(QA_RANDOM_VERSION)"
 	git push origin qa
 
 release_controller:
@@ -97,7 +99,12 @@ release_controller:
 	make commit
 
 helm_upgrade:
-	helm upgrade uffizzi charts/uffizzi-controller --install --dependency-update --atomic --cleanup-on-fail --namespace uffizzi --reuse-values
+	helm upgrade uffizzi charts/uffizzi-controller --install --dependency-update --atomic --cleanup-on-fail --namespace uffizzi --reuse-values \
+		--set image="$(CURRENT_CONTROLLER_IMAGE)" --set uffizzi-cluster-operator.image.tag="$(CURRENT_CLUSTER_OPERATOR_IMAGE_TAG)"
+
+helm_upgrade_with_env:
+	helm upgrade uffizzi charts/uffizzi-controller --install --dependency-update --atomic --cleanup-on-fail --namespace uffizzi --reuse-values \
+		--set image="$(ENV_CONTROLLER_IMAGE)" --set uffizzi-cluster-operator.image.tag="$(ENV_CLUSTER_OPERATOR_IMAGE_TAG)"
 
 commit:
 	git commit -am "Change version to $(NEW_VERSION)"
