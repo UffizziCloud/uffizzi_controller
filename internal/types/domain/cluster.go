@@ -10,6 +10,7 @@ type Cluster struct {
 	UID       string `json:"uid"`
 	Status    struct {
 		Ready      bool   `json:"ready"`
+		Sleep      bool   `json:"sleep"`
 		KubeConfig string `json:"kubeConfig"`
 		Host       string `json:"host"`
 	} `json:"status"`
@@ -22,6 +23,13 @@ type ClusterParams struct {
 	ResourceSettings ClusterResourceSettings `json:"resource_settings"`
 	Distro           string                  `json:"distro"`
 	Image            string                  `json:"image"`
+}
+
+type PatchClusterParams struct {
+	Manifest         string                  `json:"manifest"`
+	BaseIngressHost  string                  `json:"base_ingress_host"`
+	ResourceSettings ClusterResourceSettings `json:"resource_settings"`
+	Sleep            bool                    `json:"sleep"`
 }
 
 type ClusterResourceSettings struct {

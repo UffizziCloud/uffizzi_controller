@@ -24,6 +24,7 @@ RUN apk add --no-cache \
 RUN pip3 install --upgrade pip
 RUN pip3 install "urllib3<1.25"
 RUN pip3 install pyrsistent==0.16.1
+RUN pip3 install "cython<3.0.0" wheel && pip install pyyaml==5.4.1 --no-build-isolation
 RUN pip3 install docker-compose
 RUN echo "cryptography==3.3.2" > /tmp/requirements.txt \
     && pip3 install -U docker-compose -r /tmp/requirements.txt \

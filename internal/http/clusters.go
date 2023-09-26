@@ -56,7 +56,7 @@ func (h *Handlers) handleCreateCluster(w http.ResponseWriter, r *http.Request) {
 // @Response 403 "Incorrect Token for HTTP Basic Auth"
 // @Security BasicAuth
 // @Produce plain
-// @Router /namespaces/{namespace}/cluster [get]
+// @Router /namespaces/{namespace}/cluster/{name} [get]
 func (h *Handlers) handleGetCluster(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -76,4 +76,43 @@ func (h *Handlers) handleGetCluster(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, r, http.StatusOK, cluster)
+}
+
+// @Description Update a virtual cluster within a Namespace.
+// @Param namespace path string true "unique Uffizzi Namespace"
+// @Param name path string true "Uffizzi Virtual Cluster Name"
+// @Success 200 "OK"
+// @Failure 500 "most errors including Not Found"
+// @Response 403 "Incorrect Token for HTTP Basic Auth"
+// @Security BasicAuth
+// @Produce plain
+// @Router /namespaces/{namespace}/cluster/{name} [put]
+func (h *Handlers) handlePatchCluster(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	namespaceName := vars["namespace"]
+	name := vars["name"]
+
+	localHub := sentry.CurrentHub().Clone()
+	localHub.ConfigureScope(func(scope *sentry.Scope) {
+		scope.SetTag("namespace", fmt.Sprint(namespaceName))
+	})
+
+	var patchClusterParams domainTypes.PatchClusterParams
+
+	err := json.NewDecoder(r.Body).Decode(&patchClusterParams)
+	if err != nil {
+		handleError(err, w, r)
+		return
+	}
+
+	log.Printf("Decoded HTTP Request: %+v", patchClusterParams)
+
+	err = domainLogic.PatchCluster(name, namespaceName, patchClusterParams)
+
+	if err != nil {
+		handleDomainError("domainLogic.PatchCluster", err, localHub)
+	}
+
+	respondWithJSON(w, r, http.StatusOK, nil)
 }
