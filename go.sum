@@ -66,6 +66,8 @@ github.com/UffizziCloud/uffizzi-cluster-operator v0.1.1 h1:clc9OS18kiICmHoqoQ/Sw
 github.com/UffizziCloud/uffizzi-cluster-operator v0.1.1/go.mod h1:jSyAkV5svJYybuvNpfxfZxsgNzeU8mR/iEBEm1TBoMk=
 github.com/UffizziCloud/uffizzi-cluster-operator v1.2.0 h1:HtjcIwo5Pa8Yu5jZob1yMhIRB5zAXsPRipt90O06qhE=
 github.com/UffizziCloud/uffizzi-cluster-operator v1.2.0/go.mod h1:jSyAkV5svJYybuvNpfxfZxsgNzeU8mR/iEBEm1TBoMk=
+github.com/UffizziCloud/uffizzi-cluster-operator v1.3.6 h1:O+0YkhxZ+RkGfIqjNDPFR6AoevezfpxOQ2/l8RoIGVM=
+github.com/UffizziCloud/uffizzi-cluster-operator v1.3.6/go.mod h1:jSyAkV5svJYybuvNpfxfZxsgNzeU8mR/iEBEm1TBoMk=
 github.com/a8m/envsubst v1.3.0 h1:GmXKmVssap0YtlU3E230W98RWtWCyIZzjtf1apWWyAg=
 github.com/a8m/envsubst v1.3.0/go.mod h1:MVUTQNGQ3tsjOOtKCNd+fl8RzhsXcDvvAEzkhGtlsbY=
 github.com/agiledragon/gomonkey/v2 v2.3.1 h1:k+UnUY0EMNYUFUAQVETGY9uUTxjMdnUkP0ARyJS1zzs=

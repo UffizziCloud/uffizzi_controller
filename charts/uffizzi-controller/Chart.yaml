@@ -37,7 +37,7 @@ maintainers:
     email: adam.vollrath@uffizzi.com
     url: https://github.com/axisofentropy
 icon: https://app.uffizzi.com/favicon.png
-appVersion: "2.2.7"
+appVersion: "2.2.8"
 deprecated: false
 annotations:
   # Use this annotation to indicate that this chart version is a pre-release.

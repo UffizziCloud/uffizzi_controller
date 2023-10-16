@@ -21,6 +21,10 @@ func (client *Client) CreateCluster(
 			},
 			ResourceQuota: &clusterParams.ResourceSettings.ResourceQuota,
 			LimitRange:    &clusterParams.ResourceSettings.LimitRange,
+			Distro:        clusterParams.Distro,
+			APIServer: v1alpha1.UffizziClusterAPIServer{
+				Image: clusterParams.Image,
+			},
 		},
 	}
 
