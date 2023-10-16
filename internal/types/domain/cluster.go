@@ -20,6 +20,8 @@ type ClusterParams struct {
 	Manifest         string                  `json:"manifest"`
 	BaseIngressHost  string                  `json:"base_ingress_host"`
 	ResourceSettings ClusterResourceSettings `json:"resource_settings"`
+	Distro           string                  `json:"distro"`
+	Image            string                  `json:"image"`
 }
 
 type ClusterResourceSettings struct {
