@@ -34,5 +34,6 @@ func drawRoutes(r *mux.Router, h *Handlers) {
 	r.HandleFunc("/namespaces/{namespace}/cluster", h.handleCreateCluster).Methods(http.MethodPost)
 	r.HandleFunc("/namespaces/{namespace}/cluster/{name}", h.handleGetCluster).Methods(http.MethodGet)
 	r.HandleFunc("/namespaces/{namespace}/ingresses", h.handleGetNamespaceIngresses).Methods(http.MethodGet)
+	r.HandleFunc("/namespaces/{namespace}/cluster/{name}", h.handlePatchCluster).Methods(http.MethodPatch)
 	r.PathPrefix("/docs/").Handler(httpSwagger.WrapHandler)
 }
