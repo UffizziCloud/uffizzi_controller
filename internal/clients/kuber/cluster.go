@@ -15,6 +15,7 @@ func (client *Client) CreateCluster(
 	clusterSpec := clientsetUffizziClusterV1.UffizziClusterProps{
 		Name: clusterParams.Name,
 		Spec: v1alpha1.UffizziClusterSpec{
+			Sleep:     false,
 			Manifests: &clusterParams.Manifest,
 			Ingress: v1alpha1.UffizziClusterIngress{
 				Host: clusterParams.BaseIngressHost,
@@ -29,6 +30,26 @@ func (client *Client) CreateCluster(
 	}
 
 	return client.uffizziClusterClient.UffizziClusterV1(namespace).Create(clusterSpec)
+}
+
+func (client *Client) PatchCluster(
+	clusterName string,
+	namespaceName string,
+	patchClusterParams domainTypes.PatchClusterParams,
+) error {
+	clusterSpec := clientsetUffizziClusterV1.PatchUffizziClusterProps{
+		Spec: v1alpha1.UffizziClusterSpec{
+			Manifests: &patchClusterParams.Manifest,
+			Ingress: v1alpha1.UffizziClusterIngress{
+				Host: patchClusterParams.BaseIngressHost,
+			},
+			ResourceQuota: &patchClusterParams.ResourceSettings.ResourceQuota,
+			LimitRange:    &patchClusterParams.ResourceSettings.LimitRange,
+			Sleep:         patchClusterParams.Sleep,
+		},
+	}
+
+	return client.uffizziClusterClient.UffizziClusterV1(namespaceName).Patch(clusterName, clusterSpec)
 }
 
 func (client *Client) GetCluster(

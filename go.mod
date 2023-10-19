@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962
-	github.com/UffizziCloud/uffizzi-cluster-operator v1.3.6
+	github.com/UffizziCloud/uffizzi-cluster-operator v1.3.7
 	github.com/a8m/envsubst v1.3.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
@@ -51,6 +51,7 @@ require (
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
