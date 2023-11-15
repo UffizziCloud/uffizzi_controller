@@ -14,11 +14,11 @@ cert-manager: # dependency
 
 ingress-nginx:
   controller:
-    enableAnnotationValidations: true
+    enableAnnotationValidations: true # CVE-2023-5043 CVE-2023-5044
     config:
       proxy-body-size: "100m"
       proxy-buffer-size: "128k"
-      strict-validate-path-type: true
+      strict-validate-path-type: true # CVE-2022-4886
     extraArgs:
       enable-ssl-passthrough: true
 
