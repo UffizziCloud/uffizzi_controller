@@ -14,9 +14,11 @@ cert-manager: # dependency
 
 ingress-nginx:
   controller:
+    enableAnnotationValidations: true
     config:
       proxy-body-size: "100m"
       proxy-buffer-size: "128k"
+      strict-validate-path-type: true
     extraArgs:
       enable-ssl-passthrough: true
 
