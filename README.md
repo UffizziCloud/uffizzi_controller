@@ -1,40 +1,30 @@
 # Uffizzi Resource Controller  
 
-**A smart proxy service that handles requests from [Uffizzi App](https://github.com/UffizziCloud/uffizzi_app) to the Kubernetes API**
+**A smart proxy service that handles requests from [Uffizzi API](https://github.com/UffizziCloud/uffizzi) to the Kubernetes API**
 
-This application connects to a Kubernetes (k8s) Cluster to provision Uffizzi users' preview deployment workloads on their behalf.
-While it provides a documented REST API for anyone to use, it's most valuable when used with the open-source [`uffizzi_app`](https://github.com/UffizziCloud/uffizzi_app).  
+This application connects to a Kubernetes cluster to provision users' ephemeral environments (deployment workloads) on their behalf.
+While it provides a documented REST API for anyone to use, it's designed to be used with the open-source Uffizzi API ([`uffizzi`](https://github.com/UffizziCloud/uffizzi)).
 
-## Uffizzi Overview
+## Installing Uffizzi Platform
 
-Uffizzi is the Full-stack Previews Engine that makes it easy for your team to preview code changes before merging—whether frontend, backend or microservice. Define your full-stack apps with a familiar syntax based on Docker Compose, then Uffizzi will create on-demand test environments when you open pull requests or build new images. Preview URLs are updated when there’s a new commit, so your team can catch issues early, iterate quickly, and accelerate your release cycles.  
+To install the open-sourece version of Uffizzi, which includes this controller, see the [official documentation](https://docs.uffizzi.com/open-source).
 
-## Getting started with Uffizzi  
+## Uffizzi Architecture Overview
 
-The fastest and easiest way to get started with Uffizzi is via the fully hosted version available at https://uffizzi.com, which includes free plans for small teams and qualifying open-source projects.  
+For a detailed overview of Uffizzi architecture, see the [official documenation](https://docs.uffizzi.com/architecture/overview).
 
-Alternatively, you can self-host Uffizzi via the open-source repositories available here on GitHub. The remainder of this README is intended for users interested in self-hosting Uffizzi or for those who are just curious about how Uffizzi works.
+Uffizzi consists of the following required components:  
 
-## Uffizzi Architecture  
-
-Uffizzi consists of the following components:  
-
-* [Uffizzi App](https://github.com/UffizziCloud/uffizzi_app) - The primary REST API for creating and managing Previews  
-* Uffizzi Controller (this repository) - A smart proxy service that handles requests from Uffizzi App to the Kubernetes API  
-* [Uffizzi CLI](https://github.com/UffizziCloud/uffizzi_cli) - A command-line interface for Uffizzi App     
-* [Uffizzi Dashboard](https://app.uffizzi.com) - A graphical user interface for Uffizzi App (not available for self-hosting)
-
-To host Uffizzi yourself, you will also need the following external dependencies:  
-
- * Kubernetes (k8s) cluster  
- * Postgres database  
- * Redis cache  
+* [Uffizzi API](https://github.com/UffizziCloud/uffizzi) - The primary REST API for creating and managing Uffizzi environments  
+* Uffizzi Controller (this repository) - A smart proxy service that handles requests from Uffizzi API to the Kubernetes API
+* [Uffizzi Cluster Operator](https://github.com/UffizziCloud/uffizzi-cluster-operator) - A Kubernetes operator for managing virtual clusters
+* [Uffizzi CLI](https://github.com/UffizziCloud/uffizzi_cli) - A command-line interface for Uffizzi API
 
 ## Controller Design  
 
-This `uffizzi_controller` acts as a smart and secure proxy for [`uffizzi_app`](https://github.com/UffizziCloud/uffizzi_app) and is designed to restrict required access to the k8s cluster. It accepts authenticated instructions from other Uffizzi components, then specifies Resources within the cluster's control API. It is implemented in Golang to leverage the best officially-supported Kubernetes API client.
+This `uffizzi_controller` acts as a smart and secure proxy for [`uffizzi`](https://github.com/UffizziCloud/uffizzi) and is designed to restrict required access to the k8s cluster. It accepts authenticated instructions from other Uffizzi components, then specifies Resources within the cluster's control API. It is implemented in Golang to leverage the best officially-supported Kubernetes API client.
 
-The controller is required as a uffizzi_app supporting service and serves these purposes:
+The controller is required as a `uffizzi` supporting service and serves these purposes:
 1. Communicate deployment instructions via native Golang API client to the designated Kubernetes cluster(s) from the Uffizzi interface
 2. Provide Kubernetes cluster information back to the Uffizzi interface
 3. Support restricted and secure connection between the Uffizzi interface and the Kubernetes cluster
