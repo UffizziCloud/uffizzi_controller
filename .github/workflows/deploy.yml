@@ -37,6 +37,7 @@ jobs:
           location: us-central1
       - name: Update image on uffizzi-client
         run: |
+          export CONTROLLER_IMAGE=uffizzi/controller:${{ github.sha }}
           make helm_upgrade
       - name: Login to uffizzi-uclusters (vclusters)
         uses: 'google-github-actions/get-gke-credentials@v0'
@@ -45,6 +46,7 @@ jobs:
           location: us-central1
       - name: Upgrade helm release on uffizzi-uclusters
         run: |
+          export CONTROLLER_IMAGE=uffizzi/controller:${{ github.sha }}
           make helm_upgrade
 
 # ----------- sentry release and notification -----------

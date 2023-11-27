@@ -13,17 +13,15 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Extract version
-        id: get_version
-        run: echo "version=$(cat version)" >> $GITHUB_OUTPUT
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@v3
         with:
           images: uffizzi/controller
           tags: |
-            type=raw,value=${{ steps.get_version.outputs.version }},enable=${{ github.ref_name == 'main' ||  github.ref_name == 'qa'}}
+            type=raw,value=${{ github.sha }},enable=${{ github.ref_name == 'main' ||  github.ref_name == 'qa'}}
             type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
+            type=ref,event=branch,enable=${{ github.ref_name == 'qa' }}
             type=ref,event=pr
       - name: Build and Push Image to Docker Hub
         uses: docker/build-push-action@v2
