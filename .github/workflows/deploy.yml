@@ -20,7 +20,7 @@ env:
 jobs:
   update-gke-controller:
     runs-on: ubuntu-latest
-    container:
+    container: 
       image: ghcr.io/uffizzicloud/controller_toolbox:v3
     steps:
       - name: Checkout
@@ -30,24 +30,22 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets[inputs.workload_identity_provider_name] }}
           service_account: ${{ secrets[inputs.service_account_name] }}
-      - name: Login to uffizzi-client (deployments)
-        uses: 'google-github-actions/get-gke-credentials@v0'
+      - uses: 'google-github-actions/get-gke-credentials@v0'
         with:
           cluster_name: uffizzi-client
           location: us-central1
       - name: Update image on uffizzi-client
         run: |
           export CONTROLLER_IMAGE=uffizzi/controller:${{ github.sha }}
-          make helm_upgrade
-      - name: Login to uffizzi-uclusters (vclusters)
-        uses: 'google-github-actions/get-gke-credentials@v0'
+          make update_gke_controller_service
+      - uses: 'google-github-actions/get-gke-credentials@v0'
         with:
           cluster_name: uffizzi-uclusters
           location: us-central1
       - name: Upgrade helm release on uffizzi-uclusters
         run: |
           export CONTROLLER_IMAGE=uffizzi/controller:${{ github.sha }}
-          make helm_upgrade
+          make update_gke_controller_service
 
 # ----------- sentry release and notification -----------
 
