@@ -85,6 +85,3 @@ release:
 	@echo 'Create a new tag'
 	git tag uffizzi-controller-${NEW_VERSION}
 	git push origin uffizzi-controller-${NEW_VERSION}
-
-helm_upgrade:
-	helm upgrade uffizzi charts/uffizzi-controller --install --dependency-update --atomic --cleanup-on-fail --namespace uffizzi --reuse-values --set image=${CONTROLLER_IMAGE}
