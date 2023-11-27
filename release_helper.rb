@@ -38,18 +38,6 @@ def update_chart_values_image_tag_command(options)
   save_chart_values(chart_values)
 end
 
-def controller_image_command(_options)
-  chart_values = load_chart_values
-  puts chart_values['image']
-end
-
-def cluster_operator_image_tag_command(_options)
-  chart = load_chart
-  puts chart['dependencies']
-    .detect { |d| d['name'] == CLUSTER_OPERATOR_DEPENDENCY_NAME }
-    .fetch('version')
-end
-
 def load_chart
   YAML.safe_load(File.read(CHART_PATH))
 end
