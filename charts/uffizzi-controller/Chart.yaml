@@ -1,7 +1,7 @@
 ---
 apiVersion: v2
 name: uffizzi-controller
-version: 2.3.1
+version: 2.2.9
 kubeVersion: ">= 1.21.6-0"
 description: A smart proxy service that handles requests from Uffizzi App to the Kubernetes
   API - 1 of 3 services (controller, uffizzi_app, uffizzi_cli) that comprise the uffizzi
@@ -40,7 +40,7 @@ maintainers:
   email: adam.vollrath@uffizzi.com
   url: https://github.com/axisofentropy
 icon: https://app.uffizzi.com/favicon.png
-appVersion: 2.3.1
+appVersion: 2.2.9
 deprecated: false
 annotations:
   artifacthub.io/prerelease: 'false'
