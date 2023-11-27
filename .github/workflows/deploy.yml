@@ -25,49 +25,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Build image versions
-        uses: addnab/docker-run-action@v3
-        with:
-          image: ruby:latest
-          options: -v ${{ github.workspace }}:/app
-          run: |
-            echo $(ruby /app/release_helper.rb controller_image) >> /app/controller_image.txt
-            echo $(ruby /app/release_helper.rb cluster_operator_image_tag) >> /app/cluster_operator_image_tag.txt
-      - name: Get image versions
-        id: get_image_versions
-        run: |
-          echo "controller_image=$(cat controller_image.txt)" >> "$GITHUB_OUTPUT"
-          echo "cluster_operator_image_tag=$(cat cluster_operator_image_tag.txt)" >> "$GITHUB_OUTPUT"
       - name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v0'
         with:
           workload_identity_provider: ${{ secrets[inputs.workload_identity_provider_name] }}
           service_account: ${{ secrets[inputs.service_account_name] }}
-
       - name: Login to uffizzi-client (deployments)
         uses: 'google-github-actions/get-gke-credentials@v0'
         with:
           cluster_name: uffizzi-client
           location: us-central1
       - name: Update image on uffizzi-client
-        env:
-          ENV_CONTROLLER_IMAGE: ${{ steps.get_image_versions.outputs.controller_image }}
-          ENV_CLUSTER_OPERATOR_IMAGE_TAG: ${{ steps.get_image_versions.outputs.cluster_operator_image_tag }}
         run: |
-          make helm_upgrade_with_env
-
-      # Uncomment after success test uffizzi-client
-      # - name: Login to uffizzi-uclusters (vclusters)
-      #   uses: 'google-github-actions/get-gke-credentials@v0'
-      #   with:
-      #     cluster_name: uffizzi-uclusters
-      #     location: us-central1
-      # - name: Upgrade helm release on uffizzi-uclusters
-      #   env:
-      #     ENV_CONTROLLER_IMAGE: ${{ steps.get_image_versions.outputs.controller_image }}
-      #     ENV_CLUSTER_OPERATOR_IMAGE_TAG: ${{ steps.get_image_versions.outputs.cluster_operator_image_tag }}
-      #   run: |
-      #     make helm_upgrade_with_env
+          make helm_upgrade
+      - name: Login to uffizzi-uclusters (vclusters)
+        uses: 'google-github-actions/get-gke-credentials@v0'
+        with:
+          cluster_name: uffizzi-uclusters
+          location: us-central1
+      - name: Upgrade helm release on uffizzi-uclusters
+        run: |
+          make helm_upgrade
 
 # ----------- sentry release and notification -----------
 
