@@ -1,41 +1,29 @@
-# Default values for uffizzi-controller.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
+---
 global:
   uffizzi:
     controller:
       username: username
       password: ChangeMeNow
-
-cert-manager: # dependency
+cert-manager:
   enabled: true
   installCRDs: true
-
 ingress-nginx:
   controller:
     enableAnnotationValidations: true
     config:
-      proxy-body-size: "100m"
-      proxy-buffer-size: "128k"
+      proxy-body-size: 100m
+      proxy-buffer-size: 128k
       strict-validate-path-type: true
     extraArgs:
       enable-ssl-passthrough: true
-
-certEmail: "user@example.com"
-
-clusterIssuer: "letsencrypt"
-
-image: uffizzi/controller:latest
-
+certEmail: user@example.com
+clusterIssuer: letsencrypt
+image: uffizzi/controller:2.2.9
 ingress:
   hostname: controller.uffizzi.example.com
-
 zerossl:
   eab:
     hmacKey: foo
     keyId: bar
-
-env: "production"
-
-sandbox: "false"
+env: production
+sandbox: 'false'
