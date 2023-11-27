@@ -1,46 +1,45 @@
----
 apiVersion: v2
 name: uffizzi-controller
-version: 2.2.9
-kubeVersion: ">= 1.21.6-0"
-description: A smart proxy service that handles requests from Uffizzi App to the Kubernetes
-  API - 1 of 3 services (controller, uffizzi_app, uffizzi_cli) that comprise the uffizzi
-  full-stack previews engine which automates trigger-based on-demand preview environments
+version: 2.3.0
+kubeVersion: ">= 1.21.6-0" # https://issuetracker.google.com/issues/77503699
+description: "A smart proxy service that handles requests from Uffizzi App to the Kubernetes API - 1 of 3 services (controller, uffizzi_app, uffizzi_cli) that comprise the uffizzi full-stack previews engine which automates trigger-based on-demand preview environments"
 type: application
 keywords:
-- devops
-- uffizzi
-- continuous-previews
-- ephemeral
-- environments
-- pull-request
-- merge-request
-- on-demand
-- ci
-- cd
+  - devops
+  - uffizzi
+  - continuous-previews
+  - ephemeral
+  - environments
+  - pull-request
+  - merge-request
+  - on-demand
+  - ci
+  - cd
 home: https://uffizzi.com/
 sources:
-- https://github.com/UffizziCloud/uffizzi_controller
-- https://gitlab.com/dualbootpartners/idyl/uffizzi_controller
+  - https://github.com/UffizziCloud/uffizzi_controller
+  - https://gitlab.com/dualbootpartners/idyl/uffizzi_controller
 dependencies:
-- name: ingress-nginx
-  version: 4.x.x
-  repository: https://kubernetes.github.io/ingress-nginx
-- name: cert-manager
-  version: 1.x.x
-  repository: https://charts.jetstack.io
-- name: uffizzi-cluster-operator
-  version: 1.5.0
-  repository: https://uffizzicloud.github.io/uffizzi-cluster-operator/
+  - name: ingress-nginx
+    version: "4.x.x"
+    repository: https://kubernetes.github.io/ingress-nginx
+  - name: cert-manager
+    version: "1.x.x"
+    repository: https://charts.jetstack.io
+  - name: uffizzi-cluster-operator
+    version: "1.5.0"
+    repository: https://uffizzicloud.github.io/uffizzi-cluster-operator/
 maintainers:
-- name: Uffizzi
-  email: info@uffizzi.com
-  url: https://uffizzi.com
-- name: Adam Vollrath
-  email: adam.vollrath@uffizzi.com
-  url: https://github.com/axisofentropy
+  - name: Uffizzi
+    email: info@uffizzi.com
+    url: https://uffizzi.com
+  - name: Adam Vollrath
+    email: adam.vollrath@uffizzi.com
+    url: https://github.com/axisofentropy
 icon: https://app.uffizzi.com/favicon.png
-appVersion: 2.2.9
+appVersion: "2.2.9"
 deprecated: false
 annotations:
-  artifacthub.io/prerelease: 'false'
+  # Use this annotation to indicate that this chart version is a pre-release.
+  # https://artifacthub.io/docs/topics/annotations/helm/
+  artifacthub.io/prerelease: "false"
