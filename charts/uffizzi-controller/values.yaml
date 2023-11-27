@@ -18,7 +18,7 @@ ingress-nginx:
       enable-ssl-passthrough: true
 certEmail: user@example.com
 clusterIssuer: letsencrypt
-image: uffizzi/controller:2.3.1
+image: uffizzi/controller:2.2.9
 ingress:
   hostname: controller.uffizzi.example.com
 zerossl:
