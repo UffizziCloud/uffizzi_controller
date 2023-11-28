@@ -7,7 +7,7 @@ While it provides a documented REST API for anyone to use, it's designed to be u
 
 ## Installing Uffizzi Platform
 
-To install the open-sourece version of Uffizzi, which includes this controller, see the [official documentation](https://docs.uffizzi.com/open-source).
+To install the open-source version of Uffizzi, which includes this controller, see the [official documentation](https://docs.uffizzi.com/open-source).
 
 ## Uffizzi Architecture Overview
 

@@ -26,6 +26,7 @@ func (client *Client) CreateCluster(
 			APIServer: v1alpha1.UffizziClusterAPIServer{
 				Image: clusterParams.Image,
 			},
+			ExternalDatastore: clusterParams.ExternalDatastore,
 		},
 	}
 
