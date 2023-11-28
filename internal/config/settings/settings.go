@@ -32,6 +32,7 @@ type Settings struct {
 	StartupProbeFailureThreshold          int32                 `yaml:"startup_probe_failure_threshold"`
 	StartupProbePeriodSettings            int32                 `yaml:"startup_probe_period_seconds"`
 	SandboxEnabled                        bool                  `yaml:"sandbox_enabled"`
+	TlsPerDeploymentEnabled               bool                  `yaml:"tls_per_deployment_enabled"`
 	CertManagerClusterIssuer              string                `yaml:"cert_manager_cluster_issuer"`
 	EphemeralStorageCoefficient           float64               `yaml:"ephemeral_storage_coefficient"`
 	IngressDefaultPort                    int                   `yaml:"ingress_default_port"`

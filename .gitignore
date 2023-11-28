@@ -1,5 +1,6 @@
 /.idea
 credentials/
+tmp/
 .devcontainer.json
 .devcontainer
 .swp

@@ -93,9 +93,11 @@ func (client *Client) UpdateIngressAttributes(
 		return nil, err
 	}
 
-	if len(additionalHosts) > 0 {
+	if global.Settings.TlsPerDeploymentEnabled || len(additionalHosts) > 0 {
 		ingress.ObjectMeta.Annotations["cert-manager.io/cluster-issuer"] = global.Settings.CertManagerClusterIssuer
+	}
 
+	if len(additionalHosts) > 0 || global.Settings.TlsPerDeploymentEnabled {
 		tls = []networkingV1.IngressTLS{
 			{Hosts: deploymentHosts, SecretName: deploymentHost},
 		}
