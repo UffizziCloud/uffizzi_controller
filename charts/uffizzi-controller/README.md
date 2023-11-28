@@ -2,6 +2,7 @@
 
 This chart installs the Kubernetes Controller for [Uffizzi](https://uffizzi.com), the continuous previews application. This is just a standard open-source Uffizzi setup.
 
+
 ### Dependencies
 
 This chart depends upon two subcharts:
