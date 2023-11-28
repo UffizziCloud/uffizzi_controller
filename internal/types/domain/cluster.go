@@ -17,12 +17,13 @@ type Cluster struct {
 }
 
 type ClusterParams struct {
-	Name             string                  `json:"name"`
-	Manifest         string                  `json:"manifest"`
-	BaseIngressHost  string                  `json:"base_ingress_host"`
-	ResourceSettings ClusterResourceSettings `json:"resource_settings"`
-	Distro           string                  `json:"distro"`
-	Image            string                  `json:"image"`
+	Name              string                  `json:"name"`
+	Manifest          string                  `json:"manifest"`
+	BaseIngressHost   string                  `json:"base_ingress_host"`
+	ResourceSettings  ClusterResourceSettings `json:"resource_settings"`
+	Distro            string                  `json:"distro"`
+	Image             string                  `json:"image"`
+	ExternalDatastore string                  `json:"datastore"`
 }
 
 type PatchClusterParams struct {
