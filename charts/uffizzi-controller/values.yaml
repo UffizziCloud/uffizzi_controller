@@ -26,7 +26,7 @@ certEmail: "user@example.com"
 
 clusterIssuer: "letsencrypt"
 
-image: uffizzi/controller:pr-102
+image: uffizzi/controller:latest
 
 ingress:
   hostname: controller.uffizzi.example.com
