@@ -13,7 +13,8 @@ func (client *Client) CreateCluster(
 	clusterParams domainTypes.ClusterParams,
 ) (*v1alpha1.UffizziCluster, error) {
 	clusterSpec := clientsetUffizziClusterV1.UffizziClusterProps{
-		Name: clusterParams.Name,
+		Name:      clusterParams.Name,
+		AutoSleep: clusterParams.AutoSleep,
 		Spec: v1alpha1.UffizziClusterSpec{
 			Sleep:     false,
 			Manifests: &clusterParams.Manifest,

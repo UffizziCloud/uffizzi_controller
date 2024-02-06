@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962
-	github.com/UffizziCloud/uffizzi-cluster-operator v1.3.7
+	github.com/UffizziCloud/uffizzi-cluster-operator v1.5.3-0.20240206171757-610edef830f5
 	github.com/a8m/envsubst v1.3.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
