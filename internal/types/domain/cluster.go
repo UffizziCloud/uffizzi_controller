@@ -23,7 +23,7 @@ type ClusterParams struct {
 	ResourceSettings ClusterResourceSettings `json:"resource_settings"`
 	Distro           string                  `json:"distro"`
 	Image            string                  `json:"image"`
-	AutoSleep        string                  `json:"auto_sleep,omitempty"`
+	AutoSleep        bool                    `json:"auto_sleep,omitempty"`
 }
 
 type PatchClusterParams struct {
