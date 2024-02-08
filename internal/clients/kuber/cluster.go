@@ -1,6 +1,8 @@
 package kuber
 
 import (
+	"strconv"
+
 	"github.com/UffizziCloud/uffizzi-cluster-operator/api/v1alpha1"
 	clientsetUffizziClusterV1 "github.com/UffizziCloud/uffizzi-cluster-operator/clientset/v1alpha1"
 
@@ -12,8 +14,13 @@ func (client *Client) CreateCluster(
 	namespace string,
 	clusterParams domainTypes.ClusterParams,
 ) (*v1alpha1.UffizziCluster, error) {
+	autoSleep := strconv.FormatBool(clusterParams.AutoSleep)
+
 	clusterSpec := clientsetUffizziClusterV1.UffizziClusterProps{
 		Name: clusterParams.Name,
+		Annotations: map[string]string{
+			"enterprise.uffizzi.com/http-cluster-sleep": autoSleep,
+		},
 		Spec: v1alpha1.UffizziClusterSpec{
 			Sleep:     false,
 			Manifests: &clusterParams.Manifest,
