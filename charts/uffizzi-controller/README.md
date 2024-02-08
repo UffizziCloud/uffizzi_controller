@@ -72,12 +72,18 @@ helm list --namespace uffizzi-controller
 
 ### Troubleshooting
 
+#### Flux
+
 When installing this chart, you may see errors like this:
 ```
 clusterroles.rbac.authorization.k8s.io "my-uffizzi-controller-flux-default-source-controller-helmchart" already exists
 ```
 
 This happens when more than one resource within a dependency chart (in this case `flux`) has a very long name truncated into the same name as another resource. To avoid this, use shorter release names as in the example above.
+
+#### cert-manager
+
+Check the cert-manager project's documentation for compatibility with many cloud Kubernetes providers, including private GKE clusters, GKE Autopilot, and AWS EKS: https://cert-manager.io/docs/installation/compatibility/
 
 ## More Info
 
