@@ -13,12 +13,11 @@ linters:
     - gofmt
     - gocognit
     - goimports
-    - maligned
     - misspell
     - unparam
     - dogsled
     - nakedret
-    - scopelint
+    - exportloopref
     - gocritic
     - goprintffuncname
     - gomnd

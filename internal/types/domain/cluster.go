@@ -24,6 +24,7 @@ type ClusterParams struct {
 	Distro           string                  `json:"distro"`
 	Image            string                  `json:"image"`
 	AutoSleep        bool                    `json:"auto_sleep,omitempty"`
+	Provider         string                  `json:"provider,omitempty"`
 }
 
 type PatchClusterParams struct {
