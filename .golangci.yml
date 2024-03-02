@@ -13,6 +13,7 @@ linters:
     - gofmt
     - gocognit
     - goimports
+    - maligned
     - misspell
     - unparam
     - dogsled
