@@ -27,10 +27,10 @@ func (client *Client) CreateCluster(
 			Ingress: v1alpha1.UffizziClusterIngress{
 				Host: clusterParams.BaseIngressHost,
 			},
-			ResourceQuota: &clusterParams.ResourceSettings.ResourceQuota,
-			LimitRange:    &clusterParams.ResourceSettings.LimitRange,
-			Distro:        clusterParams.Distro,
-			// NodeSelector:  clusterParams.NodeSelector,
+			ResourceQuota:        &clusterParams.ResourceSettings.ResourceQuota,
+			LimitRange:           &clusterParams.ResourceSettings.LimitRange,
+			Distro:               clusterParams.Distro,
+			NodeSelectorTemplate: clusterParams.NodeSelectorTemplate,
 			APIServer: v1alpha1.UffizziClusterAPIServer{
 				Image: clusterParams.Image,
 			},
