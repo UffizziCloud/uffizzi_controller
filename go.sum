@@ -59,6 +59,7 @@ github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdko
 github.com/Shopify/goreferrer v0.0.0-20181106222321-ec9c9a553398/go.mod h1:a1uqRtAwp2Xwc6WNPJEufxJ7fx3npB4UV/JOLmbu5I0=
 github.com/UffizziCloud/uffizzi-cluster-operator v1.5.6-0.20240221174534-4f8d22fe6193 h1:71Jm74lBZ6LSlDStt//CAKlseA9us2lW/vggYuFW/C8=
 github.com/UffizziCloud/uffizzi-cluster-operator v1.5.6-0.20240221174534-4f8d22fe6193/go.mod h1:jSyAkV5svJYybuvNpfxfZxsgNzeU8mR/iEBEm1TBoMk=
+github.com/UffizziCloud/uffizzi-cluster-operator v1.6.4/go.mod h1:m2PAXCDJ9EZlArDOSpnDIqNC7eZhjcWrEQbun7wxO2E=
 github.com/a8m/envsubst v1.3.0 h1:GmXKmVssap0YtlU3E230W98RWtWCyIZzjtf1apWWyAg=
 github.com/a8m/envsubst v1.3.0/go.mod h1:MVUTQNGQ3tsjOOtKCNd+fl8RzhsXcDvvAEzkhGtlsbY=
 github.com/agiledragon/gomonkey/v2 v2.3.1 h1:k+UnUY0EMNYUFUAQVETGY9uUTxjMdnUkP0ARyJS1zzs=
