@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/UffizziCloud/uffizzi-cluster-operator/api/v1alpha1"
+	"github.com/UffizziCloud/uffizzi-cluster-operator/src/api/v1alpha1"
 )
 
 type Cluster struct {
