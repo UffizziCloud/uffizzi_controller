@@ -38,7 +38,7 @@ jobs:
         run: |
           export CONTROLLER_IMAGE=uffizzi/controller:${{ github.sha }}
           make update_gke_controller_service
-      - uses: 'google-github-actions/get-gke-credentials@v0'
+      - uses: 'google-github-actions/get-gke-credentials@v2'
         with:
           cluster_name: uffizzi-uclusters
           location: us-central1
