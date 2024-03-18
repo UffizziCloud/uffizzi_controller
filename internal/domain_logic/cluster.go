@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/UffizziCloud/uffizzi-cluster-operator/api/v1alpha1"
+	"github.com/UffizziCloud/uffizzi-cluster-operator/src/api/v1alpha1"
 	types "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

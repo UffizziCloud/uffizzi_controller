@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/UffizziCloud/uffizzi-cluster-operator/api/v1alpha1"
+	"github.com/UffizziCloud/uffizzi-cluster-operator/src/api/v1alpha1"
 )
 
 type Cluster struct {
@@ -17,13 +17,14 @@ type Cluster struct {
 }
 
 type ClusterParams struct {
-	Name             string                  `json:"name"`
-	Manifest         string                  `json:"manifest"`
-	BaseIngressHost  string                  `json:"base_ingress_host"`
-	ResourceSettings ClusterResourceSettings `json:"resource_settings"`
-	Distro           string                  `json:"distro"`
-	Image            string                  `json:"image"`
-	AutoSleep        bool                    `json:"auto_sleep,omitempty"`
+	Name                 string                  `json:"name"`
+	Manifest             string                  `json:"manifest"`
+	BaseIngressHost      string                  `json:"base_ingress_host"`
+	ResourceSettings     ClusterResourceSettings `json:"resource_settings"`
+	Distro               string                  `json:"distro"`
+	Image                string                  `json:"image"`
+	AutoSleep            bool                    `json:"auto_sleep,omitempty"`
+	NodeSelectorTemplate string                  `json:"node_selector_template,omitempty"`
 }
 
 type PatchClusterParams struct {

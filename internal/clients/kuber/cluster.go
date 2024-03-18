@@ -3,8 +3,8 @@ package kuber
 import (
 	"strconv"
 
-	"github.com/UffizziCloud/uffizzi-cluster-operator/api/v1alpha1"
-	clientsetUffizziClusterV1 "github.com/UffizziCloud/uffizzi-cluster-operator/clientset/v1alpha1"
+	"github.com/UffizziCloud/uffizzi-cluster-operator/src/api/v1alpha1"
+	clientsetUffizziClusterV1 "github.com/UffizziCloud/uffizzi-cluster-operator/src/clientset/v1alpha1"
 
 	domainTypes "gitlab.com/dualbootpartners/idyl/uffizzi_controller/internal/types/domain"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -27,9 +27,10 @@ func (client *Client) CreateCluster(
 			Ingress: v1alpha1.UffizziClusterIngress{
 				Host: clusterParams.BaseIngressHost,
 			},
-			ResourceQuota: &clusterParams.ResourceSettings.ResourceQuota,
-			LimitRange:    &clusterParams.ResourceSettings.LimitRange,
-			Distro:        clusterParams.Distro,
+			ResourceQuota:        &clusterParams.ResourceSettings.ResourceQuota,
+			LimitRange:           &clusterParams.ResourceSettings.LimitRange,
+			Distro:               clusterParams.Distro,
+			NodeSelectorTemplate: clusterParams.NodeSelectorTemplate,
 			APIServer: v1alpha1.UffizziClusterAPIServer{
 				Image: clusterParams.Image,
 			},
