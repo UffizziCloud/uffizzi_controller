@@ -28,7 +28,7 @@ dependencies:
     version: "1.x.x"
     repository: https://charts.jetstack.io
   - name: uffizzi-cluster-operator
-    version: "1.5.6"
+    version: "1.6.4"
     repository: https://uffizzicloud.github.io/uffizzi-cluster-operator/
 maintainers:
   - name: Uffizzi
