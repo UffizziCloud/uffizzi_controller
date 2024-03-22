@@ -6,7 +6,7 @@ import (
 	"k8s.io/client-go/rest"
 	metrics "k8s.io/metrics/pkg/client/clientset/versioned"
 
-	uffizziClusterOperator "github.com/UffizziCloud/uffizzi-cluster-operator/clientset/v1alpha1"
+	uffizziClusterOperator "github.com/UffizziCloud/uffizzi-cluster-operator/src/clientset/v1alpha1"
 	"k8s.io/client-go/kubernetes"
 )
 
