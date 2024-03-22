@@ -26,11 +26,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v0'
+        uses: 'google-github-actions/auth@v2'
         with:
           workload_identity_provider: ${{ secrets[inputs.workload_identity_provider_name] }}
           service_account: ${{ secrets[inputs.service_account_name] }}
-      - uses: 'google-github-actions/get-gke-credentials@v0'
+      - uses: 'google-github-actions/get-gke-credentials@v2'
         with:
           cluster_name: uffizzi-client
           location: us-central1
@@ -38,7 +38,7 @@ jobs:
         run: |
           export CONTROLLER_IMAGE=uffizzi/controller:${{ github.sha }}
           make update_gke_controller_service
-      - uses: 'google-github-actions/get-gke-credentials@v0'
+      - uses: 'google-github-actions/get-gke-credentials@v2'
         with:
           cluster_name: uffizzi-uclusters
           location: us-central1
