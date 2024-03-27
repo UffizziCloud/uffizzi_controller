@@ -14,6 +14,8 @@ cert-manager: # dependency
 
 ingress-nginx:
   controller:
+    ingressClassResource:
+      name: uffizzi
     enableAnnotationValidations: true # CVE-2023-5043 CVE-2023-5044
     config:
       proxy-body-size: "100m"
